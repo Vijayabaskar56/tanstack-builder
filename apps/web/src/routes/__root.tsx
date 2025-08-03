@@ -10,8 +10,11 @@ import {
 } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import "../index.css";
+import type { BuilderState } from "@/components/builder/types";
 
-export interface RouterAppContext {}
+export interface RouterAppContext {
+  builder: BuilderState
+}
 
 export const Route = createRootRouteWithContext<RouterAppContext>()({
   component: RootComponent,
