@@ -1,32 +1,27 @@
-import { Link } from "@tanstack/react-router";
+
 
 import { ModeToggle } from "./mode-toggle";
 
 export default function Header() {
-  const links = [
+  const _links = [
     { to: "/", label: "Home" },
   ];
 
   return (
-    <div>
-      <div className="flex flex-row items-center justify-between px-2 py-1">
-        <nav className="flex gap-4 text-lg">
-          {links.map(({ to, label }) => {
-            return (
-              <Link
-                key={to}
-                to={to}
-              >
-                {label}
-              </Link>
-            );
-          })}
-        </nav>
+   <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className=" mx-3 flex h-14 items-center">
+          <div className="mr-4 flex">
+            <h1 className="text-lg font-semibold">TanStack Form Builder</h1>
+          </div>
+          <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
+            <nav className="flex items-center space-x-2">
+             {/* TODO: Add export/import buttons here later */}
+            </nav>
+          </div>
         <div className="flex items-center gap-2">
           <ModeToggle />
         </div>
-      </div>
-      <hr />
-    </div>
+        </div>
+      </header>
   );
 }

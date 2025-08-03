@@ -8,9 +8,10 @@ import {
   createRootRouteWithContext,
   useRouterState,
 } from "@tanstack/react-router";
-import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
+import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import "../index.css";
 import type { BuilderState } from "@/components/builder/types";
+import { TanstackDevtools } from "@tanstack/react-devtools";
 
 export interface RouterAppContext {
   builder: BuilderState
@@ -53,7 +54,14 @@ function RootComponent() {
         </div>
         <Toaster richColors />
       </ThemeProvider>
-      <TanStackRouterDevtools position="bottom-left" />
+      <TanstackDevtools
+        plugins={[
+          {
+            name: 'Tanstack Router',
+            render: <TanStackRouterDevtoolsPanel />,
+          },
+        ]}
+      />
     </>
   );
 }
