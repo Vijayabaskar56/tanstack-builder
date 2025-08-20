@@ -12,6 +12,7 @@ import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import "../index.css";
 import type { BuilderState } from "@/components/builder/types";
 import { TanstackDevtools } from "@tanstack/react-devtools";
+import NavBar from "@/components/nav-bar";
 
 export interface RouterAppContext {
   builder: BuilderState
@@ -46,9 +47,10 @@ function RootComponent() {
 
   return (
     <>
-      <HeadContent />
+      {/* <HeadContent /> */}
       <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-        <div className="grid grid-rows-[auto_1fr] h-svh">
+        <div className="min-h-screen">
+          <NavBar />
           <Header />
           {isFetching ? <Loader /> : <Outlet />}
         </div>

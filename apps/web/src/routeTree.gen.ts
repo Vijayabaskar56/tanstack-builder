@@ -9,38 +9,128 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TableBuilderRouteImport } from './routes/table-builder'
+import { Route as FormBuilderRouteImport } from './routes/form-builder'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as FormBuilderIndexRouteImport } from './routes/form-builder/index'
+import { Route as FormBuilderTemplateRouteImport } from './routes/form-builder/template'
+import { Route as FormBuilderSettingsRouteImport } from './routes/form-builder/settings'
+import { Route as FormBuilderBuilderRouteImport } from './routes/form-builder/builder'
 
+const TableBuilderRoute = TableBuilderRouteImport.update({
+  id: '/table-builder',
+  path: '/table-builder',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FormBuilderRoute = FormBuilderRouteImport.update({
+  id: '/form-builder',
+  path: '/form-builder',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FormBuilderIndexRoute = FormBuilderIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => FormBuilderRoute,
+} as any)
+const FormBuilderTemplateRoute = FormBuilderTemplateRouteImport.update({
+  id: '/template',
+  path: '/template',
+  getParentRoute: () => FormBuilderRoute,
+} as any)
+const FormBuilderSettingsRoute = FormBuilderSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => FormBuilderRoute,
+} as any)
+const FormBuilderBuilderRoute = FormBuilderBuilderRouteImport.update({
+  id: '/builder',
+  path: '/builder',
+  getParentRoute: () => FormBuilderRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/form-builder': typeof FormBuilderRouteWithChildren
+  '/table-builder': typeof TableBuilderRoute
+  '/form-builder/builder': typeof FormBuilderBuilderRoute
+  '/form-builder/settings': typeof FormBuilderSettingsRoute
+  '/form-builder/template': typeof FormBuilderTemplateRoute
+  '/form-builder/': typeof FormBuilderIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/table-builder': typeof TableBuilderRoute
+  '/form-builder/builder': typeof FormBuilderBuilderRoute
+  '/form-builder/settings': typeof FormBuilderSettingsRoute
+  '/form-builder/template': typeof FormBuilderTemplateRoute
+  '/form-builder': typeof FormBuilderIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/form-builder': typeof FormBuilderRouteWithChildren
+  '/table-builder': typeof TableBuilderRoute
+  '/form-builder/builder': typeof FormBuilderBuilderRoute
+  '/form-builder/settings': typeof FormBuilderSettingsRoute
+  '/form-builder/template': typeof FormBuilderTemplateRoute
+  '/form-builder/': typeof FormBuilderIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/form-builder'
+    | '/table-builder'
+    | '/form-builder/builder'
+    | '/form-builder/settings'
+    | '/form-builder/template'
+    | '/form-builder/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/table-builder'
+    | '/form-builder/builder'
+    | '/form-builder/settings'
+    | '/form-builder/template'
+    | '/form-builder'
+  id:
+    | '__root__'
+    | '/'
+    | '/form-builder'
+    | '/table-builder'
+    | '/form-builder/builder'
+    | '/form-builder/settings'
+    | '/form-builder/template'
+    | '/form-builder/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  FormBuilderRoute: typeof FormBuilderRouteWithChildren
+  TableBuilderRoute: typeof TableBuilderRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/table-builder': {
+      id: '/table-builder'
+      path: '/table-builder'
+      fullPath: '/table-builder'
+      preLoaderRoute: typeof TableBuilderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/form-builder': {
+      id: '/form-builder'
+      path: '/form-builder'
+      fullPath: '/form-builder'
+      preLoaderRoute: typeof FormBuilderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +138,59 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/form-builder/': {
+      id: '/form-builder/'
+      path: '/'
+      fullPath: '/form-builder/'
+      preLoaderRoute: typeof FormBuilderIndexRouteImport
+      parentRoute: typeof FormBuilderRoute
+    }
+    '/form-builder/template': {
+      id: '/form-builder/template'
+      path: '/template'
+      fullPath: '/form-builder/template'
+      preLoaderRoute: typeof FormBuilderTemplateRouteImport
+      parentRoute: typeof FormBuilderRoute
+    }
+    '/form-builder/settings': {
+      id: '/form-builder/settings'
+      path: '/settings'
+      fullPath: '/form-builder/settings'
+      preLoaderRoute: typeof FormBuilderSettingsRouteImport
+      parentRoute: typeof FormBuilderRoute
+    }
+    '/form-builder/builder': {
+      id: '/form-builder/builder'
+      path: '/builder'
+      fullPath: '/form-builder/builder'
+      preLoaderRoute: typeof FormBuilderBuilderRouteImport
+      parentRoute: typeof FormBuilderRoute
+    }
   }
 }
 
+interface FormBuilderRouteChildren {
+  FormBuilderBuilderRoute: typeof FormBuilderBuilderRoute
+  FormBuilderSettingsRoute: typeof FormBuilderSettingsRoute
+  FormBuilderTemplateRoute: typeof FormBuilderTemplateRoute
+  FormBuilderIndexRoute: typeof FormBuilderIndexRoute
+}
+
+const FormBuilderRouteChildren: FormBuilderRouteChildren = {
+  FormBuilderBuilderRoute: FormBuilderBuilderRoute,
+  FormBuilderSettingsRoute: FormBuilderSettingsRoute,
+  FormBuilderTemplateRoute: FormBuilderTemplateRoute,
+  FormBuilderIndexRoute: FormBuilderIndexRoute,
+}
+
+const FormBuilderRouteWithChildren = FormBuilderRoute._addFileChildren(
+  FormBuilderRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  FormBuilderRoute: FormBuilderRouteWithChildren,
+  TableBuilderRoute: TableBuilderRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

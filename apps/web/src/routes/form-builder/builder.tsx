@@ -1,11 +1,14 @@
+import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
-import { Canvas } from './Canvas'
-import { FieldSettings } from './FieldSettings'
-import { type BuilderState, type Field, type FieldType, createDefaultField } from './types'
-import { FieldLibrary } from '@/components/builder/FieldLibrary';
-import { ExportPanel } from '@/components/builder/ExportPanel';
+import { Canvas } from '../../components/builder/Canvas'
+import { FieldLibrary } from '../../components/builder/FieldLibrary'
+import { type BuilderState, type Field, type FieldType, createDefaultField } from '../../components/builder/types'
 
-export function Builder() {
+export const Route = createFileRoute('/form-builder/builder')({
+  component: BuilderComponent,
+})
+
+function BuilderComponent() {
   const [state, setState] = useState<BuilderState>({
     fields: [],
     selectedId: undefined,
@@ -17,7 +20,7 @@ export function Builder() {
     setState(prev => ({
       ...prev,
       fields: [...prev.fields, newField],
-      selectedId: id, // Auto-select the new field
+      selectedId: id,
     }))
   }
 
@@ -77,25 +80,13 @@ export function Builder() {
     }))
   }
 
-  const _handleImportFields = (importedFields: Field[]) => {
-    setState(prev => ({
-      ...prev,
-      fields: importedFields,
-      selectedId: undefined,
-    }))
-  }
-
-  const selectedField = state.fields.find(field => field.id === state.selectedId)
-
   return (
-    <div className="h-full flex">
-      {/* Left Sidebar - Field Library */}
-      <div className="w-80 border-r bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <FieldLibrary onAddField={handleAddField} />
-      </div>
-
+    <main className=" h-[calc(100vh-8rem)] flex overflow-hidden bg-gradient-to-br from-background via-background to-muted/20">
+        <div className="border-r bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <FieldLibrary onAddField={handleAddField} />
+        </div>
       {/* Center Canvas */}
-      <div className="flex-1 bg-gradient-to-br from-background via-background to-muted/10">
+      <div className="flex-1  bg-gradient-to-br from-background via-background to-muted/10">
         <Canvas
           fields={state.fields}
           selectedId={state.selectedId}
@@ -105,23 +96,6 @@ export function Builder() {
           onDuplicateField={handleDuplicateField}
         />
       </div>
-
-      {/* Right Sidebar - Field Settings or Export Panel */}
-      <div className="w-80 border-l bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        {selectedField ? (
-          <FieldSettings
-            field={selectedField}
-            onUpdateField={handleUpdateField}
-          />
-        ) : (
-          <div className="h-full overflow-y-auto p-4">
-            <ExportPanel
-              fields={state.fields}
-              onImport={_handleImportFields}
-            />
-          </div>
-        )}
-      </div>
-    </div>
+    </main>
   )
 }
