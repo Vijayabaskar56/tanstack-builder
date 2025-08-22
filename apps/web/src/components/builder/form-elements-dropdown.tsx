@@ -1,0 +1,103 @@
+import { Plus, PlusCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { formElementsList } from "@/constants/form-elements-list";
+import type { FormElement } from "@/form-types";
+import { useFormStore } from "@/hooks/use-form-store";
+
+/**
+ * Use for adding a nested form element
+ */
+//======================================
+export function FormElementsDropdown({
+	fieldIndex,
+	stepIndex,
+}: {
+	/**
+	 * Field Index where a nested element should be appended to the main array
+	 */
+	fieldIndex: number;
+	stepIndex?: number;
+}) {
+	const { actions } = useFormStore();
+	return (
+		<DropdownMenu>
+			<DropdownMenuTrigger asChild>
+				<Button variant="ghost" size="icon" className="rounded-xl h-9">
+					<Plus />
+				</Button>
+			</DropdownMenuTrigger>
+			<DropdownMenuContent
+				data-align="end" // not working
+				className="space-y-3 max-h-64 overflow-y-scroll"
+			>
+				{formElementsList.map((o) => (
+					<DropdownMenuItem
+						onSelect={() => {
+							actions.appendElement({
+								fieldIndex,
+								fieldType: o.fieldType as FormElement["fieldType"],
+								stepIndex,
+							});
+						}}
+						key={o.name}
+						disabled={!!o.static}
+						className="px-4"
+					>
+						{o.name}
+					</DropdownMenuItem>
+				))}
+			</DropdownMenuContent>
+		</DropdownMenu>
+	);
+}
+
+/**
+ * Use for adding a form element to the form when MSF is enabled
+ */
+//======================================
+export function FormElementsStepDropdown({
+	stepIndex,
+}: {
+	stepIndex?: number;
+}) {
+	const { actions } = useFormStore();
+	return (
+		<DropdownMenu modal={false}>
+			<DropdownMenuTrigger asChild>
+				<Button variant="outline">
+					<div className="flex items-center justify-center gap-2">
+						<PlusCircle />
+						Add Element
+					</div>
+				</Button>
+			</DropdownMenuTrigger>
+			<DropdownMenuContent
+				data-align="end" // not working
+				className="space-y-3 max-h-64 overflow-y-scroll"
+			>
+				{formElementsList.map((o) => (
+					<DropdownMenuItem
+						onSelect={(e) => {
+							e.preventDefault(); // Prevent the menu from closing
+							actions.appendElement({
+								fieldIndex: null,
+								fieldType: o.fieldType as FormElement["fieldType"],
+								stepIndex,
+							});
+						}}
+						key={o.name}
+						className="px-4"
+					>
+						{o.name}
+					</DropdownMenuItem>
+				))}
+			</DropdownMenuContent>
+		</DropdownMenu>
+	);
+}

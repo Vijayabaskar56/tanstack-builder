@@ -1,0 +1,603 @@
+/**
+ * Form Builder Store using TanStack Store
+ * Manages form elements, steps, and state for the form builder application.
+ */
+
+import { useStore } from "@tanstack/react-store";
+import { batch, Derived, Store } from "@tanstack/store";
+import { v4 as uuid } from "uuid";
+import { defaultFormElements } from "@/constants/default-form-element";
+import { templates } from "@/constants/templates";
+import type {
+	AppendElement,
+	DropElement,
+	EditElement,
+	FormElement,
+	FormElementList,
+	FormElementOrList,
+	FormStep,
+	ReorderElements,
+	SetTemplate,
+} from "../form-types";
+import {
+	dropAtIndex,
+	flattenFormSteps,
+	insertAtIndex,
+	transformToStepFormList,
+} from "../lib/form-elements-helpers";
+
+// Core state type without actions
+type FormBuilderCoreState = {
+	isMS: boolean;
+	formElements: FormElementList | FormStep[];
+};
+// Actions type
+type FormBuilderActions = {
+	appendElement: AppendElement;
+	dropElement: DropElement;
+	editElement: EditElement;
+	reorder: ReorderElements;
+	setTemplate: SetTemplate;
+	resetFormElements: () => void;
+	setIsMS: (isMS: boolean) => void;
+	addFormStep: (position?: number) => void;
+	removeFormStep: (stepIndex: number) => void;
+	reorderSteps: (newOrder: FormStep[]) => void;
+	// Batch operations
+	batchAppendElements: (
+		elements: Array<{
+			fieldType: keyof typeof defaultFormElements;
+			fieldIndex?: number;
+			stepIndex?: number;
+		}>,
+	) => void;
+	batchEditElements: (
+		edits: Array<{
+			fieldIndex: number;
+			j?: number;
+			stepIndex?: number;
+			modifiedFormElement: any;
+		}>,
+	) => void;
+};
+// Complete state type
+type FormBuilderState = FormBuilderCoreState & FormBuilderActions;
+// Type guard for FormStep
+const isFormStep = (
+	element: FormElementOrList | FormStep,
+): element is FormStep => {
+	return (
+		typeof element === "object" &&
+		element !== null &&
+		"stepFields" in element &&
+		Array.isArray((element as FormStep).stepFields)
+	);
+};
+// Helper type for form elements that can be either single or array
+type FormElementContainer = FormElement | FormElement[];
+// Type-safe helper to check if form elements are multi-step
+const isMultiStepForm = (
+	formElements: FormElementList | FormStep[],
+): formElements is FormStep[] => {
+	return formElements.length > 0 && isFormStep(formElements[0]);
+};
+const initialFormElements = templates["contactUs"]
+	.template as FormElementOrList[];
+const initialCoreState: FormBuilderCoreState = {
+	formElements: initialFormElements,
+	isMS: false,
+};
+// Create the core store for state management with update function for optimization
+const formBuilderCoreStore = new Store<FormBuilderCoreState>(initialCoreState, {
+  updateFn: (prevState) => (updater) => {
+    // Custom update function that can add additional logic or validation
+    const newState = typeof updater === 'function' ? updater(prevState) : updater;
+    // Add any global validation or side effects here
+    if (newState.formElements.length === 0 && newState.isMS) {
+      // Automatically add a default step if switching to multi-step with no elements
+      return { ...newState, formElements: [{ id: uuid(), stepFields: [] }] as FormStep[] };
+    }
+    return newState;
+  },
+  onUpdate: () => {
+    // Optional: Add logging or analytics here
+    console.debug('Form builder state updated:', formBuilderCoreStore.state);
+  },
+});
+  // Error types for better error handling
+  class FormBuilderError extends Error {
+    constructor(message: string, public code: string) {
+      super(message);
+      this.name = 'FormBuilderError';
+    }
+  }
+  // Validation helpers
+  const validateStepIndex = (formSteps: FormStep[], stepIndex: number): void => {
+    if (stepIndex < 0 || stepIndex >= formSteps.length) {
+      throw new FormBuilderError(`Invalid step index: ${stepIndex}. Must be between 0 and ${formSteps.length - 1}`, 'INVALID_STEP_INDEX');
+    }
+  };
+  const validateFieldIndex = (fields: FormElementList, fieldIndex: number): void => {
+    if (fieldIndex < 0 || fieldIndex >= fields.length) {
+      throw new FormBuilderError(`Invalid field index: ${fieldIndex}. Must be between 0 and ${fields.length - 1}`, 'INVALID_FIELD_INDEX');
+    }
+  };
+  const validateFieldType = (fieldType: string): fieldType is keyof typeof defaultFormElements => {
+    if (!(fieldType in defaultFormElements)) {
+      throw new FormBuilderError(`Unknown field type: ${fieldType}`, 'UNKNOWN_FIELD_TYPE');
+    }
+    return true;
+  };
+  // Actions that operate on the core store with proper error handling
+  const createActions = (store: Store<FormBuilderCoreState>): FormBuilderActions => {
+    const appendElement: AppendElement = (options) => {
+      const { fieldIndex, fieldType } = options || { fieldIndex: null };
+      // Validate field
+      validateFieldType(fieldType);
+      store.setState((state) => {
+        const newFormElement = {
+          id: uuid(),
+          ...defaultFormElements[fieldType],
+          fieldType,
+          name: `${fieldType}-${Date.now()}`,
+          // Use timestamp for uniqueness
+        } as FormElement;
+        if (state.isMS) {
+          const stepIndex = options?.stepIndex ?? 0;
+          const formSteps = state.formElements as FormStep[];
+          validateStepIndex(formSteps, stepIndex);
+          const step = formSteps[stepIndex];
+          const stepFields = [...step.stepFields];
+          if (typeof fieldIndex === 'number') {
+            validateFieldIndex(stepFields, fieldIndex);
+            // Handle nested array
+            const existingElement = stepFields[fieldIndex];
+            if (Array.isArray(existingElement)) {
+              stepFields[fieldIndex] = [...existingElement, newFormElement];
+            } else {
+              stepFields[fieldIndex] = [existingElement, newFormElement];
+            }
+          } else {
+            stepFields.push(newFormElement);
+          }
+          const updatedSteps = formSteps.map((s, i) => i === stepIndex ? { ...s, stepFields } : s);
+          return { ...state, formElements: updatedSteps };
+        } else {
+          // Single form
+          const formElements = state.formElements as FormElementList;
+          if (typeof fieldIndex === 'number') {
+            validateFieldIndex(formElements, fieldIndex);
+            const updatedElements = [...formElements];
+            const existingElement = updatedElements[fieldIndex];
+            if (Array.isArray(existingElement)) {
+              updatedElements[fieldIndex] = [...existingElement, newFormElement];
+            } else {
+              updatedElements[fieldIndex] = [existingElement, newFormElement];
+            }
+            return { ...state, formElements: updatedElements };
+          } else {
+            return { ...state, formElements: [...formElements, newFormElement] };
+          }
+        }
+      });
+    };
+    const dropElement: DropElement = (options) => {
+      store.setState((state) => {
+        const { j, fieldIndex } = options;
+        if (state.isMS) {
+          const stepIndex = options?.stepIndex ?? 0;
+          const formSteps = state.formElements as FormStep[];
+          validateStepIndex(formSteps, stepIndex);
+          const step = formSteps[stepIndex];
+          const stepFields = [...step.stepFields];
+          if (typeof j === 'number') {
+            validateFieldIndex(stepFields, fieldIndex);
+            // Remove from nested array
+            const existingElement = stepFields[fieldIndex];
+            if (Array.isArray(existingElement)) {
+              if (j < 0 || j >= existingElement.length) {
+                throw new FormBuilderError(`Invalid nested index: ${j}`, 'INVALID_NESTED_INDEX');
+              }
+              const [updatedArray] = dropAtIndex(existingElement, j);
+              stepFields[fieldIndex] = (updatedArray as any).length === 1 ? (updatedArray as any)[0] : (updatedArray as any);
+            }
+          } else {
+            validateFieldIndex(stepFields, fieldIndex);
+            // Remove from main step fields
+            const updatedFields = dropAtIndex(stepFields, fieldIndex);
+            stepFields.splice(0, stepFields.length, ...updatedFields);
+          }
+          const updatedSteps = formSteps.map((s, i) => i === stepIndex ? { ...s, stepFields } : s);
+          return { ...state, formElements: updatedSteps };
+        } else {
+          const formElements = state.formElements as FormElementList;
+          if (typeof j === 'number' && Array.isArray(formElements[fieldIndex])) {
+            validateFieldIndex(formElements, fieldIndex);
+            const existingElement = formElements[fieldIndex];
+            if (Array.isArray(existingElement)) {
+              if (j < 0 || j >= existingElement.length) {
+                throw new FormBuilderError(`Invalid nested index: ${j}`, 'INVALID_NESTED_INDEX');
+              }
+              const [updatedArray] = dropAtIndex(existingElement, j);
+              const updatedElements = [...formElements];
+              updatedElements[fieldIndex] = (updatedArray as any).length === 1 ? (updatedArray as any)[0] : (updatedArray as any);
+              return { ...state, formElements: updatedElements };
+            }
+          } else {
+            validateFieldIndex(formElements, fieldIndex);
+            // Remove from main array
+            const updatedElements = dropAtIndex(formElements, fieldIndex);
+            return { ...state, formElements: updatedElements };
+          }
+        }
+        return state;
+      });
+    };
+
+
+    const editElement: EditElement = (options) => {
+      const { j, fieldIndex, modifiedFormElement } = options;
+      store.setState((state) => {
+        if (state.isMS) {
+          const stepIndex = options.stepIndex ?? 0;
+          const formSteps = state.formElements as FormStep[];
+          validateStepIndex(formSteps, stepIndex);
+          const step = formSteps[stepIndex];
+          const stepFields = [...step.stepFields];
+          validateFieldIndex(stepFields, fieldIndex);
+          const currentElement = stepFields[fieldIndex];
+          if (typeof j === 'number' && Array.isArray(currentElement)) {
+            if (j < 0 || j >= currentElement.length) {
+              throw new FormBuilderError(`Invalid nested index: ${j}`, 'INVALID_NESTED_INDEX');
+            }
+            // Edit nested element in array
+            const updatedArray = [...currentElement];
+            updatedArray[j] = {
+              ...updatedArray[j],
+              ...modifiedFormElement,
+            } as FormElement;
+            stepFields[fieldIndex] = updatedArray;
+          } else {
+            // Edit single element
+            stepFields[fieldIndex] = {
+              ...currentElement,
+              ...modifiedFormElement,
+            } as FormElementOrList;
+          }
+          const updatedSteps = formSteps.map((s, i) => i === stepIndex ? { ...s, stepFields } : s);
+          return { ...state, formElements: updatedSteps };
+        } else {
+          // Single form
+          const formElements = state.formElements as FormElementList;
+          const updatedElements = [...formElements];
+          if (typeof j === 'number' && Array.isArray(formElements[fieldIndex])) {
+            validateFieldIndex(formElements, fieldIndex);
+            // Edit nested element in array
+            const currentElement = formElements[fieldIndex] as FormElement[];
+            if (j < 0 || j >= currentElement.length) {
+              throw new FormBuilderError(`Invalid nested index: ${j}`, 'INVALID_NESTED_INDEX');
+            }
+            const updatedArray = [...currentElement];
+            updatedArray[j] = {
+              ...updatedArray[j],
+              ...modifiedFormElement,
+            } as FormElement;
+            updatedElements[fieldIndex] = updatedArray;
+          } else {
+            validateFieldIndex(formElements, fieldIndex);
+            // Edit single element
+            updatedElements[fieldIndex] = {
+              ...formElements[fieldIndex],
+              ...modifiedFormElement,
+            } as FormElementOrList;
+          }
+          return { ...state, formElements: updatedElements };
+        }
+      });
+    };
+    const reorder: ReorderElements = (options): void => {
+      const { newOrder, fieldIndex } = options;
+      store.setState((state) => {
+        if (state.isMS) {
+          const stepIndex = options.stepIndex ?? 0;
+          const formSteps = state.formElements as FormStep[];
+          validateStepIndex(formSteps, stepIndex);
+          const step = formSteps[stepIndex];
+          const stepFields = [...step.stepFields];
+          if (typeof fieldIndex === 'number') {
+            validateFieldIndex(stepFields, fieldIndex);
+            stepFields[fieldIndex] = newOrder as FormElementOrList;
+          } else {
+            stepFields.splice(0, stepFields.length, ...(newOrder as FormElementList));
+          }
+          const updatedSteps = formSteps.map((s, i) => i === stepIndex ? { ...s, stepFields } : s);
+          return { ...state, formElements: updatedSteps };
+        } else {
+          // Single form
+          if (typeof fieldIndex === 'number') {
+            const formElements = [...(state.formElements as FormElementList)];
+            validateFieldIndex(formElements, fieldIndex);
+            formElements[fieldIndex] = newOrder as FormElementOrList;
+            return { ...state, formElements };
+          } else {
+            return { ...state, formElements: newOrder };
+          }
+        }
+      });
+    };
+
+    const reorderSteps = (newOrder: FormStep[]): void => {
+      store.setState((state) => ({ ...state, formElements: newOrder }));
+    };
+    const setTemplate: SetTemplate = (templateName: keyof typeof templates) => {
+      const template = templates[templateName]?.template;
+      if (!template) {
+        throw new FormBuilderError(`Template '${templateName}' not found`, 'TEMPLATE_NOT_FOUND');
+      }
+      if (template.length === 0) {
+        throw new FormBuilderError(`Template '${templateName}' is empty`, 'EMPTY_TEMPLATE');
+      }
+      const isTemplateMSForm = template.length > 0 && isFormStep(template[0]);
+      store.setState((state) => ({ ...state, formElements: template, isMS: isTemplateMSForm }));
+    };
+    const resetFormElements = () => {
+      store.setState((state) => ({ ...state, formElements: [] }));
+    };
+    const setIsMS = (isMS: boolean) => {
+      store.setState((state) => {
+        let formElements = state.formElements;
+        if (isMS) {
+          formElements = transformToStepFormList(formElements as FormElementOrList[]);
+        } else {
+          formElements = flattenFormSteps(formElements as FormStep[]) as FormElementOrList[];
+        }
+        return { ...state, isMS, formElements };
+      });
+    };
+    const addFormStep = (currentPosition?: number) => {
+      store.setState((state) => {
+        if (!state.isMS) {
+          throw new FormBuilderError('Cannot add form step to single-step form', 'NOT_MULTI_STEP_FORM');
+        }
+        const defaultStep: FormStep = { id: uuid(), stepFields: [] };
+        const formSteps = state.formElements as FormStep[];
+        if (typeof currentPosition === 'number') {
+          if (currentPosition < 0 || currentPosition >= formSteps.length) {
+            throw new FormBuilderError(`Invalid position: ${currentPosition}. Must be between 0 and ${formSteps.length - 1}`, 'INVALID_POSITION');
+          }
+          const nextPosition = currentPosition + 1;
+          const updatedSteps = insertAtIndex(formSteps, defaultStep, nextPosition);
+          return { ...state, formElements: updatedSteps };
+        } else {
+          return { ...state, formElements: [...formSteps, defaultStep] };
+        }
+      });
+    };
+    const removeFormStep = (stepIndex: number) => {
+      store.setState((state) => {
+        if (!state.isMS) {
+          throw new FormBuilderError('Cannot remove form step from single-step form', 'NOT_MULTI_STEP_FORM');
+        }
+        const formSteps = state.formElements as FormStep[];
+        validateStepIndex(formSteps, stepIndex);
+        if (formSteps.length <= 1) {
+          throw new FormBuilderError('Cannot remove the last step from a multi-step form', 'CANNOT_REMOVE_LAST_STEP');
+        }
+        const updatedSteps = dropAtIndex(formSteps, stepIndex);
+        return { ...state, formElements: updatedSteps };
+      });
+    };
+    // Batch operations for better performance with error handling
+    const batchAppendElements = (elements: Array<{ fieldType: keyof typeof defaultFormElements; fieldIndex?: number; stepIndex?: number }>) => {
+      batch(() => {
+        elements.forEach(({ fieldType, fieldIndex, stepIndex }) => {
+          try {
+            appendElement({ fieldType, fieldIndex, stepIndex });
+          } catch (error) {
+            console.error(`Failed to append element of type ${fieldType}:`, error);
+            throw error;
+          }
+        });
+      });
+    };
+    const batchEditElements = (edits: Array<{ fieldIndex: number; j?: number; stepIndex?: number; modifiedFormElement: any; }>) => {
+      batch(() => {
+        edits.forEach(({ fieldIndex, j, stepIndex, modifiedFormElement }) => {
+          try {
+            editElement({ fieldIndex, j, stepIndex, modifiedFormElement });
+          } catch (error) {
+            console.error(`Failed to edit element at index ${fieldIndex}:`, error);
+            throw error;
+          }
+        });
+      });
+    };
+   return { appendElement, dropElement, editElement, reorder, reorderSteps, setTemplate, resetFormElements, setIsMS, addFormStep, removeFormStep, batchAppendElements, batchEditElements, };
+  };
+  // Create actions instance
+  const formBuilderActions = createActions(formBuilderCoreStore);
+
+
+  // Derived store for flattened form elements (computed value)
+  const flattenedFormElementsStore = new Derived({
+    fn: ({ currDepVals }) => {
+      const [state] = currDepVals;
+      if (state.isMS) {
+        return flattenFormSteps(state.formElements as FormStep[]);
+      }
+      return state.formElements as FormElementList;
+    },
+    deps: [formBuilderCoreStore],
+  });
+  // Derived store for form validation state
+  const formValidationStore = new Derived({
+    fn: ({ currDepVals }) => {
+      const [state] = currDepVals;
+      const elements = state.isMS
+        ? flattenFormSteps(state.formElements as FormStep[])
+        : state.formElements as FormElementList;
+      const hasRequiredFields = elements.some((el) =>
+        !Array.isArray(el) && 'required' in el && el.required
+      );
+      const totalFields = elements.filter((el) => !Array.isArray(el)).length;
+      return {
+        hasRequiredFields,
+        totalFields,
+        isValid: totalFields > 0,
+      };
+    },
+    deps: [formBuilderCoreStore],
+  });
+  // Mount derived stores
+  const unmountFlattened = flattenedFormElementsStore.mount();
+  const unmountValidation = formValidationStore.mount();
+  // Enhanced batch operations utility for complex workflows
+  const batchOperations = (operations: Array<() => void>) => {
+    batch(() => {
+      operations.forEach(op => op());
+    });
+  };
+  // Store subscription utilities
+  const createStoreSubscriptions = () => {
+    const subscriptions = new Set<() => void>();
+    const subscribeToFormChanges = (callback: (state: FormBuilderCoreState) => void) => {
+      const unsubscribe = formBuilderCoreStore.subscribe(() => {
+        callback(formBuilderCoreStore.state);
+      });
+      subscriptions.add(unsubscribe);
+      return unsubscribe;
+    };
+    const subscribeToValidationChanges = (callback: (validation: any) => void) => {
+      const unsubscribe = formValidationStore.subscribe(() => {
+        callback(formValidationStore.state);
+      });
+      subscriptions.add(unsubscribe);
+      return unsubscribe;
+    };
+    const unsubscribeAll = () => {
+      subscriptions.forEach(unsub => unsub());
+      subscriptions.clear();
+    };
+    return { subscribeToFormChanges, subscribeToValidationChanges, unsubscribeAll };
+  };
+  // Additional batch utilities for common operations
+  const batchFormOperations = {
+    // Batch template setting with custom elements
+    setTemplateAndAddElements: (templateName: keyof typeof templates, additionalElements: Array<{ fieldType: keyof typeof defaultFormElements; stepIndex?: number }>) => {
+      batch(() => {
+        formBuilderActions.setTemplate(templateName);
+        additionalElements.forEach(({ fieldType, stepIndex }) => {
+          formBuilderActions.appendElement({ fieldType, stepIndex });
+        });
+      });
+    },
+    // Batch multi-step conversion with step additions
+    convertToMultiStepAndAddSteps: (stepCount: number) => {
+      batch(() => {
+        formBuilderActions.setIsMS(true);
+        for (let i = 1; i < stepCount; i++) {
+          formBuilderActions.addFormStep();
+        }
+      });
+    },
+    // Batch element operations with proper typing
+    bulkElementOperations: (operations: Array<
+      | { type: 'append'; options: Parameters<AppendElement>[0] }
+      | { type: 'edit'; options: Parameters<EditElement>[0] }
+      | { type: 'drop'; options: Parameters<DropElement>[0] }
+    >) => {
+      batch(() => {
+        operations.forEach(({ type, options }) => {
+          try {
+            switch (type) {
+              case 'append':
+                formBuilderActions.appendElement(options);
+                break;
+              case 'edit':
+                formBuilderActions.editElement(options);
+                break;
+              case 'drop':
+                formBuilderActions.dropElement(options);
+                break;
+            }
+          } catch (error) {
+            console.error(`Batch operation failed for ${type}:`, error);
+            throw error;
+          }
+        });
+      });
+    },
+  };
+  // Enhanced React hook with derived values and batch operations
+  export const useFormStore = () => {
+    const coreState = useStore(formBuilderCoreStore);
+    const flattenedElements = useStore(flattenedFormElementsStore);
+    const validation = useStore(formValidationStore);
+    return {
+      // Core state (read-only)
+      isMS: coreState.isMS,
+      formElements: coreState.formElements,
+      // Actions (write operations)
+      actions: formBuilderActions,
+      // Computed values (derived state)
+      computed: {
+        flattenedElements,
+        validation,
+      },
+      // Batch operations utilities
+      batch: {
+        operations: batchOperations,
+        formOperations: batchFormOperations,
+      },
+      // Subscription utilities
+      subscriptions: createStoreSubscriptions(),
+      // Error handling utilities
+      errors: {
+        FormBuilderError,
+      },
+      // Direct store access for advanced usage
+      stores: {
+        core: formBuilderCoreStore,
+        flattened: flattenedFormElementsStore,
+        validation: formValidationStore,
+      },
+    };
+  };
+  // Export stores for direct access if needed
+  export const formBuilderCoreStoreInstance = formBuilderCoreStore;
+  export const flattenedFormElementsStoreInstance = flattenedFormElementsStore;
+  export const formValidationStoreInstance = formValidationStore;
+  // Cleanup function for unmounting derived stores
+  export const cleanupFormBuilderStore = () => {
+    unmountFlattened();
+    unmountValidation();
+  };
+  // Export error class for external usage
+  export { FormBuilderError };
+  // Utility to create a selector for specific parts of the state
+  export const createFormBuilderSelector = <T>(selector: (state: FormBuilderCoreState) => T) => {
+    return () => useStore(formBuilderCoreStore, selector);
+  };
+  // Pre-built selectors for common use cases
+  export const useFormElementsOnly = createFormBuilderSelector(state => state.formElements);
+  export const useIsMultiStep = createFormBuilderSelector(state => state.isMS);
+  export const useFormElementCount = createFormBuilderSelector(state => {
+    if (state.isMS) {
+      return (state.formElements as FormStep[]).reduce((total, step) => total + step.stepFields.length, 0);
+    }
+    return (state.formElements as FormElementList).length;
+  });
+  // Performance-optimized selectors using shallow comparison
+  export const useFormElementsShallow = () => useStore(formBuilderCoreStore, (state) => state.formElements);
+  export const useFormStepsShallow = () => useStore(formBuilderCoreStore, (state) =>
+    state.isMS ? state.formElements as FormStep[] : []
+  );
+// Example usage documentation
+
+/*Usage Examples:
+  1. Basic usage:   const { isMS, formElements, actions, computed } = useFormBuilderStoreTanStack();
+  2. Performance - optimized with selectors: const formElements = useFormElementsOnly(); const isMultiStep = useIsMultiStep();
+  3. Batch operations:   const { batch } = useFormBuilderStoreTanStack(); batch.formOperations.setTemplateAndAddElements('contactUs', [{ fieldType: 'Input' }, { fieldType: 'Textarea' }]);
+  4. Direct store subscription:   const { subscriptions } = useFormBuilderStoreTanStack(); const unsubscribe = subscriptions.subscribeToFormChanges((state) => { console.log('Form changed:', state); });
+  5. Error try { actions.appendElement({ fieldType: 'InvalidType' }); } catch(error) { if (error instanceof FormBuilderError) { console.error('Form builder error:', error.code, error.message); } };
+  */
