@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { FormBuilder } from "@/components/builder/form-builder";
-import { Canvas } from "../../components/builder/Canvas";
+import { FormEdit } from "@/components/builder/form-edit";
+import { SingleStepFormPreview } from "@/components/builder/form-preview";
+import { useFormBuilder } from "@/hooks/use-form-builder";
 import { FieldLibrary } from "../../components/builder/FieldLibrary";
 import {
 	type BuilderState,
@@ -19,6 +20,7 @@ function BuilderComponent() {
 		fields: [],
 		selectedId: undefined,
 	});
+	const { form } = useFormBuilder();
 
 	const handleAddField = (type: FieldType) => {
 		const id = `field-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
@@ -93,7 +95,16 @@ function BuilderComponent() {
 			</div>
 			{/* Center Canvas */}
 			<div className="flex-1  bg-gradient-to-br from-background via-background to-muted/10">
-				<FormBuilder />
+				<div className="pt-4 pb-20">
+					<div className="w-full grid md:grid-cols-12 gap-3 lg:gap-4">
+						<div className="w-full md:col-span-6 min-w-full grow py-6 px-4 border-y sm:border-y-0 sm:border-x border-dashed">
+							<FormEdit />
+						</div>
+						<div className="md:col-span-4 w-full px-2 pb-6">
+							<SingleStepFormPreview form={form as unknown as AppForm} />
+						</div>
+					</div>
+				</div>
 			</div>
 		</main>
 	);
