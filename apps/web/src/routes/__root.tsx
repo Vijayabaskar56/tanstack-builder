@@ -1,69 +1,68 @@
+import {
+	createRootRouteWithContext,
+	HeadContent,
+	Outlet,
+	useRouterState,
+} from "@tanstack/react-router";
+import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import Header from "@/components/header";
 import Loader from "@/components/loader";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
-import {
-  HeadContent,
-  Outlet,
-  createRootRouteWithContext,
-  useRouterState,
-} from "@tanstack/react-router";
-import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import "../index.css";
-import type { BuilderState } from "@/components/builder/types";
 import { TanstackDevtools } from "@tanstack/react-devtools";
+import type { BuilderState } from "@/components/builder/types";
 import NavBar from "@/components/nav-bar";
 
 export interface RouterAppContext {
-  builder: BuilderState
+	builder: BuilderState;
 }
 
 export const Route = createRootRouteWithContext<RouterAppContext>()({
-  component: RootComponent,
-  head: () => ({
-    meta: [
-      {
-        title: "My App",
-      },
-      {
-        name: "description",
-        content: "My App is a web application",
-      },
-    ],
-    links: [
-      {
-        rel: "icon",
-        href: "/favicon.ico",
-      },
-    ],
-  }),
+	component: RootComponent,
+	head: () => ({
+		meta: [
+			{
+				title: "My App",
+			},
+			{
+				name: "description",
+				content: "My App is a web application",
+			},
+		],
+		links: [
+			{
+				rel: "icon",
+				href: "/favicon.ico",
+			},
+		],
+	}),
 });
 
 function RootComponent() {
-  const isFetching = useRouterState({
-    select: (s) => s.isLoading,
-  });
+	const isFetching = useRouterState({
+		select: (s) => s.isLoading,
+	});
 
-
-  return (
-    <>
-      {/* <HeadContent /> */}
-      <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-        <div className="min-h-screen">
-          <NavBar />
-          <Header />
-          {isFetching ? <Loader /> : <Outlet />}
-        </div>
-        <Toaster richColors />
-      </ThemeProvider>
-      <TanstackDevtools
-        plugins={[
-          {
-            name: 'Tanstack Router',
-            render: <TanStackRouterDevtoolsPanel />,
-          },
-        ]}
-      />
-    </>
-  );
+	return (
+		<>
+			{/* <HeadContent /> */}
+			<ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+				<div className="min-h-screen">
+					<NavBar />
+					<Header />
+					{isFetching ? <Loader /> : <Outlet />}
+				</div>
+				<Toaster richColors />
+			</ThemeProvider>
+			<TanstackDevtools
+				plugins={[
+					{
+						name: "Tanstack Router",
+						render: <TanStackRouterDevtoolsPanel />,
+					},
+				]}
+			/>
+		</>
+	);
 }
