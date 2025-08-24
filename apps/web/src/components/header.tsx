@@ -9,7 +9,6 @@ import {
 	Save,
 	Settings,
 	Share,
-	SunIcon,
 	Upload,
 } from "lucide-react";
 import { useId, useState } from "react";
@@ -26,12 +25,14 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useFormBuilder } from "@/hooks/use-form-builder";
 import { useFormStore } from "@/hooks/use-form-store";
+import { useSidebarStore } from "@/hooks/use-sidebar-store";
 
 export default function Header() {
 	const _links = [{ to: "/", label: "Home" }];
 
 	const navigate = useNavigate();
 	const location = useLocation();
+	const { activeTab, actions: sidebarActions } = useSidebarStore();
 
 	const [selectedFramework, setSelectedFramework] = useState("React");
 	const [selectedValidation, setSelectedValidation] = useState("Zod");
@@ -40,13 +41,9 @@ export default function Header() {
 	const validationLibs = ["Zod", "Valibot", "ArkType"];
 
 	const isFormBuilder = location.pathname.startsWith("/form-builder");
-	const currentSubTab = location.pathname.split("/").pop() || "builder";
 
 	const handleSubTabChange = (newSubTab: string) => {
-		navigate({
-			to: `/form-builder/${newSubTab}`,
-			replace: true,
-		});
+		sidebarActions.setActiveTab(newSubTab as 'builder' | 'template' | 'settings');
 	};
 	const id = useId();
 	const { actions, isMS } = useFormStore();
@@ -59,7 +56,7 @@ export default function Header() {
 				{isFormBuilder && (
 					<div className="flex-shrink-0 mr-4">
 						<Tabs
-							value={currentSubTab}
+							value={activeTab}
 							onValueChange={handleSubTabChange}
 							className="flex"
 						>
@@ -268,7 +265,7 @@ export default function Header() {
 				{isFormBuilder && (
 					<div className="border-b mx-3 py-2">
 						<Tabs
-							value={currentSubTab}
+							value={activeTab}
 							onValueChange={handleSubTabChange}
 							className="flex"
 						>
