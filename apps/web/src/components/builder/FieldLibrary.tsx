@@ -87,15 +87,9 @@ export function FieldTab() {
 								{groupedElements.field.length ? (
 									groupedElements.field.map(renderElementButton)
 								) : (
-									<div className="flex items-center justify-start gap-2 sm:gap-1.5 p-2">
-										<span className="size-8 sm:size-7 grid place-items-center flex-shrink-0"></span>
-										<span className="text-sm sm:text-base">No Field Matches your Query</span>
-										{/* {o?.isNew! && (
-          <Badge className="text-sm rounded-full ml-1 size-5 center">
-            N
-          </Badge>
-        )} */}
-									</div>
+							<div className="text-sm text-muted-foreground p-3">
+							   No Field match your query
+						 </div>
 								)}
 							</div>
 						</div>
@@ -111,16 +105,10 @@ export function FieldTab() {
 								{groupedElements.display.length ? (
 									groupedElements.display.map(renderElementButton)
 								) : (
-									<div className="flex items-center justify-start gap-2 sm:gap-1.5 p-2">
-										<span className="size-8 sm:size-7 grid place-items-center flex-shrink-0"></span>
-										<span className="text-sm sm:text-base">No Field Matches your Query</span>
-										{/* {o?.isNew! && (
-          <Badge className="text-sm rounded-full ml-1 size-5 center">
-            N
-          </Badge>
-        )} */}
-									</div>
-								)}
+										<div className="text-sm text-muted-foreground p-3">
+							   No Field match your query
+						 </div>
+       )}
 							</div>
 						</div>
 					)}

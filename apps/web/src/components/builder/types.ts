@@ -34,6 +34,10 @@ export type Appearance = {
   width?: 'auto' | 'full' | '1/2' | '1/3'
 };
 
+
+export type ValidationSchema = 'zod' | 'valibot' | 'arktype';
+export type Framework = 'react' | 'vue' | 'angular' | 'solid';
+
 export type FieldBase = {
   id: string
   type: FieldType

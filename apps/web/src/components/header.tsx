@@ -1,18 +1,27 @@
+// header.tsx
+
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import {
 	BookMarked,
 	ChevronDown,
 	Code,
 	FormInput,
-	MoonIcon,
 	RotateCcw,
 	Save,
 	Settings,
 	Share,
 	Upload,
 } from "lucide-react";
-import { useId, useState } from "react";
+import { useId } from "react";
 import { Button } from "@/components/ui/button";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from "@/components/ui/dialog";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -26,7 +35,8 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useFormBuilder } from "@/hooks/use-form-builder";
 import { useFormStore } from "@/hooks/use-form-store";
 import { useSidebarStore } from "@/hooks/use-sidebar-store";
-
+import type { Framework, ValidationSchema } from "./builder/types";
+import { GeneratedFormCodeViewer } from "./generated-code/code-viewer";
 export default function Header() {
 	const _links = [{ to: "/", label: "Home" }];
 
@@ -34,19 +44,18 @@ export default function Header() {
 	const location = useLocation();
 	const { activeTab, actions: sidebarActions } = useSidebarStore();
 
-	const [selectedFramework, setSelectedFramework] = useState("React");
-	const [selectedValidation, setSelectedValidation] = useState("Zod");
-
-	const frameworks = ["React", "Vue", "Angular", "Solid"];
-	const validationLibs = ["Zod", "Valibot", "ArkType"];
+	const frameworks = ["react", "vue", "angular", "solid"];
+	const validationLibs = ["zod", "valibot", "arktype"];
 
 	const isFormBuilder = location.pathname.startsWith("/form-builder");
 
 	const handleSubTabChange = (newSubTab: string) => {
-		sidebarActions.setActiveTab(newSubTab as 'builder' | 'template' | 'settings');
+		sidebarActions.setActiveTab(
+			newSubTab as "builder" | "template" | "settings",
+		);
 	};
 	const id = useId();
-	const { actions, isMS } = useFormStore();
+	const { actions, isMS, framework, validationSchema } = useFormStore();
 	const { resetForm } = useFormBuilder();
 	return (
 		<header className="w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -96,7 +105,7 @@ export default function Header() {
 						<DropdownMenu>
 							<DropdownMenuTrigger asChild>
 								<Button variant="ghost" size="sm">
-									{selectedFramework}
+									{framework.charAt(0).toUpperCase() + framework.slice(1)}
 									<ChevronDown className="w-4 h-4 ml-1" />
 								</Button>
 							</DropdownMenuTrigger>
@@ -104,9 +113,9 @@ export default function Header() {
 								{frameworks.map((framework) => (
 									<DropdownMenuItem
 										key={framework}
-										onClick={() => setSelectedFramework(framework)}
+										onClick={() => actions.setFramework(framework as Framework)}
 									>
-										{framework}
+										{framework.charAt(0).toUpperCase() + framework.slice(1)}
 									</DropdownMenuItem>
 								))}
 							</DropdownMenuContent>
@@ -114,7 +123,8 @@ export default function Header() {
 						<DropdownMenu>
 							<DropdownMenuTrigger asChild>
 								<Button variant="ghost" size="sm">
-									{selectedValidation}
+									{validationSchema.charAt(0).toUpperCase() +
+										validationSchema.slice(1)}
 									<ChevronDown className="w-4 h-4 ml-1" />
 								</Button>
 							</DropdownMenuTrigger>
@@ -122,9 +132,11 @@ export default function Header() {
 								{validationLibs.map((lib) => (
 									<DropdownMenuItem
 										key={lib}
-										onClick={() => setSelectedValidation(lib)}
+										onClick={() =>
+											actions.setValidationSchema(lib as ValidationSchema)
+										}
 									>
-										{lib}
+										{lib.charAt(0).toUpperCase() + lib.slice(1)}
 									</DropdownMenuItem>
 								))}
 							</DropdownMenuContent>
@@ -164,24 +176,37 @@ export default function Header() {
 						Save
 					</Button>
 					<div className="h-4 w-px bg-border" />
-					<Button variant="ghost" size="sm">
-						<Code className="w-4 h-4 mr-1" />
-						Code
-					</Button>
+					<Dialog>
+						<DialogTrigger asChild>
+							<Button variant="ghost" size="sm">
+								<Code className="w-4 h-4 mr-1" />
+								Code
+							</Button>
+						</DialogTrigger>
+						<DialogContent className="w-full h-10/12 overflow-y-scroll flex flex-col justify-start">
+							<DialogHeader>
+								<DialogTitle>Code</DialogTitle>
+								<DialogDescription>
+									This is the code for the form.
+								</DialogDescription>
+							</DialogHeader>
+							<GeneratedFormCodeViewer />
+						</DialogContent>
+					</Dialog>
 				</div>
 			</div>
 
 			{/* Mobile and tablet layout - separate sections */}
 			<div className="lg:hidden">
 				{/* Main header section - settings/actions */}
-         <ScrollArea className="w-full">
-				<div className="h-14 border-b flex items-center mx-3 ">
+				<ScrollArea className="w-full">
+					<div className="h-14 border-b flex items-center mx-3 ">
 						<div className="flex flex-1 items-center justify-between space-x-2">
 							<nav className="flex items-center space-x-2 flex-shrink-0">
 								<DropdownMenu>
 									<DropdownMenuTrigger asChild>
 										<Button variant="ghost" size="sm">
-											{selectedFramework}
+											{framework.charAt(0).toUpperCase() + framework.slice(1)}
 											<ChevronDown className="w-4 h-4 ml-1" />
 										</Button>
 									</DropdownMenuTrigger>
@@ -189,9 +214,11 @@ export default function Header() {
 										{frameworks.map((framework) => (
 											<DropdownMenuItem
 												key={framework}
-												onClick={() => setSelectedFramework(framework)}
+												onClick={() =>
+													actions.setFramework(framework as Framework)
+												}
 											>
-												{framework}
+												{framework.charAt(0).toUpperCase() + framework.slice(1)}
 											</DropdownMenuItem>
 										))}
 									</DropdownMenuContent>
@@ -199,7 +226,8 @@ export default function Header() {
 								<DropdownMenu>
 									<DropdownMenuTrigger asChild>
 										<Button variant="ghost" size="sm">
-											{selectedValidation}
+											{validationSchema.charAt(0).toUpperCase() +
+												validationSchema.slice(1)}
 											<ChevronDown className="w-4 h-4 ml-1" />
 										</Button>
 									</DropdownMenuTrigger>
@@ -207,9 +235,11 @@ export default function Header() {
 										{validationLibs.map((lib) => (
 											<DropdownMenuItem
 												key={lib}
-												onClick={() => setSelectedValidation(lib)}
+												onClick={() =>
+													actions.setValidationSchema(lib as ValidationSchema)
+												}
 											>
-												{lib}
+												{lib.charAt(0).toUpperCase() + lib.slice(1)}
 											</DropdownMenuItem>
 										))}
 									</DropdownMenuContent>
@@ -251,15 +281,28 @@ export default function Header() {
 								<span className="hidden sm:inline ml-1">Save</span>
 							</Button>
 							<div className="h-4 w-px bg-border" />
-							<Button variant="ghost" size="sm">
-								<Code className="w-4 h-4" />
-								<span className="hidden sm:inline ml-1">Code</span>
-							</Button>
+							<Dialog>
+								<DialogTrigger asChild>
+									<Button variant="ghost" size="sm">
+										<Code className="w-4 h-4" />
+										<span className="hidden sm:inline ml-1">Code</span>
+									</Button>
+								</DialogTrigger>
+								<DialogContent className="w-full h-10/12 overflow-y-scroll flex flex-col justify-start">
+									<DialogHeader>
+										<DialogTitle>Code</DialogTitle>
+										<DialogDescription>
+											This is the code for the form.
+										</DialogDescription>
+									</DialogHeader>
+									<GeneratedFormCodeViewer />
+								</DialogContent>
+							</Dialog>
 							<div className="h-4 w-px bg-border" />
 						</div>
-				</div>
-      <ScrollBar orientation="horizontal"/>
-					</ScrollArea>
+					</div>
+					<ScrollBar orientation="horizontal" />
+				</ScrollArea>
 
 				{/* Tabs section - below on mobile */}
 				{isFormBuilder && (

@@ -16,6 +16,12 @@ export function TemplateSidebar() {
 	const [searchQuery, setSearchQuery] = useState("");
 	const { actions } = useFormStore();
 
+	const filteredTemplates = searchQuery
+		? formTemplates.filter((template) =>
+				template.label.toLowerCase().includes(searchQuery.toLowerCase())
+			)
+		: formTemplates;
+
 	return (
 		<div className="flex flex-col h-full md:h-full max-h-[35vh] md:max-h-none">
 			<div className="flex-shrink-0 p-3 sm:p-4 border-b">
@@ -32,25 +38,31 @@ export function TemplateSidebar() {
 					/>
 				</div>
 			</div>
-   	<ScrollArea className="flex-1 overflow-auto max-h-[calc(35vh-8rem)] md:max-h-none">
+			<ScrollArea className="flex-1 overflow-auto max-h-[calc(35vh-8rem)] md:max-h-none">
 				<div className="p-3 sm:p-4 space-y-4 sm:space-y-6">
-     		{formTemplates.map(({ label, value, isMS }) => (
-      <div key={label} className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-1 gap-2 sm:gap-2">
-      <Button
-							key={label}
-							onClick={() => actions.setTemplate(value)}
-							className="justify-start text-[12px]"
-							variant="ghost"
-       >
-							{isMS ? (
-        <SquareStack className="size-4" />
-							) : (
-        <FileStack className="size-4" />
-							)}
-							{label}
-						</Button>
-      </div>
-					))}
+					{filteredTemplates.length > 0 ? (
+						filteredTemplates.map(({ label, value, isMS }) => (
+							<div key={label} className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-1 gap-2 sm:gap-2">
+								<Button
+									key={label}
+									onClick={() => actions.setTemplate(value)}
+									className="justify-start text-[12px]"
+									variant="ghost"
+								>
+									{isMS ? (
+										<SquareStack className="size-4" />
+									) : (
+										<FileStack className="size-4" />
+									)}
+									{label}
+								</Button>
+							</div>
+						))
+					) : searchQuery ? (
+						<div className="text-sm text-muted-foreground p-3">
+							No templates match your query
+						</div>
+					) : null}
 				</div>
 			</ScrollArea>
 		</div>
