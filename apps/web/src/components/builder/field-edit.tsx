@@ -541,7 +541,7 @@ export function FieldCustomizationView({
 						<Edit />
 					</Button>
 				</DrawerTrigger>
-				<DrawerContent className="bg-glass px-4">
+				<DrawerContent className="px-4">
 					<DrawerHeader className="px-0">
 						<DrawerTitle className="text-start text-lg">{title}</DrawerTitle>
 					</DrawerHeader>
@@ -565,7 +565,7 @@ export function FieldCustomizationView({
 			</DialogTrigger>
 			<DialogContent
 				showCloseButton={false}
-				className="sm:max-w-[530px] bg-glass"
+				className="sm:max-w-[530px]"
 			>
 				<DialogHeader>
 					<DialogTitle>{title}</DialogTitle>

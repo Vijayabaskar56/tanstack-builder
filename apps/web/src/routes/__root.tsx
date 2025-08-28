@@ -10,7 +10,7 @@ import Loader from "@/components/loader";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import "../index.css";
-import { TanstackDevtools } from "@tanstack/react-devtools";
+import { TanStackDevtools } from "@tanstack/react-devtools";
 import type { BuilderState } from "@/components/builder/types";
 import NavBar from "@/components/nav-bar";
 
@@ -55,7 +55,7 @@ function RootComponent() {
 				</div>
 				<Toaster richColors />
 			</ThemeProvider>
-			<TanstackDevtools
+			<TanStackDevtools
 				plugins={[
 					{
 						name: "Tanstack Router",

@@ -70,7 +70,7 @@ export default function Header() {
 							className="flex"
 						>
 							<TabsList className="bg-background h-auto -space-x-px p-0 shadow-xs">
-								<TabsTrigger
+								{/* <TabsTrigger
 									value="builder"
 									className="data-[state=active]:bg-muted data-[state=active]:after:bg-primary relative overflow-hidden rounded-none border py-2 after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 first:rounded-s"
 								>
@@ -90,7 +90,21 @@ export default function Header() {
 								>
 									<Settings className="-ms-0.5 me-1.5 opacity-60" size={16} />
 									Settings
-								</TabsTrigger>
+								</TabsTrigger> */}
+         <TabsList>
+        <TabsTrigger value="builder" >
+        <FormInput className="-ms-0.5 me-1.5 opacity-60" size={16} />
+									Builder
+        </TabsTrigger>
+        <TabsTrigger value="template">
+         <BookMarked className="-ms-0.5 me-1.5 opacity-60" size={16} />
+									Template
+        </TabsTrigger>
+        <TabsTrigger value="settings">
+         <Settings className="-ms-0.5 me-1.5 opacity-60" size={16} />
+									Settings
+        </TabsTrigger>
+      </TabsList>
 							</TabsList>
 						</Tabs>
 					</div>
@@ -143,6 +157,18 @@ export default function Header() {
 						</DropdownMenu>
 					</nav>
 
+					<div className="h-4 w-px bg-border" />
+     	<div className="flex justify-center items-center gap-2">
+						<Switch
+							id={id}
+							onClick={() => actions.setIsMS(!isMS)}
+							className="data-[state=unchecked]:border-input data-[state=unchecked]:[&_span]:bg-input data-[state=unchecked]:bg-transparent [&_span]:transition-all data-[state=unchecked]:[&_span]:size-4 data-[state=unchecked]:[&_span]:translate-x-0.5 data-[state=unchecked]:[&_span]:shadow-none data-[state=unchecked]:[&_span]:rtl:-translate-x-0.5"
+						/>
+						<Label htmlFor={id} className="sr-only">
+							Field Array
+						</Label>
+						<p>Field Array</p>
+					</div>
 					<div className="h-4 w-px bg-border" />
 					<div className="flex justify-center items-center gap-2">
 						<Switch

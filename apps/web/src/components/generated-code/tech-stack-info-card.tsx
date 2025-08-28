@@ -16,7 +16,7 @@ export function GeneratedCodeInfoCard() {
 				</Button>
 			</HoverCardTrigger>
 			<HoverCardContent
-				className="bg-glass border-0 dark:border w-sm"
+				className=" border-0 dark:border w-sm"
 				side="left"
 				align="start"
 			>
