@@ -180,6 +180,13 @@ body {
   }
 }
 
+@layer base {
+ .required::after {
+  content : ' *';
+  @apply text-red-500;
+ }
+}
+
 /* View Transitions */
 ::view-transition-old(root),
 ::view-transition-new(root) {

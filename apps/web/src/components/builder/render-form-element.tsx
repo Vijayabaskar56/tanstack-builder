@@ -1,5 +1,6 @@
 /** biome-ignore-all lint/correctness/noChildrenProp: <explanation> */
 /** biome-ignore-all lint/correctness/noChildrenProp: <explanation> */
+
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import type * as React from "react";
@@ -66,7 +67,9 @@ export const RenderFormElement = ({
 									disabled={formElement.disabled}
 									type={formElement.type ?? "text"}
 									value={field.state.value as string}
-									onChange={(e) => field.handleChange(e.target.value)}
+									onChange={(e) => {
+										field.handleChange(e.target.value);
+									}}
 									onBlur={field.handleBlur}
 								/>
 							</field.FormControl>
@@ -493,25 +496,25 @@ export const RenderFormElement = ({
 				</h1>
 			);
 		case "H2":
-			return <h2 className="mt-4 font-bold text-xl">{formElement.content}</h2>
+			return <h2 className="mt-4 font-bold text-xl">{formElement.content}</h2>;
 		case "H3":
 			return (
 				<h3 className="mt-3 font-semiboldbold text-lg">
 					{formElement.content} content
 				</h3>
-			)
+			);
 		case "P":
 			return (
 				<p className="tracking-wider text-foreground/60 pt-0 dark:text-foreground/60 mb-4 mt-0 text-wrap">
 					{formElement.content}
 				</p>
-			)
+			);
 		case "Separator":
 			return (
 				<div className="py-3 w-full">
 					<Separator {...formElement} />
 				</div>
-			)
+			);
 		default:
 			return <div>Invalid Form Element</div>;
 	}

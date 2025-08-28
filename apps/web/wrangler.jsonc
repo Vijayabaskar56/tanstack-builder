@@ -1,6 +1,6 @@
 {
   "$schema": "../../node_modules/wrangler/config-schema.json",
-  "name": "my-better-t-app",
+  "name": "tanstack-builder",
   "compatibility_date": "2025-04-03",
   "assets": {
     "not_found_handling": "single-page-application"

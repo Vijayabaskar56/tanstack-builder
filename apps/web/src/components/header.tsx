@@ -37,7 +37,7 @@ import { useFormStore } from "@/hooks/use-form-store";
 import { useSidebarStore } from "@/hooks/use-sidebar-store";
 import type { Framework, ValidationSchema } from "./builder/types";
 import { GeneratedFormCodeViewer } from "./generated-code/code-viewer";
-export default function Header() {
+export default function FormHeader() {
 	const _links = [{ to: "/", label: "Home" }];
 
 	const navigate = useNavigate();
@@ -70,27 +70,6 @@ export default function Header() {
 							className="flex"
 						>
 							<TabsList className="bg-background h-auto -space-x-px p-0 shadow-xs">
-								{/* <TabsTrigger
-									value="builder"
-									className="data-[state=active]:bg-muted data-[state=active]:after:bg-primary relative overflow-hidden rounded-none border py-2 after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 first:rounded-s"
-								>
-									<FormInput className="-ms-0.5 me-1.5 opacity-60" size={16} />
-									Builder
-								</TabsTrigger>
-								<TabsTrigger
-									value="template"
-									className="data-[state=active]:bg-muted data-[state=active]:after:bg-primary relative overflow-hidden rounded-none border py-2 after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:h-0.5"
-								>
-									<BookMarked className="-ms-0.5 me-1.5 opacity-60" size={16} />
-									Template
-								</TabsTrigger>
-								<TabsTrigger
-									value="settings"
-									className="data-[state=active]:bg-muted data-[state=active]:after:bg-primary relative overflow-hidden rounded-none border py-2 after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 last:rounded-e"
-								>
-									<Settings className="-ms-0.5 me-1.5 opacity-60" size={16} />
-									Settings
-								</TabsTrigger> */}
          <TabsList>
         <TabsTrigger value="builder" >
         <FormInput className="-ms-0.5 me-1.5 opacity-60" size={16} />
@@ -127,9 +106,11 @@ export default function Header() {
 								{frameworks.map((framework) => (
 									<DropdownMenuItem
 										key={framework}
+          disabled={framework !== 'react'}
 										onClick={() => actions.setFramework(framework as Framework)}
 									>
 										{framework.charAt(0).toUpperCase() + framework.slice(1)}
+          {framework !== 'react' && <p className="text-primary">soon!</p>}
 									</DropdownMenuItem>
 								))}
 							</DropdownMenuContent>
@@ -158,7 +139,7 @@ export default function Header() {
 					</nav>
 
 					<div className="h-4 w-px bg-border" />
-     	<div className="flex justify-center items-center gap-2">
+     	{/* <div className="flex justify-center items-center gap-2">
 						<Switch
 							id={id}
 							onClick={() => actions.setIsMS(!isMS)}
@@ -169,7 +150,7 @@ export default function Header() {
 						</Label>
 						<p>Field Array</p>
 					</div>
-					<div className="h-4 w-px bg-border" />
+					<div className="h-4 w-px bg-border" /> */}
 					<div className="flex justify-center items-center gap-2">
 						<Switch
 							id={id}

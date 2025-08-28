@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { Github, Twitter } from "lucide-react";
 import { ModeToggle } from "@/components/mode-toggle";
 import AppToggle from "@/components/navbar-components/app-toggle";
@@ -10,7 +11,9 @@ export default function NavBar() {
 				{/* Left side */}
 				<div className="flex flex-1 items-center gap-2">
 					<div className="mr-4 flex">
-						<h1 className="text-lg font-semibold">TanStack Form Builder</h1>
+						<Link to="/">
+							<h1 className="text-lg font-semibold" >TanStack Builder</h1>
+						</Link>
 					</div>
 				</div>
 				{/* Middle area */}
@@ -21,23 +24,29 @@ export default function NavBar() {
 						size="sm"
 						variant="ghost"
 						className="text-sm max-sm:aspect-square max-sm:p-0"
-					>
+					asChild
+     >
+    <a href="https://github.com/Vijayabaskar56/tanstack-builder" target="_blank" rel="noopener noreferrer">
 						<Github
 							className="opacity-60 sm:-ms-1"
 							size={16}
 							aria-hidden="true"
-						/>
+       />
+       </a>
 					</Button>
 					<Button
 						size="sm"
 						variant="ghost"
 						className="text-sm max-sm:aspect-square max-sm:p-0"
+      asChild
 					>
+      <a href="https://x.com/vijayabaskar56" target="_blank" rel="noopener noreferrer">
 						<Twitter
 							className="opacity-60 sm:-ms-1"
 							size={16}
 							aria-hidden="true"
-						/>
+       />
+      </a>
 					</Button>
 					<ModeToggle />
 				</div>

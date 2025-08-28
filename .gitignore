@@ -1,2 +1,5 @@
 node_modules
 .turbo
+/apps/web/dist
+/apps/web/.wrangler
+/apps/web/.tanstack

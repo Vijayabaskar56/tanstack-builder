@@ -1,18 +1,16 @@
+import { TanStackDevtools } from "@tanstack/react-devtools";
 import {
 	createRootRouteWithContext,
-	HeadContent,
 	Outlet,
 	useRouterState,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
-import Header from "@/components/header";
+import type { BuilderState } from "@/components/builder/types";
 import Loader from "@/components/loader";
+import NavBar from "@/components/nav-bar";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import "../index.css";
-import { TanStackDevtools } from "@tanstack/react-devtools";
-import type { BuilderState } from "@/components/builder/types";
-import NavBar from "@/components/nav-bar";
 
 export interface RouterAppContext {
 	builder: BuilderState;
@@ -50,7 +48,6 @@ function RootComponent() {
 			<ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
 				<div className="min-h-screen">
 					<NavBar />
-					<Header />
 					{isFetching ? <Loader /> : <Outlet />}
 				</div>
 				<Toaster richColors />
