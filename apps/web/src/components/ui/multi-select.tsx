@@ -1,5 +1,3 @@
-"use client";
-
 import * as PopoverPrimitive from "@radix-ui/react-popover";
 import type { Primitive } from "@radix-ui/react-primitive";
 import { useControllableState } from "@radix-ui/react-use-controllable-state";

@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TableBuilderRouteImport } from './routes/table-builder'
 import { Route as FormBuilderRouteImport } from './routes/form-builder'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as TestingIndexRouteImport } from './routes/testing/index'
 import { Route as FormBuilderIndexRouteImport } from './routes/form-builder/index'
 import { Route as FormBuilderTemplateRouteImport } from './routes/form-builder/template'
 import { Route as FormBuilderSettingsRouteImport } from './routes/form-builder/settings'
@@ -30,6 +31,11 @@ const FormBuilderRoute = FormBuilderRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TestingIndexRoute = TestingIndexRouteImport.update({
+  id: '/testing/',
+  path: '/testing/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FormBuilderIndexRoute = FormBuilderIndexRouteImport.update({
@@ -61,6 +67,7 @@ export interface FileRoutesByFullPath {
   '/form-builder/settings': typeof FormBuilderSettingsRoute
   '/form-builder/template': typeof FormBuilderTemplateRoute
   '/form-builder/': typeof FormBuilderIndexRoute
+  '/testing': typeof TestingIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -69,6 +76,7 @@ export interface FileRoutesByTo {
   '/form-builder/settings': typeof FormBuilderSettingsRoute
   '/form-builder/template': typeof FormBuilderTemplateRoute
   '/form-builder': typeof FormBuilderIndexRoute
+  '/testing': typeof TestingIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -79,6 +87,7 @@ export interface FileRoutesById {
   '/form-builder/settings': typeof FormBuilderSettingsRoute
   '/form-builder/template': typeof FormBuilderTemplateRoute
   '/form-builder/': typeof FormBuilderIndexRoute
+  '/testing/': typeof TestingIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -90,6 +99,7 @@ export interface FileRouteTypes {
     | '/form-builder/settings'
     | '/form-builder/template'
     | '/form-builder/'
+    | '/testing'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -98,6 +108,7 @@ export interface FileRouteTypes {
     | '/form-builder/settings'
     | '/form-builder/template'
     | '/form-builder'
+    | '/testing'
   id:
     | '__root__'
     | '/'
@@ -107,12 +118,14 @@ export interface FileRouteTypes {
     | '/form-builder/settings'
     | '/form-builder/template'
     | '/form-builder/'
+    | '/testing/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   FormBuilderRoute: typeof FormBuilderRouteWithChildren
   TableBuilderRoute: typeof TableBuilderRoute
+  TestingIndexRoute: typeof TestingIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -136,6 +149,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/testing/': {
+      id: '/testing/'
+      path: '/testing'
+      fullPath: '/testing'
+      preLoaderRoute: typeof TestingIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/form-builder/': {
@@ -191,6 +211,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   FormBuilderRoute: FormBuilderRouteWithChildren,
   TableBuilderRoute: TableBuilderRoute,
+  TestingIndexRoute: TestingIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

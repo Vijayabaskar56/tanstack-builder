@@ -1,7 +1,5 @@
 // multi-step-form-preview.tsx
 /** biome-ignore-all lint/suspicious/noArrayIndexKey: <explanation> */
-
-"use client";
 import { AnimatePresence, motion } from "motion/react";
 import { RenderFormElement } from "@/components/builder/render-form-element";
 import { Button } from "@/components/ui/button";
@@ -36,17 +34,17 @@ export function MultiStepFormPreview({
 	const { isSubmitting, isSubmitted } = form.baseStore.state;
 	return (
 		<div className="flex flex-col gap-2 pt-3">
-			{" "}
+
 			<div className="flex flex-col items-start justify-center gap-1">
-				{" "}
+
 				<span>
-					{" "}
-					Step {currentStep} of {steps.length}{" "}
-				</span>{" "}
-				<Progress value={(currentStep / steps.length) * 100} />{" "}
-			</div>{" "}
+
+					Step {currentStep} of {steps.length}
+				</span>
+				<Progress value={(currentStep / steps.length) * 100} />
+			</div>
 			<AnimatePresence mode="popLayout">
-				{" "}
+
 				<motion.div
 					key={currentStep}
 					initial={{ opacity: 0, x: 15 }}
@@ -55,7 +53,7 @@ export function MultiStepFormPreview({
 					transition={{ duration: 0.4, type: "spring" }}
 					className="flex flex-col gap-2"
 				>
-					{" "}
+
 					{current?.stepFields?.map((field, i) => {
 						if (Array.isArray(field)) {
 							return (
@@ -63,31 +61,31 @@ export function MultiStepFormPreview({
 									key={i}
 									className="flex items-center justify-between flex-wrap sm:flex-nowrap w-full gap-2"
 								>
-									{" "}
+
 									{field.map((el: FormElement, ii: number) => (
 										<div key={el.name + ii} className="w-full">
-											{" "}
-											<RenderFormElement formElement={el} form={form} />{" "}
+
+											<RenderFormElement formElement={el} form={form} />
 										</div>
-									))}{" "}
+									))}
 								</div>
 							);
 						}
 						return (
 							<div key={i} className="w-full">
-								{" "}
-								<RenderFormElement formElement={field} form={form} />{" "}
+
+								<RenderFormElement formElement={field} form={form} />
 							</div>
 						);
-					})}{" "}
-				</motion.div>{" "}
-			</AnimatePresence>{" "}
+					})}
+				</motion.div>
+			</AnimatePresence>
 			<div className="flex items-center justify-between gap-3 w-full pt-3">
-				{" "}
+
 				<Button size="sm" variant="ghost" onClick={goToPrevious} type="button">
-					{" "}
-					Previous{" "}
-				</Button>{" "}
+
+					Previous
+				</Button>
 				{isLastStep ? (
 					<Button
 						size="sm"
@@ -98,12 +96,12 @@ export function MultiStepFormPreview({
 						}}
 						disabled={isSubmitting}
 					>
-						{" "}
+
 						{isSubmitting
 							? "Submitting..."
 							: isSubmitted
 								? "Submitted "
-								: "Submit"}{" "}
+								: "Submit"}
 					</Button>
 				) : (
 					<Button
@@ -112,11 +110,11 @@ export function MultiStepFormPreview({
 						variant={"secondary"}
 						onClick={goToNext}
 					>
-						{" "}
-						Next{" "}
+
+						Next
 					</Button>
-				)}{" "}
-			</div>{" "}
+				)}
+			</div>
 		</div>
 	);
 }

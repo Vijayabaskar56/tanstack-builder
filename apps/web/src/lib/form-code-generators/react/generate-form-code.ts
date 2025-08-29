@@ -4,6 +4,7 @@ import { generateImports } from "@/lib/form-code-generators/react/generate-impor
 import { flattenFormSteps } from "@/lib/form-elements-helpers";
 
 const renderFields = (fields: FormElementOrList[]) => {
+	console.log("🚀 ~ renderFields ~ fields:", fields)
 	return fields
 		.map((FormElement) => {
 			if (Array.isArray(FormElement)) {
@@ -41,20 +42,12 @@ ${imports}
 export function DraftForm() {
 
 const form = useAppForm({
-  defaultValues: "{} as z.infer<typeof formSchema>",
-  validators: { onChange: formSchema },
+  defaultValues: {} as z.infer<typeof formSchema>,
+  validationLogic: revalidateLogic(),
+  validators: {     onDynamicAsyncDebounceMs: 500, onDynamic: formSchema },
   onSubmit : ({value}) => {
   console.log(value)
-  const doSthAction = useAction(serverAction, {
-    // TODO: add server action
-    onSuccess: () => {
-      // TODO: show success message
-      form.reset();
-    },
-    onError: () => {
-    // TODO: show error message
-    },
-  });
+			toast.success("success");
   }
 });
 
@@ -112,7 +105,7 @@ return (
   export function DraftForm() {
 
   const form = useAppForm({
-    defaultValues: "{} as z.infer<typeof formSchema>",
+    defaultValues: {} as z.infer<typeof formSchema>,
     validators: { onChange: formSchema },
     onSubmit : ({value}) => {
     console.log(value)

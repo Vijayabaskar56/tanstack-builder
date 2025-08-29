@@ -1,4 +1,6 @@
 // use-form-builder.tsx
+
+import { revalidateLogic } from "@tanstack/react-form";
 import { useAppForm } from "@/components/ui/tanstack-form";
 import type { FormElement, FormStep } from "@/form-types";
 import { useFormStore, useIsMultiStep } from "@/hooks/use-form-store";
@@ -43,7 +45,7 @@ export const useFormBuilder = (): {
 		[key: string]: any;
 	}
 	const isMS = useIsMultiStep();
-	const {actions , formElements}= useFormStore();
+	const { actions, formElements } = useFormStore();
 	const flattenFormElements = isMS
 		? flattenFormSteps(formElements as FormStep[]).flat()
 		: (formElements.flat() as FormElement[]);
@@ -57,13 +59,14 @@ export const useFormBuilder = (): {
 	);
 	const zodSchema = generateZodSchemaObject(filteredFormFields);
 	const form = useAppForm({
-		validators: { onBlur: zodSchema },
+		validators: { onDynamic: zodSchema },
 		defaultValues: defaultValues ?? {
 			username: "",
 			email: "",
 			age: 0,
 			bio: "",
 		},
+		validationLogic: revalidateLogic(),
 		listeners: {
 			onSubmit: ({ formApi }) => {
 				console.log(
@@ -77,7 +80,7 @@ export const useFormBuilder = (): {
 	});
 	const { reset } = form;
 	const resetForm = () => {
-  actions.resetFormElements()
+		actions.resetFormElements();
 		reset();
 	};
 	const onSubmit = async (data: any): Promise<void> => {

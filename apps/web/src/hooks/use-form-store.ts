@@ -1,8 +1,3 @@
-/**
- * Form Builder Store using TanStack Store
- * Manages form elements, steps, and state for the form builder application.
- */
-
 import { useStore } from "@tanstack/react-store";
 import { batch, Derived, Store } from "@tanstack/store";
 import { v4 as uuid } from "uuid";
@@ -53,13 +48,7 @@ type FormBuilderActions = {
 	removeFormStep: (stepIndex: number) => void;
 	reorderSteps: (newOrder: FormStep[]) => void;
 	// Batch operations
-	batchAppendElements: (
-		elements: Array<{
-			fieldType: keyof typeof defaultFormElements;
-			fieldIndex?: number;
-			stepIndex?: number;
-		}>,
-	) => void;
+	batchAppendElements: (elements: Array<FormElementOrList>) => void;
 	batchEditElements: (
 		edits: Array<{
 			fieldIndex: number;
@@ -163,14 +152,19 @@ const createActions = (
 	store: Store<FormBuilderCoreState>,
 ): FormBuilderActions => {
 	const appendElement: AppendElement = (options) => {
-		const { fieldIndex, fieldType } = options || { fieldIndex: null };
+		const { fieldIndex, fieldType, id, name, content, ...rest } = options || {
+			fieldIndex: null,
+		};
 		validateFieldType(fieldType);
 		store.setState((state) => {
 			const newFormElement = {
-				id: uuid(),
+				id: id || uuid(),
 				...defaultFormElements[fieldType],
+				content: content || defaultFormElements[fieldType].content,
+				label: content || (defaultFormElements[fieldType] as any).label,
+				name: name || `${fieldType}-${Date.now()}`,
 				fieldType,
-				name: `${fieldType}-${Date.now()}`,
+				...rest,
 			} as FormElement;
 			if (state.isMS) {
 				const stepIndex = options?.stepIndex ?? 0;
@@ -487,20 +481,29 @@ const createActions = (
 	const setFramework = (framework: Framework) => {
 		store.setState((state) => ({ ...state, framework }));
 	};
-	const batchAppendElements = (
-		elements: Array<{
-			fieldType: keyof typeof defaultFormElements;
-			fieldIndex?: number;
-			stepIndex?: number;
-		}>,
-	) => {
+	const batchAppendElements = (elements: Array<FormElementOrList>) => {
 		batch(() => {
-			elements.forEach(({ fieldType, fieldIndex, stepIndex }) => {
+			elements.forEach((element) => {
 				try {
-					appendElement({ fieldType, fieldIndex, stepIndex });
+					if (Array.isArray(element)) {
+						element.forEach((el, i) => {
+							if (i === 0) {
+								appendElement(el as FormElement);
+							} else {
+								// ? Case where we have a nested array
+								appendElement({
+									fieldIndex: i + 1,
+									stepIndex: 0,
+									...el,
+								});
+							}
+						});
+					} else {
+						appendElement(element as FormElement);
+					}
 				} catch (error) {
 					console.error(
-						`Failed to append element of type ${fieldType}:`,
+						`Failed to append element of type ${element?.fieldType}:`,
 						error,
 					);
 					throw error;

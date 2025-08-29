@@ -21,13 +21,13 @@ export const generateZodSchemaObject = (
 					elementSchema = z.coerce.number();
 					break;
 				}
-				elementSchema = z.string();
+				elementSchema = z.string().min(1, 'This Field is Required');
 				break;
 			case "DatePicker":
 				elementSchema = z.coerce.date();
 				break;
 			case "Checkbox":
-				elementSchema = z.boolean().default(true);
+				elementSchema = z.boolean()
 				break;
 			case "Slider":
 				elementSchema = z.coerce.number();

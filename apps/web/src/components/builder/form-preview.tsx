@@ -23,6 +23,7 @@ export function SingleStepFormPreview({ form }: FormPreviewProps) {
 			{data.length > 0 ? (
 				<form.AppForm>
 					<form
+      noValidate
 						onSubmit={async (e) => {
 							e.preventDefault();
 							if (!isMS) {
