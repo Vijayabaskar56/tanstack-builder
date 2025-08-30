@@ -51,12 +51,8 @@ export const JsonViewer = ({
 	json: FormElementOrList[] | FormStep[] | Record<string, unknown>;
 	isMS: boolean;
 }) => {
-	if (Array.isArray(json)) {
-		json = (
-			isMS
-				? flattenFormSteps(json as FormStep[]).flat()
-				: (json as FormElementOrList[])
-		).filter((element) => !("static" in element && element.static));
+	if (!Array.isArray(json)) {
+  json = ([json] as FormStep[])
 	}
 
 	return (

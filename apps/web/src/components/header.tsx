@@ -1,5 +1,3 @@
-// header.tsx
-
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import {
 	BookMarked,
@@ -12,7 +10,7 @@ import {
 	Share,
 	Upload,
 } from "lucide-react";
-import { useId } from "react";
+import { useId, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -28,6 +26,7 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Switch } from "@/components/ui/switch";
@@ -57,6 +56,18 @@ export default function FormHeader() {
 	const id = useId();
 	const { actions, isMS, framework, validationSchema } = useFormStore();
 	const { resetForm } = useFormBuilder();
+
+	// Save dialog state
+	const [saveDialogOpen, setSaveDialogOpen] = useState(false);
+	const [saveFormName, setSaveFormName] = useState("");
+
+	const handleSaveForm = () => {
+		if (saveFormName.trim()) {
+			actions.saveForm(saveFormName.trim());
+			setSaveDialogOpen(false);
+			setSaveFormName("");
+		}
+	};
 	return (
 		<header className="w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
 			{/* Unified header for desktop - tabs and actions in one row */}
@@ -178,10 +189,52 @@ export default function FormHeader() {
 						Share
 					</Button>
 					<div className="h-4 w-px bg-border" />
-					<Button variant="ghost" size="sm">
-						<Save className="w-4 h-4 mr-1" />
-						Save
-					</Button>
+					<Dialog open={saveDialogOpen} onOpenChange={setSaveDialogOpen}>
+						<DialogTrigger asChild>
+							<Button variant="ghost" size="sm">
+								<Save className="w-4 h-4 mr-1" />
+								Save
+							</Button>
+						</DialogTrigger>
+						<DialogContent>
+							<DialogHeader>
+								<DialogTitle>Save Form</DialogTitle>
+								<DialogDescription>
+									Enter a name for your form to save it for later use.
+								</DialogDescription>
+							</DialogHeader>
+							<div className="space-y-4">
+								<div>
+									<Label htmlFor={`form-name-${id}`}>Form Name</Label>
+									<Input
+										id={`form-name-${id}`}
+										placeholder="Enter form name..."
+										value={saveFormName}
+										onChange={(e) => setSaveFormName(e.target.value)}
+										onKeyDown={(e) => {
+											if (e.key === "Enter") {
+												handleSaveForm();
+											}
+										}}
+									/>
+								</div>
+								<div className="flex justify-end gap-2">
+									<Button
+										variant="outline"
+										onClick={() => {
+											setSaveDialogOpen(false);
+											setSaveFormName("");
+										}}
+									>
+										Cancel
+									</Button>
+									<Button onClick={handleSaveForm} disabled={!saveFormName.trim()}>
+										Save Form
+									</Button>
+								</div>
+							</div>
+						</DialogContent>
+					</Dialog>
 					<div className="h-4 w-px bg-border" />
 					<Dialog>
 						<DialogTrigger asChild>

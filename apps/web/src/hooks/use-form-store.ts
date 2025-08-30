@@ -1,3 +1,4 @@
+// apps/web/src/hooks/use-form-store.ts
 import { useStore } from "@tanstack/react-store";
 import { batch, Derived, Store } from "@tanstack/store";
 import { v4 as uuid } from "uuid";
@@ -37,6 +38,11 @@ type FormBuilderActions = {
 	setSchemaName: (schemaName: string) => void;
 	setValidationSchema: (validationSchema: ValidationSchema) => void;
 	setFramework: (framework: Framework) => void;
+	// Save/Load functions
+	saveForm: (formName: string) => void;
+	loadForm: (formName: string) => void;
+	getSavedForms: () => Array<{ name: string; data: Record<string, unknown>; createdAt: string }>;
+	deleteSavedForm: (formName: string) => void;
 	appendElement: AppendElement;
 	dropElement: DropElement;
 	editElement: EditElement;
@@ -152,7 +158,7 @@ const createActions = (
 	store: Store<FormBuilderCoreState>,
 ): FormBuilderActions => {
 	const appendElement: AppendElement = (options) => {
-		const { fieldIndex, fieldType, id, name, content, ...rest } = options || {
+		const { fieldIndex, fieldType, id, name, content, required, ...rest } = options || {
 			fieldIndex: null,
 		};
 		validateFieldType(fieldType);
@@ -163,6 +169,7 @@ const createActions = (
 				content: content || defaultFormElements[fieldType].content,
 				label: content || (defaultFormElements[fieldType] as any).label,
 				name: name || `${fieldType}-${Date.now()}`,
+				required: required || true,
 				fieldType,
 				...rest,
 			} as FormElement;
@@ -481,6 +488,87 @@ const createActions = (
 	const setFramework = (framework: Framework) => {
 		store.setState((state) => ({ ...state, framework }));
 	};
+
+	// Save/Load functions
+	const saveForm = (formName: string) => {
+		if (typeof window === "undefined") return;
+
+		const state = store.state;
+		const formData = {
+			name: formName,
+			data: {
+				isMS: state.isMS,
+				formElements: state.formElements,
+				formName: state.formName,
+				schemaName: state.schemaName,
+				validationSchema: state.validationSchema,
+				framework: state.framework,
+			},
+			createdAt: new Date().toISOString(),
+		};
+
+		try {
+			const savedForms = JSON.parse(localStorage.getItem("savedForms") || "[]");
+			const existingIndex = savedForms.findIndex((form: any) => form.name === formName);
+
+			if (existingIndex !== -1) {
+				savedForms[existingIndex] = formData;
+			} else {
+				savedForms.push(formData);
+			}
+
+			localStorage.setItem("savedForms", JSON.stringify(savedForms));
+		} catch (error) {
+			console.error("Failed to save form:", error);
+		}
+	};
+
+	const loadForm = (formName: string) => {
+		if (typeof window === "undefined") return;
+
+		try {
+			const savedForms = JSON.parse(localStorage.getItem("savedForms") || "[]");
+			const formData = savedForms.find((form: any) => form.name === formName);
+
+			if (formData) {
+				const { data } = formData;
+				store.setState({
+					isMS: data.isMS,
+					formElements: data.formElements,
+					formName: data.formName || formName,
+					schemaName: data.schemaName,
+					validationSchema: data.validationSchema,
+					framework: data.framework,
+				});
+			}
+		} catch (error) {
+			console.error("Failed to load form:", error);
+		}
+	};
+
+	const getSavedForms = (): Array<{ name: string; data: Record<string, unknown>; createdAt: string }> => {
+		if (typeof window === "undefined") return [];
+
+		try {
+			return JSON.parse(localStorage.getItem("savedForms") || "[]");
+		} catch (error) {
+			console.error("Failed to get saved forms:", error);
+			return [];
+		}
+	};
+
+	const deleteSavedForm = (formName: string) => {
+		if (typeof window === "undefined") return;
+
+		try {
+			const savedForms = JSON.parse(localStorage.getItem("savedForms") || "[]");
+			const filteredForms = savedForms.filter((form: any) => form.name !== formName);
+			localStorage.setItem("savedForms", JSON.stringify(filteredForms));
+		} catch (error) {
+			console.error("Failed to delete saved form:", error);
+		}
+	};
+
 	const batchAppendElements = (elements: Array<FormElementOrList>) => {
 		batch(() => {
 			elements.forEach((element) => {
@@ -503,7 +591,7 @@ const createActions = (
 					}
 				} catch (error) {
 					console.error(
-						`Failed to append element of type ${element?.fieldType}:`,
+						`Failed to append element of type ${(element as any)?.fieldType}:`,
 						error,
 					);
 					throw error;
@@ -550,6 +638,10 @@ const createActions = (
 		setSchemaName,
 		setValidationSchema,
 		setFramework,
+		saveForm,
+		loadForm,
+		getSavedForms,
+		deleteSavedForm,
 	};
 };
 const formBuilderActions = createActions(formBuilderCoreStore);

@@ -95,16 +95,28 @@ export const generateZodSchemaString = (schema: ZodType): string => {
 	}
 
 	if (schema instanceof z.ZodNumber) {
-		let result = "z.number()";
-		if ("checks" in schema.def && schema.def.checks) {
+		let result = "z.coerce.number()";
+		// In Zod v4, constraints are stored in the checks array with _zod.def structure
+		if ("checks" in schema.def && schema.def.checks && Array.isArray(schema.def.checks)) {
 			schema.def.checks.forEach((check: any) => {
-				if (check.kind === "min") {
-					result += `.min(${check.value})`;
+				// Check if the check object has the _zod property (Zod v4 structure)
+				if (check._zod && check._zod.def) {
+					const checkDef = check._zod.def;
+					if (checkDef.check === "greater_than") {
+						result += `.min(${checkDef.value}, "Must be at least ${checkDef.value}")`;
+					} else if (checkDef.check === "less_than") {
+						result += `.max(${checkDef.value}, "Must be at most ${checkDef.value}")`;
+					}
+				}
+				// Fallback for older Zod versions or different structures
+				else if (check.kind === "min") {
+					result += `.min(${check.value}, "Must be at least ${check.value}")`;
 				} else if (check.kind === "max") {
-					result += `.max(${check.value})`;
+					result += `.max(${check.value}, "Must be at most ${check.value}")`;
 				}
 			});
 		}
+
 		return result;
 	}
 
@@ -123,7 +135,7 @@ export const generateZodSchemaString = (schema: ZodType): string => {
 	}
 
 	if (schema instanceof z.ZodDate) {
-		return "z.coerce.date()";
+		return "z.date()";
 	}
 
 	if (schema instanceof z.ZodArray) {
@@ -162,14 +174,5 @@ export const getZodSchemaString = (formElements: FormElement[]): string => {
 
 	return `
   import * as z from "zod"
-
-  export interface ActionResponse<T = any> {
-      success: boolean
-      message: string
-      errors?: {
-          [K in keyof T]?: string[]
-      }
-      inputs?: T
-  }
   export const formSchema = z.object({\n${schemaEntries}\n});`;
 };

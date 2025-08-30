@@ -1,6 +1,5 @@
-/** biome-ignore-all lint/correctness/noChildrenProp: <explanation> */
-/** biome-ignore-all lint/correctness/noChildrenProp: <explanation> */
-
+/** biome-ignore-all lint/correctness/noChildrenProp: Required for form field rendering */
+// apps/web/src/components/builder/render-form-element.tsx
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import type * as React from "react";
@@ -325,17 +324,19 @@ export const RenderFormElement = ({
 					children={(field) => {
 						const min = formElement.min || 0;
 						const max = formElement.max || 100;
-						const step = formElement.step || 5;
-						const defaultValue = 25;
-						const value = Array.isArray(field.state.value)
-							? field.state.value
-							: [field.state.value || defaultValue];
+						const step = formElement.step || 1;
+						const defaultSliderValue = formElement.defaultValue || min;
+						const currentValue = field.state.value;
+						const sliderValue = Array.isArray(currentValue)
+							? currentValue
+							: [currentValue || defaultSliderValue];
+
 						return (
 							<field.FormItem className="w-full">
 								<field.FormLabel className="flex justify-between items-center">
-									{formElement.label}
-									<span>
-										{value}/{max}
+									{formElement.label} {formElement.required ? " *" : ""}
+									<span className="text-sm text-muted-foreground">
+										{sliderValue[0] || min} / {max}
 									</span>
 								</field.FormLabel>
 								<field.FormControl>
@@ -343,8 +344,7 @@ export const RenderFormElement = ({
 										min={min}
 										max={max}
 										step={step}
-										defaultValue={[defaultValue]}
-										value={value}
+										value={sliderValue}
 										onValueChange={(newValue) =>
 											field.handleChange(newValue[0])
 										}
@@ -381,8 +381,8 @@ export const RenderFormElement = ({
 									</SelectTrigger>
 								</field.FormControl>
 								<SelectContent>
-									{formElement.options.map(({ label, value }, i) => (
-										<SelectItem key={i} value={value}>
+									{formElement.options.map(({ label, value }) => (
+										<SelectItem key={value} value={value}>
 											{label}
 										</SelectItem>
 									))}
@@ -418,8 +418,8 @@ export const RenderFormElement = ({
 								</field.FormControl>
 								<MultiSelectContent>
 									<MultiSelectList>
-										{formElement.options.map(({ label, value }, i) => (
-											<MultiSelectItem key={i} value={value}>
+										{formElement.options.map(({ label, value }) => (
+											<MultiSelectItem key={value} value={value}>
 												{label}
 											</MultiSelectItem>
 										))}
