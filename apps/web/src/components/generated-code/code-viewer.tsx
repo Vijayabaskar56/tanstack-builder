@@ -101,21 +101,25 @@ export function CodeBlockPackagesInstallation() {
 			value: "pnpm",
 			shadcn: `pnpm add shadcn@latest add ${packages}`,
 			base: `pnpm add ${otherPackages}`,
+   registery : `pnpm dlx shadcn@canary add https://shadcn-tanstack-form.netlify.app/r/tanstack-form.json`
 		},
 		{
 			value: "npm",
 			shadcn: `npx shadcn@latest add ${packages}`,
 			base: `npx i ${otherPackages}`,
+   registery : `npx shadcn@canary add https://shadcn-tanstack-form.netlify.app/r/tanstack-form.json`
 		},
 		{
 			value: "yarn",
 			shadcn: `npx shadcn@latest add ${packages}`,
 			base: `npx add ${otherPackages}`,
+   registery : `yarn shadcn@canary add https://shadcn-tanstack-form.netlify.app/r/tanstack-form.json`
 		},
 		{
 			value: "bun",
 			shadcn: `bunx --bun shadcn@latest add ${packages}`,
 			base: `bunx --bun add ${otherPackages}`,
+   registery : `bunx --bun shadcn@canary add https://shadcn-tanstack-form.netlify.app/r/tanstack-form.json`
 		},
 	];
 
@@ -158,6 +162,29 @@ export function CodeBlockPackagesInstallation() {
 						<CodeBlock>
 							<CodeBlockCode
 								code={item.shadcn}
+								language="bash"
+								theme="github-dark"
+							/>
+						</CodeBlock>
+					</TabsContent>
+				))}
+			</Tabs>
+   <h2 className="font-sembold text-start mt-4">
+				Shadcn UI + TanStack Form Integration Registery
+			</h2>
+   <Tabs defaultValue="pnpm" className="w-full mt-2 rounded-md">
+				<TabsList>
+					{tabsData.map((item) => (
+						<TabsTrigger key={item.value} value={item.value}>
+							{item.value}
+						</TabsTrigger>
+					))}
+				</TabsList>
+				{tabsData.map((item) => (
+					<TabsContent key={item.value} value={item.value}>
+						<CodeBlock>
+							<CodeBlockCode
+								code={item.registery}
 								language="bash"
 								theme="github-dark"
 							/>
@@ -231,7 +258,7 @@ export function GeneratedFormCodeViewer() {
 					<TabsTrigger value="tsx">TSX</TabsTrigger>
 					<TabsTrigger value="schema">Schema</TabsTrigger>
 				</TabsList>
-				<GeneratedCodeInfoCard />
+				{/* <GeneratedCodeInfoCard /> */}
 			</div>
 			<TabsContent value="tsx" tabIndex={-1}>
 				<CodeBlockTSX />
