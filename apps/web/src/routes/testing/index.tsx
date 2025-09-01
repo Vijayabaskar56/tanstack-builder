@@ -1,443 +1,381 @@
-import { revalidateLogic, useStore } from "@tanstack/react-form";
+/** biome-ignore-all lint/correctness/noChildrenProp: Required for form field rendering */
+/** biome-ignore-all lint/correctness/useUniqueElementIds: <explanation> */
+
+import { useStore } from "@tanstack/react-form";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
-import { format } from "date-fns";
-import { Calendar as CalendarIcon } from "lucide-react";
-import { useCallback } from "react";
-import { toast } from "sonner";
+import { AnimatePresence, motion } from "motion/react";
+import { type JSX, useCallback } from "react";
+// import * as v from "valibot";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import {
-	InputOTP,
-	InputOTPGroup,
-	InputOTPSeparator,
-	InputOTPSlot,
-} from "@/components/ui/input-otp";
-import {
-	MultiSelect,
-	MultiSelectContent,
-	MultiSelectItem,
-	MultiSelectList,
-	MultiSelectTrigger,
-	MultiSelectValue,
-} from "@/components/ui/multi-select";
-import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from "@/components/ui/popover";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
-import { Slider } from "@/components/ui/slider";
-import { Switch } from "@/components/ui/switch";
-import { useAppForm } from "@/components/ui/tanstack-form";
+import { Progress } from "@/components/ui/progress";
+import { useAppForm, withForm } from "@/components/ui/tanstack-form";
 import { Textarea } from "@/components/ui/textarea";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { cn } from "@/lib/utils";
-
+import type { FormStep } from "@/form-types";
+import { useMultiStepForm } from "@/hooks/use-multi-step-form";
 export const Route = createFileRoute("/testing/")({
-	component: RouteComponent,
+	component: DraftForm,
 	beforeLoad: () => {
 		const env = import.meta.env.MODE;
-		console.log("🚀 ~ env:", env);
 		if (env !== "development") {
 			return <Navigate to="/" />;
 		}
 	},
 });
 
-export const formSchema = z.object({
-  "Checkbox-1756491828239": z.boolean(),
-  "DatePicker-1756491828986": z.date(),
-  "Input-1756491829757": z.string(),
-  "OTP-1756491830520": z.string(),
-  "MultiSelect-1756491831577": z.array(z.string()).nonempty("Please at least one item"),
-  "Password-1756491832369": z.string(),
-  "RadioGroup-1756491833109": z.string(),
-  "Select-1756491833887": z.string(),
-  "Slider-1756491834643": z.number().min(1).max(100),
-  "Switch-1756491835428": z.boolean(),
-  "Textarea-1756491836266": z.string(),
-  "ToggleGroup-1756491837079": z.array(z.string()).nonempty("Please at least one item")
-});
+// export const formSchema = v.object({
+//   name: v.pipe(v.string(), v.minLength(1, "Name is required")),
+//   lastName: v.optional(v.string()),
+//   yourEmail: v.pipe(v.string(), v.email()),
+//   phoneNumber: v.optional(
+//     v.pipe(v.string(), v.transform(Number), v.number())
+//   ),
+//   preferences: v.optional(
+//     v.pipe(
+//       v.array(v.string()),
+//       v.minLength(1, "Please select at least one item")
+//     )
+//   ),
+//   comment: v.optional(v.string()),
+// });
 
-function RouteComponent() {
+export const formSchema = z.object({
+	name: z.string().min(1, "Name is required"),
+	lastName: z.string().optional(),
+	yourEmail: z.email(),
+	phoneNumber: z.number().optional(),
+	preferences: z
+		.array(z.string())
+		.nonempty("Please at least one item")
+		.optional(),
+	comment: z.string().optional(),
+});
+export function DraftForm() {
 	const form = useAppForm({
 		defaultValues: {} as z.infer<typeof formSchema>,
-		validationLogic: revalidateLogic(),
 		validators: {
-			onDynamicAsyncDebounceMs: 500,
-			onDynamic: formSchema,
+			onChange: formSchema,
 		},
 		onSubmit: ({ value }) => {
 			console.log(value);
-			toast.success("success");
+		},
+		onSubmitInvalid({ formApi }) {
+			const errorMap = formApi.state.errorMap.onSubmit!;
+			const inputs = Array.from(
+				// Must match the selector used in your form
+				document.querySelectorAll("#myform input"),
+			) as HTMLInputElement[];
+
+			let firstInput: HTMLInputElement | undefined;
+			for (const input of inputs) {
+				if (errorMap[input.name]) {
+					firstInput = input;
+					break;
+				}
+			}
+			firstInput?.focus();
 		},
 	});
 	const handleSubmit = useCallback(
 		(e: React.FormEvent) => {
 			e.preventDefault();
 			e.stopPropagation();
-			form.handleSubmit();
+			void form.handleSubmit();
 		},
 		[form],
 	);
 	const isSubmitting = useStore(form.store, (state) => state.isSubmitting);
-  return (<div>
-    <form.AppForm>
-      <form onSubmit={handleSubmit} className="flex flex-col p-2 md:p-5 w-full mx-auto rounded-md max-w-3xl gap-2 border"  noValidate>
-        <form.AppField
-          name="Checkbox-1756491828239"
-          children={(field) => (
-            <field.FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-              <field.FormControl>
-                <Checkbox
-                  checked={field.state.value}
-                  onBlur={field.handleBlur}
-                  onCheckedChange={(checked : boolean) => {field.handleChange(checked)}}
-
-                />
-              </field.FormControl>
-              <div className="space-y-1 leading-none">
-                <field.FormLabel>Checkbox Label</field.FormLabel>
-
-                <field.FormMessage />
-              </div>
-            </field.FormItem>
-          )}
-        />
-
-      <form.AppField
-      name="DatePicker-1756491828986"
-      children={(field) => (
-        <field.FormItem className="flex flex-col">
-            <field.FormLabel>Pick a date </field.FormLabel>
-          <Popover>
-            <PopoverTrigger asChild>
-              <field.FormControl>
-                <Button
-                  variant={"outline-solid"}
-                  className={cn(
-                    "w-[240px] pl-3 text-start font-normal",
-                    !field.state.value && "text-muted-foreground"
-                  )}
-                >
-                  {field.state.value ? (
-                    format(field.state.value, "PPP")
-                  ) : (
-                    <span>Pick a date</span>
-                  )}
-                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                </Button>
-              </field.FormControl>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={field.state.value}
-                onSelect={field.handleChange}
-                initialFocus
-              />
-            </PopoverContent>
-          </Popover>
-
-          <field.FormMessage />
-        </field.FormItem>
-      )}
-    />
-<form.AppField
-                name="Input-1756491829757"
-                children={(field) => (
-                    <field.FormItem className="w-full">
-                     <field.FormLabel>Input Field </field.FormLabel>
-                      <field.FormControl>
-                        <Input
-                          placeholder="Enter your text"
-                          type={"text"}
-                          value={field.state.value}
-                          onBlur={field.handleBlur}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                        />
-                      </field.FormControl>
-
-                      <field.FormMessage />
-                  </field.FormItem>
-                  )}
-              />
-
-       <form.AppField
-          name="OTP-1756491830520"
-          children={(field) => (
-           <field.FormItem className="w-full">
-          <field.FormLabel>One-Time Password </field.FormLabel>
-          <field.FormControl>
-            <InputOTP
-              maxLength={6}
-              name={field.name}
-              value={field.state.value}
-              onBlur={field.handleBlur}
-              onChange={(e) => field.handleChange(e.target.value)}
-            >
-              <InputOTPGroup>
-                <InputOTPSlot index={0} />
-                <InputOTPSlot index={1} />
-                <InputOTPSlot index={2} />
-              </InputOTPGroup>
-              <InputOTPSeparator />
-              <InputOTPGroup>
-                <InputOTPSlot index={3} />
-                <InputOTPSlot index={4} />
-                <InputOTPSlot index={5} />
-              </InputOTPGroup>
-            </InputOTP>
-          </field.FormControl>
-          <field.FormDescription>Please enter the one-time password sent to your phone.</field.FormDescription>
-          <field.FormMessage />
-        </field.FormItem>
-          )}
-        />
-
-           <form.AppField
-              name="MultiSelect-1756491831577"
-              children={(field) => {
-              const options = [
-                      { value: '1', label: 'Option 1' },
-                      { value: '2', label: 'Option 2' },
-                      { value: '2', label: 'Option 3' },
-                    ]
-              return (
-                <field.FormItem className="w-full">
-                 <field.FormLabel>Select multiple options </field.FormLabel>
-                  <MultiSelect value={field.state.value} onValueChange={field.handleChange}>
-                    <field.FormControl>
-                      <MultiSelectTrigger>
-                        <MultiSelectValue
-                          placeholder={"undefined"}
-                        />
-                      </MultiSelectTrigger>
-                    </field.FormControl>
-                    <MultiSelectContent>
-                      <MultiSelectList>
-                        {options.map(({ label, value }) => (
-                          <MultiSelectItem key={label} value={value}>
-                            {label}
-                          </MultiSelectItem>
-                        ))}
-                      </MultiSelectList>
-                    </MultiSelectContent>
-                  </MultiSelect>
-
-                  <field.FormMessage />
-                </field.FormItem>
-              )}}
-            />
-
-          <form.AppField
-          name="Password-1756491832369"
-          children={(field) => (
-            <field.FormItem className="w-full">
-            <field.FormLabel>Password Field </field.FormLabel>
-              <field.FormControl>
-                <Input
-                  placeholder="Enter your password"
-                  type="password"
-                  value={field.state.value}
-                  onBlur={field.handleBlur}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                />
-              </field.FormControl>
-
-              <field.FormMessage />
-            </field.FormItem>
-          )}
-        />
-
-<form.AppField
-              name="RadioGroup-1756491833109"
-              children={(field) => {
-                const options =[
-                  { value: 'option-1', label: 'Option 1' },
-                  { value: 'option-2', label: 'Option 2' },
-                  { value: 'option-3', label: 'Option 3' },
-                ]
-              return (
-                <field.FormItem className="flex flex-col gap-2 w-full py-1">
-                   <field.FormLabel>Pick one option </field.FormLabel>
-                    <field.FormControl>
-                      <RadioGroup
-                        onValueChange={field.handleChange}
-                        defaultValue={field.state.value}
-                      >
-                        {options.map(({ label, value }) => (
-                          <RadioGroupItem
-                          key={value}
-                          value={value}
-                          className="flex items-center gap-x-2"
-                        >
-                          {label}
-                        </RadioGroupItem>
-                        ))}
-                      </RadioGroup>
-                    </field.FormControl>
-
-                    <field.FormMessage />
-                </field.FormItem>
-              )}}
-            />
-
-        <form.AppField
-          name="Select-1756491833887"
-          children={(field) => {
-          const options =[
-            { value: 'option-1', label: 'Option 1' },
-            { value: 'option-2', label: 'Option 2' },
-            { value: 'option-3', label: 'Option 3' },
-          ]
-          return (
-            <field.FormItem className="w-full">
-            <field.FormLabel>Select option </field.FormLabel>
-              <Select onValueChange={field.handleChange} defaultValue={field.state.value}>
-                <field.FormControl>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="" />
-                  </SelectTrigger>
-                </field.FormControl>
-                <SelectContent>
-                  {options.map(({ label, value }) => (
-                    <SelectItem key={value} value={value}>
-                      {label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              <field.FormMessage />
-            </field.FormItem>
-          )}}
-        />
-
-            <form.AppField
-              name="Slider-1756491834643"
-              children={(field) => (
-              <field.FormItem>
-                <field.FormLabel className="flex justify-between items-center">Set Range<span>{field.state.value}/{100}</span>
-                </field.FormLabel>
-                <field.FormControl>
-                  <Slider
-                    min={1}
-                    max={100}
-                    step={2}
-                    defaultValue={[5]}
-                    onValueChange={(values) => {
-                      field.handleChange(values[0]);
-                    }}
-                  />
-                </field.FormControl>
-                <field.FormDescription>Adjust the range by sliding.</field.FormDescription>
-                <field.FormMessage />
-              </field.FormItem>
-              )}
-            />
-
-            <form.AppField
-              name="Switch-1756491835428"
-              children={(field) => (
-                <field.FormItem className="flex flex-col p-3 justify-center w-full border rounded">
-                    <div className="flex items-center justify-between h-full">
-                      <field.FormLabel>Toggle Switch </field.FormLabel>
-                      <field.FormControl>
-                        <Switch
-                          checked={field.state.value}
-                          onCheckedChange={field.handleChange}
-                        />
-                      </field.FormControl>
-                    </div>
-                    <field.FormDescription>Turn on or off.</field.FormDescription>
-                </field.FormItem>
-              )}
-            />
-
-        <form.AppField
-          name="Textarea-1756491836266"
-          children={(field) => (
-            <field.FormItem>
-           <field.FormLabel>Textarea </field.FormLabel>
-              <field.FormControl>
-                <Textarea
-                  placeholder="Enter your text"
-                  className="resize-none"
-                  value={field.state.value}
-                  onBlur={field.handleBlur}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                />
-              </field.FormControl>
-              <field.FormDescription>A multi-line text input field</field.FormDescription>
-              <field.FormMessage />
-            </field.FormItem>
-          )}
-        />
-<form.AppField
-              name="ToggleGroup-1756491837079"
-              children={(field) => {
-              const options= [
-                     { value: 'monday', label: 'Mon' },
-                     { value: 'tuesday', label: 'Tue' },
-                     { value: 'wednesday', label: 'Wed' },
-                     { value: 'thursday', label: 'Thu' },
-                     { value: 'friday', label: 'Fri' },
-                     { value: 'saturday', label: 'Sat' },
-                     { value: 'sunday', label: 'Sun' },
-                  ]
-            return (
-              <field.FormItem className="flex flex-col gap-2 w-full py-1">
-               <field.FormLabel>Pick multiple days </field.FormLabel>
-                <field.FormControl>
-                  <ToggleGroup
-                      variant="outline"
-                      onValueChange={field.handleChange}
-                      defaultValue={field.state.value}
-                      type='multiple'
-                      className="flex justify-start items-center gap-2 flex-wrap"
-                    >
-                     {options.map(({ label, value }) => (
-                        <ToggleGroupItem
-                          key={value}
-                          value={value}
-                          className="flex items-center gap-x-2"
-                        >
-                          {label}
-                        </ToggleGroupItem>))
-                    }
-                  </ToggleGroup>
-                </field.FormControl>
-                undefined
-                <field.FormMessage />
-              </field.FormItem>
-            )
-              }}
-            />
-<h1 className="text-3xl font-bold">Heading 1</h1>
-<h2 className="text-2xl font-bold">Heading 2</h2>
-<h3 className="text-xl font-bold">Heading 3</h3>
-<p className="text-base">E.g This is a note</p>
-<div className="py-3 w-full">
-                <Separator />
-              </div>
-        <div className="flex justify-end items-center w-full pt-3">
-          <Button className="rounded-lg" size="sm">
-            {isSubmitting ? 'Submitting...' : 'Submit'}
-          </Button>
-        </div>
-      </form>
-    </form.AppForm>
-  </div>)
+	return (
+		<div>
+			<form.AppForm>
+				<form
+					noValidate
+					onSubmit={handleSubmit}
+					className="flex flex-col p-2 md:p-5 w-full mx-auto rounded-md max-w-3xl gap-2 border"
+					id="myform"
+				>
+					<MultiStepViewer form={form} />
+					<div className="flex justify-end items-center w-full pt-3">
+						<Button className="rounded-lg" size="sm">
+							{isSubmitting ? "Submitting..." : "Submit"}
+						</Button>
+					</div>
+				</form>
+			</form.AppForm>
+		</div>
+	);
 }
+//------------------------------
+// Define the form structure for type inference
+const multiStepFormOptions = {
+	defaultValues: {} as z.infer<typeof formSchema>,
+};
+
+/**
+ * Multi-step form viewer using withForm HOC for proper type inference
+ */
+const MultiStepViewer = withForm({
+	...multiStepFormOptions,
+	render: function MultiStepFormRender({ form }) {
+		const stepFormElements: {
+			[key: number]: JSX.Element;
+		} = {
+			1: (
+				<div>
+					<h2 className="text-2xl font-bold">Personal Details</h2>
+					<p className="text-base">Please provide your personal details</p>
+					<form.AppField
+						name="name"
+						children={(field) => (
+							<field.FormItem className="w-full">
+								<field.FormLabel>First name *</field.FormLabel>
+								<field.FormControl>
+									<Input
+										placeholder="First name"
+										type="text"
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+									/>
+								</field.FormControl>
+
+								<field.FormMessage />
+							</field.FormItem>
+						)}
+					/>
+
+					<form.AppField
+						name="lastName"
+						children={(field) => (
+							<field.FormItem className="w-full">
+								<field.FormLabel>Last name </field.FormLabel>
+								<field.FormControl>
+									<Input
+										placeholder="Last name"
+										type="text"
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+									/>
+								</field.FormControl>
+
+								<field.FormMessage />
+							</field.FormItem>
+						)}
+					/>
+				</div>
+			),
+			2: (
+				<div>
+					<h2 className="text-2xl font-bold">Contact Information</h2>
+					<p className="text-base">Please provide your contact information</p>
+					<form.AppField
+						name="yourEmail"
+						children={(field) => (
+							<field.FormItem className="w-full">
+								<field.FormLabel>Your Email *</field.FormLabel>
+								<field.FormControl>
+									<Input
+										placeholder="Enter your email"
+										type="email"
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+									/>
+								</field.FormControl>
+
+								<field.FormMessage />
+							</field.FormItem>
+						)}
+					/>
+
+					<form.AppField
+						name="phoneNumber"
+						mode="value"
+						children={(field) => (
+							<field.FormItem className="w-full">
+								<field.FormLabel>Phone Number </field.FormLabel>
+								<field.FormControl>
+									<Input
+										placeholder="Enter your phone number"
+										type="tel"
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										inputMode="tel"
+										pattern="[0-9]*"
+										onInput={(e) => {
+											const target = e.target as HTMLInputElement;
+											const numericValue = target.value.replace(/[^0-9]/g, "");
+											if (target.value !== numericValue) {
+												target.value = numericValue;
+												field.handleChange(Number(numericValue));
+											}
+										}}
+										onChange={(e) => field.handleChange(Number(e.target.value))}
+									/>
+								</field.FormControl>
+
+								<field.FormMessage />
+							</field.FormItem>
+						)}
+					/>
+				</div>
+			),
+			3: (
+				<div>
+					<h2 className="text-2xl font-bold">Your Preferences</h2>
+					<form.AppField
+						name="preferences"
+						children={(field) => {
+							const options = [
+								{ value: "monday", label: "Mon" },
+								{ value: "tuesday", label: "Tue" },
+								{ value: "wednesday", label: "Wed" },
+								{ value: "thursday", label: "Thu" },
+								{ value: "friday", label: "Fri" },
+								{ value: "saturday", label: "Sat" },
+								{ value: "sunday", label: "Sun" },
+							];
+							return (
+								<field.FormItem className="flex flex-col gap-2 w-full py-1">
+									<field.FormLabel>
+										Tell us about your interests and preferences.{" "}
+									</field.FormLabel>
+									<field.FormControl>
+										<ToggleGroup
+											variant="outline"
+											onValueChange={field.handleChange}
+											defaultValue={field.state.value}
+											type="multiple"
+											className="flex justify-start items-center gap-2 flex-wrap"
+										>
+											{options.map(({ label, value }) => (
+												<ToggleGroupItem
+													key={value}
+													value={value}
+													className="flex items-center gap-x-2"
+												>
+													{label}
+												</ToggleGroupItem>
+											))}
+										</ToggleGroup>
+									</field.FormControl>
+
+									<field.FormMessage />
+								</field.FormItem>
+							);
+						}}
+					/>
+
+					<form.AppField
+						name="comment"
+						children={(field) => (
+							<field.FormItem>
+								<field.FormLabel>Feedback Comment </field.FormLabel>
+								<field.FormControl>
+									<Textarea
+										placeholder="Share your feedback"
+										className="resize-none"
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+									/>
+								</field.FormControl>
+
+								<field.FormMessage />
+							</field.FormItem>
+						)}
+					/>
+				</div>
+			),
+		};
+		const steps = Object.keys(stepFormElements).map(Number);
+		const fields = Object.keys(formSchema.shape);
+		const stepFields = {
+			1: fields.slice(0, 2),
+			2: fields.slice(2, 4),
+			3: fields.slice(4, 6),
+		};
+		const stepObjects = steps.map((step) => ({
+			id: step.toString(),
+			stepFields: stepFields[step as keyof typeof stepFields],
+		}));
+		const { currentStep, isLastStep, goToNext, goToPrevious } =
+			useMultiStepForm({
+				initialSteps: stepObjects as unknown as FormStep[],
+				onStepValidation: async (currentStepData) => {
+					const validationPromises = currentStepData.stepFields.map(
+						(fieldName) => {
+							// @ts-expect-error
+							return form.validateField(fieldName, "change");
+						},
+					);
+
+					const validationResults = await Promise.all(validationPromises);
+					const hasErrors = form.getAllErrors();
+					return Object.keys(hasErrors.fields).length === 0;
+				},
+			});
+
+		const current = stepFormElements[currentStep];
+		const {
+			baseStore: {
+				state: { isSubmitting },
+			},
+		} = form;
+
+		return (
+			<div className="flex flex-col gap-2 pt-3">
+				<div className="flex flex-col items-center justify-start gap-1">
+					<span>
+						Step {currentStep} of {steps.length}
+					</span>
+					<Progress value={(currentStep / steps.length) * 100} />
+				</div>
+				<AnimatePresence mode="popLayout">
+					<motion.div
+						key={currentStep}
+						initial={{ opacity: 0, x: 15 }}
+						animate={{ opacity: 1, x: 0 }}
+						exit={{ opacity: 0, x: -15 }}
+						transition={{ duration: 0.4, type: "spring" }}
+						className="flex flex-col gap-2"
+					>
+						{current}
+					</motion.div>
+				</AnimatePresence>
+				<div className="flex items-center justify-between gap-3 w-full pt-3">
+					<Button
+						size="sm"
+						variant="ghost"
+						onClick={goToPrevious}
+						type="button"
+					>
+						Previous
+					</Button>
+					{isLastStep ? (
+						<Button size="sm" type="submit">
+							{isSubmitting ? "Submitting..." : "Submit"}
+						</Button>
+					) : (
+						<Button
+							size="sm"
+							type="button"
+							variant="secondary"
+							onClick={async () => {
+								const success = await goToNext();
+								if (!success) {
+									// Optionally show error message or focus first invalid field
+									console.log("Validation failed, cannot proceed to next step");
+								}
+							}}
+						>
+							Next
+						</Button>
+					)}
+				</div>
+			</div>
+		)},
+});

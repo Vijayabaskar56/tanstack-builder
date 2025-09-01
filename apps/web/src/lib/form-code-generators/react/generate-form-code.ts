@@ -1,10 +1,12 @@
+import { useAppForm } from "@/components/ui/tanstack-form";
 import type { FormElement, FormElementOrList, FormStep } from "@/form-types";
+import { useFormStore } from "@/hooks/use-form-store";
+import { getDefaultValues } from "@/lib/form-code-generators/react/generate-default-value";
 import { getFormElementCode } from "@/lib/form-code-generators/react/generate-form-component";
 import { generateImports } from "@/lib/form-code-generators/react/generate-imports";
 import { flattenFormSteps } from "@/lib/form-elements-helpers";
 
 const renderFields = (fields: FormElementOrList[]) => {
-	console.log("🚀 ~ renderFields ~ fields:", fields)
 	return fields
 		.map((FormElement) => {
 			if (Array.isArray(FormElement)) {
@@ -33,6 +35,8 @@ export const generateFormCode = ({
 		generateImports(flattenedFormElements as FormElement[]),
 	).join("\n");
 
+ const defaultValues = getDefaultValues()
+ const {settings} = useFormStore()
 	const singleStepFormCode = [
 		{
 			file: "single-step-form.tsx",
@@ -42,13 +46,28 @@ ${imports}
 export function DraftForm() {
 
 const form = useAppForm({
-  defaultValues: {} as z.infer<typeof formSchema>,
+  defaultValues: ${defaultValues},
   validationLogic: revalidateLogic(),
   validators: {     onDynamicAsyncDebounceMs: 500, onDynamic: formSchema },
   onSubmit : ({value}) => {
   console.log(value)
 			toast.success("success");
-  }
+  },${settings.focusOnError && `
+  onSubmitInvalid({ formApi }) {
+				const errorMap = formApi.state.errorMap.onDynamic!;
+				const inputs = Array.from(
+					document.querySelectorAll("#previewForm input"),
+				) as HTMLInputElement[];
+
+				let firstInput: HTMLInputElement | undefined;
+				for (const input of inputs) {
+					if (errorMap[input.name]) {
+						firstInput = input;
+						break;
+					}
+				}
+				firstInput?.focus();
+		}`},
 });
 
 
@@ -105,7 +124,7 @@ return (
   export function DraftForm() {
 
   const form = useAppForm({
-    defaultValues: {} as z.infer<typeof formSchema>,
+    defaultValues: ${defaultValues},
     validators: { onChange: formSchema },
     onSubmit : ({value}) => {
     console.log(value)
@@ -137,14 +156,15 @@ return (
   )
 }
 //------------------------------
-/**
- * Used to render a multi-step form in preview mode
-*/
-export function MultiStepViewer({
-  form,
-  }: {
-    form: any;
-    }) {
+// Define the form structure for type inference
+const multiStepFormOptions = {
+ defaultValues: ${defaultValues},
+};
+
+//------------------------------
+const MultiStepViewer = withForm({
+ ...multiStepFormOptions,
+ render: function MultiStepFormRender({ form }) {
     const stepFormElements: { [key: number]: JSX.Element } = ${stringifiedStepComponents};
 
     const steps = Object.keys(stepFormElements).map(Number);
@@ -158,7 +178,10 @@ export function MultiStepViewer({
         },
       });
   const current = stepFormElements[currentStep - 1]
-  const { formState: { isSubmitting } } = form
+  const { 	baseStore: {
+				state: { isSubmitting },
+			}, } = form
+
   return (
     <div className="flex flex-col gap-2 pt-3">
       <div className="flex flex-col items-center justify-start gap-1">
@@ -199,8 +222,8 @@ export function MultiStepViewer({
         )}
       </div>
     </div>
-  );
-}`;
+  )}
+});`;
 	const useMultiStepFormCode = `
 //------------------------------use-multi-step-form.tsx
 type UseFormStepsProps = {

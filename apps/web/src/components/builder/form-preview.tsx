@@ -1,4 +1,5 @@
 //form-preview.tsx
+/** biome-ignore-all lint/correctness/useUniqueElementIds: <explanation> */
 import { MultiStepFormPreview } from "@/components/builder/multi-step-preview";
 import { RenderFormElement } from "@/components/builder/render-form-element";
 import { Button } from "@/components/ui/button";
@@ -15,14 +16,19 @@ export function SingleStepFormPreview({ form }: FormPreviewProps) {
 	const { onSubmit } = useFormBuilder();
 	const {formElements }= useFormStore();
 	const isMS = useIsMultiStep();
-	// Get form data keys from TanStack form state
-	const data = Object.keys(form.baseStore.state.values);
-
-	return (
+	if (formElements.length < 1)
+    return (
+      <div className="h-full py-10 px-3">
+        <p className="text-center text-lg text-balance font-medium">
+          Nothing to preview. Add form elements to preview
+        </p>
+      </div>
+ );
+ return (
 		<div className="w-full animate-in rounded-md">
-			{data.length > 0 ? (
 				<form.AppForm>
 					<form
+      id='previewForm'
       noValidate
 						onSubmit={async (e) => {
 							e.preventDefault();
@@ -35,10 +41,13 @@ export function SingleStepFormPreview({ form }: FormPreviewProps) {
 						className="flex flex-col p-2 md:px-5 w-full gap-2"
 					>
 						{isMS ? (
+       <>
+       {console.log('this is working')}
 							<MultiStepFormPreview
 								formElements={formElements as unknown as FormStep[]}
 								form={form}
-							/>
+        />
+        </>
 						) : (
 							(formElements as FormElementOrList[]).map((element, i) => {
 								if (Array.isArray(element)) {
@@ -75,13 +84,6 @@ export function SingleStepFormPreview({ form }: FormPreviewProps) {
 						)}
 					</form>
 				</form.AppForm>
-			) : (
-				<div className="h-full py-10 px-3">
-					<p className="text-center text-muted-foreground text-lg">
-						Add form elements to preview
-					</p>
-				</div>
-			)}
 		</div>
 	);
 }

@@ -1,9 +1,12 @@
 // use-form-builder.tsx
 
 import { revalidateLogic } from "@tanstack/react-form";
+import { toast } from "sonner";
+import type z from "zod";
 import { useAppForm } from "@/components/ui/tanstack-form";
 import type { FormElement, FormStep } from "@/form-types";
 import { useFormStore, useIsMultiStep } from "@/hooks/use-form-store";
+import { processFormElements } from "@/lib/form-code-generators/react/generate-default-value";
 import { flattenFormSteps } from "@/lib/form-elements-helpers";
 import { generateZodSchemaObject } from "@/lib/schema-generators/generate-zod-schema";
 
@@ -45,37 +48,52 @@ export const useFormBuilder = (): {
 		[key: string]: any;
 	}
 	const isMS = useIsMultiStep();
-	const { actions, formElements } = useFormStore();
+	const { actions, formElements, settings } = useFormStore();
 	const flattenFormElements = isMS
 		? flattenFormSteps(formElements as FormStep[]).flat()
 		: (formElements.flat() as FormElement[]);
 	const filteredFormFields = flattenFormElements.filter((o) => !o.static);
-	const defaultValues: DefaultValues = filteredFormFields.reduce(
-		(acc: DefaultValues, element) => {
-			acc[element.name] = element?.defaultValue ?? "";
-			return acc;
-		},
-		{},
-	);
+	// const defaultValues: DefaultValues = filteredFormFields.reduce(
+	// 	(acc: DefaultValues, element) => {
+	// 		acc[element.name] = element?.defaultValue ?? "";
+	// 		return acc;
+	// 	},
+	// 	{},
+	// );
+	// Generate default values based on form field types
+	const defaultValues = processFormElements(formElements);
+
 	const zodSchema = generateZodSchemaObject(filteredFormFields);
 	const form = useAppForm({
-		validators: { onDynamic: zodSchema },
-		defaultValues: defaultValues ?? {
-			username: "",
-			email: "",
-			age: 0,
-			bio: "",
-		},
+		defaultValues: defaultValues as z.infer<typeof zodSchema>,
 		validationLogic: revalidateLogic(),
+		validators: { onDynamic: zodSchema },
 		listeners: {
 			onSubmit: ({ formApi }) => {
 				console.log(
 					formApi.baseStore.state.values,
 					formApi.baseStore.state.fieldMetaBase,
 				);
-				onSubmit(formApi.getFieldValue("username"));
 				formApi.reset();
+				toast.success("Submitted Successfully");
 			},
+		},
+		onSubmitInvalid({ formApi }) {
+			if (settings.focusOnError) {
+				const errorMap = formApi.state.errorMap.onDynamic!;
+				const inputs = Array.from(
+					document.querySelectorAll("#previewForm input"),
+				) as HTMLInputElement[];
+
+				let firstInput: HTMLInputElement | undefined;
+				for (const input of inputs) {
+					if (errorMap[input.name]) {
+						firstInput = input;
+						break;
+					}
+				}
+				firstInput?.focus();
+			}
 		},
 	});
 	const { reset } = form;

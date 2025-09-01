@@ -1,85 +1,217 @@
-import { Settings, Search, Palette, Shield, Database } from "lucide-react";
-import { useState } from "react";
-import { ScrollArea } from "@/components/ui/scroll-area";
+// apps/web/src/components/builder/SettingsSidebar.tsx
+
+import { Eye, Hash, Save, Shield } from "lucide-react";
+import { useId } from "react";
+import { toast } from "sonner";
+import * as z from "zod";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { useAppForm } from "@/components/ui/tanstack-form";
+import { useFormStore } from "@/hooks/use-form-store";
+
+// Zod schema for settings validation
+const settingsSchema = z.object({
+	defaultRequiredValidation: z.boolean(),
+	numericInput: z.boolean(),
+	focusOnError: z.boolean(),
+	validationMethod: z.enum(["onChange","onBlue","onDynamic"]),
+	asyncValidation: z.number().min(0).max(10000),
+});
 
 export function SettingsSidebar() {
-  const [searchQuery, setSearchQuery] = useState("");
+	const requiredValidationId = useId();
+	const numericInputId = useId();
+	const focusOnErrorId = useId();
+	const validationMethodId = useId();
+	const asyncValidationId = useId();
+	//TODO: Prefered Schema , Prefered Framework
+	const {settings, actions} = useFormStore();
+ const form = useAppForm({
+		defaultValues: {
+			defaultRequiredValidation: true,
+			numericInput: false,
+			focusOnError: true,
+			validationMethod: "onDynamic",
+			asyncValidation: 300,
+		} as z.infer<typeof settingsSchema>,
+		validators: {
+			onChange: settingsSchema,
+		},
+		onSubmit: async ({ value }) => {
+			// Handle settings save
+			console.log("Settings saved:", value);
+			toast.success("Settings saved successfully!");
+		},
+  listeners : ({
+   onChangeDebounceMs : 1000,
+   onChange :({formApi}) => {
+     actions.setSettings(formApi.baseStore.state.values)
+   }
+  })
+	});
 
-  return (
-    <div className="flex flex-col h-full md:h-full max-h-[35vh] md:max-h-none">
-      <div className="flex-shrink-0 p-3 sm:p-4 border-b">
-        <h2 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Settings</h2>
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-          <Input
-            placeholder="Search settings..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 text-sm sm:text-base"
-          />
-        </div>
-      </div>
-      <ScrollArea className="flex-1 overflow-auto max-h-[calc(35vh-8rem)] md:max-h-none">
-        <div className="p-3 sm:p-4 space-y-4 sm:space-y-6">
-          {/* Form Settings */}
-          <div>
-            <h3 className="text-xs font-medium text-muted-foreground mb-2 pl-3 sm:pl-4">
-              Form Settings
-            </h3>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between p-3 border rounded-lg">
-                <div className="flex items-center gap-2">
-                  <Shield className="w-4 h-4 text-muted-foreground" />
-                  <Label htmlFor="required-validation" className="text-sm">Required Field Validation</Label>
-                </div>
-                <Switch id="required-validation" defaultChecked />
-              </div>
-              <div className="flex items-center justify-between p-3 border rounded-lg">
-                <div className="flex items-center gap-2">
-                  <Database className="w-4 h-4 text-muted-foreground" />
-                  <Label htmlFor="auto-save" className="text-sm">Auto Save</Label>
-                </div>
-                <Switch id="auto-save" />
-              </div>
-            </div>
-          </div>
+	return (
+		<div className="flex flex-col h-full md:h-full max-h-[35vh] md:max-h-none">
+			<form.AppForm>
+				<form
+					noValidate
+					onSubmit={(e) => {
+						e.preventDefault();
+						e.stopPropagation();
+						void form.handleSubmit();
+					}}
+				>
+					<div className="flex-shrink-0 p-3 sm:p-4 border-b">
+						<div className="flex items-center justify-between">
+							<h2 className="text-base sm:text-lg font-semibold">Settings</h2>
+							{/* <Button size="sm" type="submit">
+								<Save className="w-4 h-4 mr-2" />
+								Save
+							</Button> */}
+						</div>
+					</div>
 
-          {/* Appearance Settings */}
-          <div>
-            <h3 className="text-xs font-medium text-muted-foreground mb-2 pl-3 sm:pl-4">
-              Appearance
-            </h3>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between p-3 border rounded-lg">
-                <div className="flex items-center gap-2">
-                  <Palette className="w-4 h-4 text-muted-foreground" />
-                  <Label htmlFor="dark-mode" className="text-sm">Dark Mode</Label>
-                </div>
-                <Switch id="dark-mode" />
-              </div>
-            </div>
-          </div>
+					<ScrollArea className="flex-1 overflow-auto max-h-[calc(35vh-8rem)] md:max-h-none">
+						<div className="p-3 sm:p-4 space-y-4 sm:space-y-6">
+							{/* Form Settings */}
+							<div>
+								<h3 className="text-xs font-medium text-muted-foreground mb-2 pl-3 sm:pl-4">
+									Form Settings
+								</h3>
+								<div className="space-y-3">
+									<form.AppField name="defaultRequiredValidation" mode="value">
+										{(field) => (
+											<div className="flex items-center justify-between p-3 border rounded-lg">
+												<div className="flex items-center gap-2">
+													<Shield className="w-4 h-4 text-muted-foreground" />
+													<Label
+														htmlFor={requiredValidationId}
+														className="text-sm"
+													>
+														Default Required Validation
+													</Label>
+												</div>
+												<Switch
+													id={requiredValidationId}
+													checked={field.state.value}
+													onCheckedChange={field.handleChange}
+												/>
+											</div>
+										)}
+									</form.AppField>
 
-          {/* Advanced Settings */}
-          <div>
-            <h3 className="text-xs font-medium text-muted-foreground mb-2 pl-3 sm:pl-4">
-              Advanced
-            </h3>
-            <div className="space-y-3">
-              <div className="p-3 border rounded-lg">
-                <div className="flex items-center gap-2 mb-2">
-                  <Settings className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-sm font-medium">Custom Validation</span>
-                </div>
-                <p className="text-xs text-muted-foreground">Configure custom validation rules</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </ScrollArea>
-    </div>
-  );
+									<form.AppField name="focusOnError" mode="value">
+										{(field) => (
+											<div className="flex items-center justify-between p-3 border rounded-lg">
+												<div className="flex items-center gap-2">
+													<Eye className="w-4 h-4 text-muted-foreground" />
+													<Label htmlFor={focusOnErrorId} className="text-sm">
+														Focus on Error Fields
+													</Label>
+												</div>
+												<Switch
+													id={focusOnErrorId}
+													checked={field.state.value}
+													onCheckedChange={field.handleChange}
+												/>
+											</div>
+										)}
+									</form.AppField>
+
+									<form.AppField name="numericInput" mode="value">
+										{(field) => (
+											<div className="flex items-center justify-between p-3 border rounded-lg">
+												<div className="flex items-center gap-2">
+													<Hash className="w-4 h-4 text-muted-foreground" />
+													<Label htmlFor={numericInputId} className="text-sm">
+														Numeric Input Validation
+													</Label>
+												</div>
+												<Switch
+            disabled
+													id={numericInputId}
+													checked={field.state.value}
+													onCheckedChange={field.handleChange}
+												/>
+											</div>
+										)}
+									</form.AppField>
+
+
+									<form.AppField name="validationMethod" mode="value">
+										{(field) => (
+											<div className="p-3 border rounded-lg">
+												<Label
+													htmlFor={validationMethodId}
+													className="text-sm font-medium mb-2 block"
+												>
+													Validation Method
+												</Label>
+												<Select
+													value={field.state.value}
+             disabled
+													onValueChange={(value) =>
+														field.handleChange(
+															value as z.infer<typeof settingsSchema>['validationMethod']
+														)
+													}
+												>
+													<SelectTrigger id={validationMethodId}>
+														<SelectValue placeholder="Select validation method" />
+													</SelectTrigger>
+													<SelectContent>
+														<SelectItem value="onBlue">On Blur</SelectItem>
+														<SelectItem value="onChange">On Change</SelectItem>
+														<SelectItem value="onDynamic">On Dynamic</SelectItem>
+													</SelectContent>
+												</Select>
+												<field.FormMessage />
+											</div>
+										)}
+									</form.AppField>
+
+									<form.AppField name="asyncValidation" mode="value">
+										{(field) => (
+											<div className="p-3 border rounded-lg">
+												<Label
+													htmlFor={asyncValidationId}
+													className="text-sm font-medium mb-2 block"
+												>
+													Async Validation Delay (ms)
+												</Label>
+												<Input
+													id={asyncValidationId}
+             disabled
+													type="number"
+													min="0"
+													max="10000"
+													value={field.state.value}
+													onChange={(e) =>
+														field.handleChange(Number(e.target.value))
+													}
+													onBlur={field.handleBlur}
+													placeholder="300"
+												/>
+												<field.FormMessage />
+											</div>
+										)}
+									</form.AppField>
+								</div>
+							</div>
+						</div>
+					</ScrollArea>
+				</form>
+			</form.AppForm>
+		</div>
+	);
 }

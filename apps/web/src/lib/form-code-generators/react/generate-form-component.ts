@@ -10,6 +10,7 @@ export const getFormElementCode = (field: FormElement) => {
                      ${field.label && `<field.FormLabel>${field.label} ${field.required ? '*' : ''}</field.FormLabel>`}
                       <field.FormControl>
                         <Input
+                          name={field.name}
                           placeholder="${field.placeholder}"
                           type={"${field.type}"}
                           value={field.state.value}
@@ -67,6 +68,7 @@ export const getFormElementCode = (field: FormElement) => {
                 <Textarea
                   placeholder="${field.placeholder ?? ''}"
                   className="resize-none"
+                  name={field.name}
                   value={field.state.value}
                   onBlur={field.handleBlur}
                   onChange={(e) => field.handleChange(e.target.value)}
@@ -86,6 +88,7 @@ export const getFormElementCode = (field: FormElement) => {
             ${field.label && `<field.FormLabel>${field.label} ${field.required ? '*' : ''}</field.FormLabel>`}
               <field.FormControl>
                 <Input
+                  name={field.name}
                   placeholder="${field.placeholder}"
                   type="password"
                   value={field.state.value}
@@ -106,6 +109,7 @@ export const getFormElementCode = (field: FormElement) => {
             <field.FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
               <field.FormControl>
                 <Checkbox
+                  name={field.name}
                   checked={field.state.value}
                   onBlur={field.handleBlur}
                   onCheckedChange={(checked : boolean) => {field.handleChange(checked)}}
@@ -209,7 +213,7 @@ export const getFormElementCode = (field: FormElement) => {
           return (
             <field.FormItem className="w-full">
             ${field.label && `<field.FormLabel>${field.label} ${field.required ? '*' : ''}</field.FormLabel>`}
-              <Select onValueChange={field.handleChange} defaultValue={field.state.value}>
+              <Select name={field.name} onValueChange={field.handleChange} defaultValue={field.state.value} value={field.state.value as string}>
                 <field.FormControl>
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="${field.placeholder}" />
@@ -238,6 +242,7 @@ export const getFormElementCode = (field: FormElement) => {
                 </field.FormLabel>
                 <field.FormControl>
                   <Slider
+                    name={field.name}
                     min={${field?.min}}
                     max={${field?.max}}
                     step={${field?.step}}
@@ -285,6 +290,7 @@ export const getFormElementCode = (field: FormElement) => {
                    ${field.label && `<field.FormLabel>${field.label} ${field.required ? '*' : ''}</field.FormLabel>`}
                     <field.FormControl>
                       <RadioGroup
+                        name={field.name}
                         onValueChange={field.handleChange}
                         defaultValue={field.state.value}
                       >

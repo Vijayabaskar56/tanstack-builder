@@ -88,3 +88,14 @@ export const createDefaultField = (type: FieldType, id: string): Field => {
 
   return base as Field;
 };
+
+
+// Settigns Types
+
+export type Settings = {
+  defaultRequiredValidation?: boolean;
+  numericInput?: boolean;
+  focusOnError?: boolean;
+  validationMethod?: 'onChange' | 'onBlue' | 'onDynamic';
+  asyncValidation?: number;
+};

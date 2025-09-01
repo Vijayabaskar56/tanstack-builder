@@ -11,21 +11,21 @@ export const templates: TemplateList = {
     template: [
       {
         id: "signup-heading",
-        name: "Heading",
+        name: "heading",
         fieldType: "H1",
         static: true,
         content: "Sign Up",
       },
       {
         id: "signup-paragraph",
-        name: "Paragraph",
+        name: "paragraph",
         fieldType: "P",
         static: true,
         content: "You need an account to get started",
       },
       {
         id: "signup-name",
-        name: "Name",
+        name: "name",
         fieldType: "Input",
         type: "text",
         label: "Name",
@@ -34,7 +34,7 @@ export const templates: TemplateList = {
       },
       {
         id: "signup-email",
-        name: "Email",
+        name: "email",
         fieldType: "Input",
         type: "email",
         label: "Email",
@@ -43,7 +43,7 @@ export const templates: TemplateList = {
       },
       {
         id: "signup-password",
-        name: "Password",
+        name: "password",
         fieldType: "Password",
         type: "password",
         label: "Password",
@@ -52,7 +52,7 @@ export const templates: TemplateList = {
       },
       {
         id: "signup-password-confirm",
-        name: "Confirm Password",
+        name: "confirmPassword",
         fieldType: "Password",
         type: "password",
         label: "Confirm Password",
@@ -73,21 +73,21 @@ export const templates: TemplateList = {
     template: [
       {
         id: "login-heading",
-        name: "Login",
+        name: "login",
         fieldType: "H1",
         static: true,
         content: "Login",
       },
       {
         id: "sign-up-paragraph",
-        name: "Paragraph",
+        name: "paragraph",
         fieldType: "P",
         static: true,
         content: "Login to create an account",
       },
       {
         id: "login-email",
-        name: "Email",
+        name: "email",
         label: "Email",
         fieldType: "Input",
         type: "email",
@@ -95,7 +95,7 @@ export const templates: TemplateList = {
       },
       {
         id: "login-password",
-        name: "Password",
+        name: "password",
         fieldType: "Password",
         placeholder: "Password",
         label: "Password",
@@ -109,21 +109,21 @@ export const templates: TemplateList = {
     template: [
       {
         id: "feedback-heading",
-        name: "Feedback Form",
+        name: "feedbackForm",
         fieldType: "H1",
         static: true,
         content: "Feedback Form",
       },
       {
         id: "feedback-paragraph",
-        name: "Paragraph",
+        name: "paragraph",
         fieldType: "P",
         static: true,
         content: "Please provide your feedback",
       },
       {
         id: "feedback-comment",
-        name: "Comment",
+        name: "comment",
         fieldType: "Textarea",
         placeholder: "Share your feedback",
         label: "Feedback Comment",
@@ -136,21 +136,21 @@ export const templates: TemplateList = {
     template: [
       {
         id: "waitlist-heading",
-        name: "Waitlist",
+        name: "waitlist",
         fieldType: "H1",
         static: true,
         content: "Waitlist",
       },
       {
         id: "waitlist-paragraph",
-        name: "Paragraph",
+        name: "paragraph",
         fieldType: "P",
         static: true,
         content: "Join our waitlist to get early access",
       },
       {
         id: "waitlist-email",
-        name: "Email",
+        name: "email",
         label: "Your Email",
         fieldType: "Input",
         type: "email",
@@ -198,7 +198,7 @@ export const templates: TemplateList = {
       ],
       {
         id: "contact-message",
-        name: "Message",
+        name: "message",
         fieldType: "Textarea",
         label: "Message",
         placeholder: "Enter your message",
@@ -221,7 +221,7 @@ export const templates: TemplateList = {
         stepFields: [
           {
             id: "survey-personal-heading",
-            name: "heading-2",
+            name: "heading2",
             fieldType: "H2",
             static: true,
             content: "Personal Details",
@@ -235,7 +235,7 @@ export const templates: TemplateList = {
           },
           {
             id: "survey-first-name",
-            name: "Name",
+            name: "name",
             fieldType: "Input",
             placeholder: "First name",
             label: "First name",
@@ -243,7 +243,7 @@ export const templates: TemplateList = {
           },
           {
             id: "survey-last-name",
-            name: "last-name",
+            name: "lastName",
             fieldType: "Input",
             placeholder: "Last name",
             label: "Last name",
@@ -254,7 +254,7 @@ export const templates: TemplateList = {
         id: "survey-step-2",
         stepFields: [
           {
-            name: "heading-2",
+            name: "heading2",
             id: "survey-contact-heading",
             fieldType: "H2",
             static: true,
@@ -268,7 +268,7 @@ export const templates: TemplateList = {
             content: "Please provide your contact information",
           },
           {
-            name: "your-email",
+            name: "yourEmail",
             id: "survey-contact-email",
             fieldType: "Input",
             label: "Your Email",
@@ -277,7 +277,7 @@ export const templates: TemplateList = {
             placeholder: "Enter your email",
           },
           {
-            name: "phone-number",
+            name: "phoneNumber",
             id: "survey-contact-phone",
             fieldType: "Input",
             label: "Phone Number",
@@ -290,7 +290,7 @@ export const templates: TemplateList = {
         id: "survey-step-3",
         stepFields: [
           {
-            name: "step-2",
+            name: "step2",
             id: "survey-preferences-heading",
             fieldType: "H2",
             static: true,
@@ -311,7 +311,7 @@ export const templates: TemplateList = {
           },
           {
             id: "survey-preferences-comment",
-            name: "Comment",
+            name: "comment",
             fieldType: "Textarea",
             placeholder: "Share your feedback",
             label: "Feedback Comment",
@@ -325,14 +325,14 @@ export const templates: TemplateList = {
     template: [
       {
         id: "job-heading",
-        name: "Job Application",
+        name: "jobApplication",
         fieldType: "H1",
         static: true,
         content: "Job Application",
       },
       {
         id: "job-paragraph",
-        name: "Paragraph",
+        name: "paragraph",
         fieldType: "P",
         static: true,
         content: "Please fill out the form below to apply for this position",
@@ -428,14 +428,14 @@ export const templates: TemplateList = {
     template: [
       {
         id: "event-heading",
-        name: "Event Registration",
+        name: "eventRegistration",
         fieldType: "H1",
         static: true,
         content: "Event Registration",
       },
       {
         id: "event-paragraph",
-        name: "Paragraph",
+        name: "paragraph",
         fieldType: "P",
         static: true,
         content: "Register for our upcoming event",
@@ -503,14 +503,14 @@ export const templates: TemplateList = {
     template: [
       {
         id: "order-heading",
-        name: "Product Order",
+        name: "productOrder",
         fieldType: "H1",
         static: true,
         content: "Place Your Order",
       },
       {
         id: "order-paragraph",
-        name: "Paragraph",
+        name: "paragraph",
         fieldType: "P",
         static: true,
         content: "Fill out the details below to complete your order",
@@ -591,14 +591,14 @@ export const templates: TemplateList = {
     template: [
       {
         id: "support-heading",
-        name: "Customer Support",
+        name: "customerSupport",
         fieldType: "H1",
         static: true,
         content: "Customer Support Request",
       },
       {
         id: "support-paragraph",
-        name: "Paragraph",
+        name: "paragraph",
         fieldType: "P",
         static: true,
         content: "We're here to help! Please describe your issue below.",

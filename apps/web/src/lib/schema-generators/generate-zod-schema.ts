@@ -27,7 +27,7 @@ export const generateZodSchemaObject = (
 				elementSchema = z.coerce.date();
 				break;
 			case "Checkbox":
-				elementSchema = z.boolean()
+				elementSchema = z.boolean().refine(v => v, { message: 'This Field is Required' })
 				break;
 			case "Slider":
 				elementSchema = z.coerce.number();
@@ -36,7 +36,7 @@ export const generateZodSchemaObject = (
 				elementSchema = z.boolean();
 				break;
 			case "Select":
-				elementSchema = z.string().min(1, "Please an item");
+				elementSchema = z.string().min(1, "Please Select an item");
 				break;
 			case "ToggleGroup":
 				elementSchema =
@@ -51,6 +51,9 @@ export const generateZodSchemaObject = (
 				break;
 			case "RadioGroup":
 				elementSchema = z.string().min(1, "Please select an item");
+    break;
+   case "Textarea":
+     elementSchema = z.string().nonempty('This Field is Required').min(10,'Minimum Value Should be 10')
 				break;
 			default:
 				elementSchema = z.string();

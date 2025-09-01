@@ -10,7 +10,7 @@ function TableBuilderComponent() {
       <div className="h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Table Builder</h1>
-          <p className="text-muted-foreground">This feature is coming soon!</p>
+          <p className="text-muted-foreground">Will Start the Work as soon as the Form Builder Becomes Stable</p>
         </div>
       </div>
     </main>

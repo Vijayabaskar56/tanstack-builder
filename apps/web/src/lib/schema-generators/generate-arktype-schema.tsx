@@ -308,15 +308,6 @@ export const getArkTypeSchemaString = (formElements: FormElement[]): string => {
 
 	return `import { type } from "arktype"
 
-export interface ActionResponse<T = any> {
-  success: boolean
-  message: string
-  errors?: {
-    [K in keyof T]?: string[]
-  }
-  inputs?: T
-}
-
 export const formSchema = type({
 ${schemaEntries}
 });`;

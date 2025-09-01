@@ -2,7 +2,7 @@
 import { useStore } from "@tanstack/react-store";
 import { batch, Derived, Store } from "@tanstack/store";
 import { v4 as uuid } from "uuid";
-import type { Framework, ValidationSchema } from "@/components/builder/types";
+import type { Framework, Settings, ValidationSchema } from "@/components/builder/types";
 import { defaultFormElements } from "@/constants/default-form-element";
 import { templates } from "@/constants/templates";
 import type {
@@ -31,6 +31,7 @@ type FormBuilderCoreState = {
 	schemaName: string;
 	validationSchema: ValidationSchema;
 	framework: Framework;
+	settings : Settings;
 };
 // Actions type
 type FormBuilderActions = {
@@ -53,6 +54,7 @@ type FormBuilderActions = {
 	addFormStep: (position?: number) => void;
 	removeFormStep: (stepIndex: number) => void;
 	reorderSteps: (newOrder: FormStep[]) => void;
+	setSettings: (settings: Settings) => void;
 	// Batch operations
 	batchAppendElements: (elements: Array<FormElementOrList>) => void;
 	batchEditElements: (
@@ -94,6 +96,13 @@ const initialCoreState: FormBuilderCoreState = {
 	schemaName: "formSchema",
 	validationSchema: "zod",
 	framework: "react",
+	settings: {
+		defaultRequiredValidation: true,
+		numericInput: false,
+		focusOnError: true,
+		validationMethod: "dynamic",
+		asyncValidation: 500,
+	},
 };
 
 const formBuilderCoreStore = new Store<FormBuilderCoreState>(initialCoreState, {
@@ -163,13 +172,14 @@ const createActions = (
 		};
 		validateFieldType(fieldType);
 		store.setState((state) => {
+   console.log("🚀 ~ appendElement ~ store.state.settings.defaultRequiredValidation:", store.state.settings.defaultRequiredValidation)
 			const newFormElement = {
 				id: id || uuid(),
 				...defaultFormElements[fieldType],
 				content: content || defaultFormElements[fieldType].content,
 				label: content || (defaultFormElements[fieldType] as any).label,
 				name: name || `${fieldType}-${Date.now()}`,
-				required: required || true,
+				required: store.state.settings.defaultRequiredValidation,
 				fieldType,
 				...rest,
 			} as FormElement;
@@ -446,7 +456,7 @@ const createActions = (
 				}
 				const nextPosition = currentPosition + 1;
 				const updatedSteps = insertAtIndex(
-					formSteps,
+     formSteps,
 					defaultStep,
 					nextPosition,
 				);
@@ -488,6 +498,9 @@ const createActions = (
 	const setFramework = (framework: Framework) => {
 		store.setState((state) => ({ ...state, framework }));
 	};
+	const setSettings = (settings: Settings) => {
+		store.setState((state) => ({ ...state, settings }));
+	};
 
 	// Save/Load functions
 	const saveForm = (formName: string) => {
@@ -503,6 +516,7 @@ const createActions = (
 				schemaName: state.schemaName,
 				validationSchema: state.validationSchema,
 				framework: state.framework,
+				settings: state.settings,
 			},
 			createdAt: new Date().toISOString(),
 		};
@@ -539,6 +553,7 @@ const createActions = (
 					schemaName: data.schemaName,
 					validationSchema: data.validationSchema,
 					framework: data.framework,
+					settings: data.settings,
 				});
 			}
 		} catch (error) {
@@ -638,6 +653,7 @@ const createActions = (
 		setSchemaName,
 		setValidationSchema,
 		setFramework,
+		setSettings,
 		saveForm,
 		loadForm,
 		getSavedForms,
@@ -775,6 +791,7 @@ export const useFormStore = () => {
 		schemaName: coreState.schemaName,
 		validationSchema: coreState.validationSchema,
 		framework: coreState.framework,
+		settings: coreState.settings,
 		// Actions (write operations)
 		actions: formBuilderActions,
 		// Computed values (derived state)

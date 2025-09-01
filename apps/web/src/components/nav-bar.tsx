@@ -12,8 +12,8 @@ export default function NavBar() {
 				<div className="flex flex-1 items-center gap-2">
 					<div className="mr-4 flex">
 						<Link to="/">
-							<h1 className="text-lg font-semibold" >TanStack Builder</h1>
-						</Link>
+							<h1 className="text-lg font-semibold" >TanStack Builder <span className="text-sm absolute top-3 text-primary">Alpha</span></h1>
+        </Link>
 					</div>
 				</div>
 				{/* Middle area */}

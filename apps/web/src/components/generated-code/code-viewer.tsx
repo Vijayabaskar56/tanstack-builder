@@ -191,7 +191,6 @@ const CodeBlockTSX = () => {
 };
 const CodeBlockSchema = () => {
 	const { formElements, validationSchema } = useFormStore();
-	console.log("🚀 ~ CodeBlockSchema ~ validationSchema:", validationSchema);
 	const isMS = useIsMultiStep();
 	const parsedFormElements = isMS
 		? flattenFormSteps(formElements as FormStep[])
@@ -231,7 +230,6 @@ export function GeneratedFormCodeViewer() {
 				<TabsList>
 					<TabsTrigger value="tsx">TSX</TabsTrigger>
 					<TabsTrigger value="schema">Schema</TabsTrigger>
-					<TabsTrigger value="server-action">Server action</TabsTrigger>
 				</TabsList>
 				<GeneratedCodeInfoCard />
 			</div>
@@ -243,26 +241,6 @@ export function GeneratedFormCodeViewer() {
 			<TabsContent value="schema" tabIndex={-1}>
 				<CodeBlockSchema />
 			</TabsContent>
-			{/* <TabsContent value="server-action" tabIndex={-1}>
-        <CodeBlockServerAction />
-      </TabsContent> */}
 		</Tabs>
 	);
 }
-
-// const CodeBlockServerAction = () => {
-//   const generatedCode = generateServerActionCode();
-//   const formattedCode = generatedCode.map((item) => ({
-//     ...item,
-//     code: formatCode(item.code),
-//   }));
-//   return (
-//     <div className="relative max-w-full flex flex-col gap-y-5">
-//       {formattedCode.map((item) => (
-//         <Wrapper key={item.file} title={item.file} language="typescript">
-//           {item.code}
-//         </Wrapper>
-//       ))}
-//     </div>
-//   );
-// };

@@ -62,6 +62,7 @@ export const RenderFormElement = ({
 							</field.FormLabel>
 							<field.FormControl>
 								<Input
+         name={field.name}
 									placeholder={formElement.placeholder}
 									disabled={formElement.disabled}
 									type={formElement.type ?? "text"}
@@ -91,6 +92,7 @@ export const RenderFormElement = ({
 							</field.FormLabel>
 							<field.FormControl>
 								<Input
+         name={field.name}
 									placeholder={formElement.placeholder}
 									disabled={formElement.disabled}
 									type={"password"}
@@ -155,7 +157,8 @@ export const RenderFormElement = ({
 							</field.FormLabel>
 							<field.FormControl>
 								<Textarea
-									placeholder={formElement.placeholder}
+									name={field.name}
+         placeholder={formElement.placeholder}
 									required={formElement.required}
 									disabled={formElement.disabled}
 									value={field.state.value as string}
@@ -180,7 +183,8 @@ export const RenderFormElement = ({
 						<field.FormItem className="flex items-start gap-2 w-full py-1 space-y-0">
 							<field.FormControl>
 								<Checkbox
-									checked={field.state.value as boolean}
+         name={field.name}
+         checked={field.state.value as boolean}
 									onCheckedChange={field.handleChange}
 								/>
 							</field.FormControl>
@@ -210,6 +214,7 @@ export const RenderFormElement = ({
 							</field.FormLabel>
 							<field.FormControl>
 								<RadioGroup
+         name={field.name}
 									onValueChange={field.handleChange}
 									defaultValue={field.state.value as string}
 								>
@@ -303,6 +308,7 @@ export const RenderFormElement = ({
 								</field.FormLabel>
 								<field.FormControl>
 									<Switch
+          name={field.name}
 										checked={field.state.value as boolean}
 										onCheckedChange={field.handleChange}
 									/>
@@ -341,7 +347,8 @@ export const RenderFormElement = ({
 								</field.FormLabel>
 								<field.FormControl>
 									<Slider
-										min={min}
+          name={field.name}
+          min={min}
 										max={max}
 										step={step}
 										value={sliderValue}
@@ -369,6 +376,7 @@ export const RenderFormElement = ({
 								{formElement.label} {formElement.required && " *"}
 							</field.FormLabel>
 							<Select
+        name={field.name}
 								value={field.state.value as string}
 								onValueChange={field.handleChange}
 								defaultValue={String(field?.state.value ?? "")}

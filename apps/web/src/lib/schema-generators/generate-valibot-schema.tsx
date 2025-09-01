@@ -28,7 +28,7 @@ export const generateValiSchemaObject = (formElements: FormElement[]) => {
 				);
 				break;
 			case "Checkbox":
-				elementSchema = v.optional(v.boolean(), true);
+				elementSchema = v.optional(v.boolean(), true)
 				break;
 			case "Slider":
 				elementSchema = v.pipe(v.string(), v.transform(Number), v.number());
@@ -61,6 +61,13 @@ export const generateValiSchemaObject = (formElements: FormElement[]) => {
 				elementSchema = v.pipe(
 					v.string(),
 					v.minLength(1, "Please select an item"),
+				);
+				break;
+			case "Textarea":
+				elementSchema = v.pipe(
+					v.string(),
+     v.nonEmpty('This Field is Required'),
+					v.minLength(10, "Minimum Value Should be 10"),
 				);
 				break;
 			default:
@@ -294,15 +301,6 @@ export const getValiSchemaStringDirect = (
 		.join(",\n");
 
 	return `import * as v from "valibot"
-
-export interface ActionResponse<T = any> {
-  success: boolean
-  message: string
-  errors?: {
-    [K in keyof T]?: string[]
-  }
-  inputs?: T
-}
 
 export const formSchema = v.object({
 ${schemaEntries}

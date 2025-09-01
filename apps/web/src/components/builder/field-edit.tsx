@@ -298,7 +298,6 @@ function FormElementAttributes({
 	const form = useAppForm({
 		defaultValues: formElement as FormElement,
 		onSubmit: ({ value }) => {
-			console.log("🚀 ~ FormElementAttributes ~ value:", value);
 			actions.editElement({
 				fieldIndex: fieldIndex,
 				modifiedFormElement: value,
