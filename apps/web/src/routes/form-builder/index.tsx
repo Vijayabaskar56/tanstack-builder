@@ -4,7 +4,7 @@ import { SingleStepFormPreview } from "@/components/builder/form-preview";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { type AppForm, useFormBuilder } from "@/hooks/use-form-builder";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useSidebarStore } from "@/hooks/use-sidebar-store";
+import useSettings from "@/hooks/use-settings";
 import { FieldTab } from "../../components/builder/FieldLibrary";
 import { SettingsSidebar } from "../../components/builder/SettingsSidebar";
 import { TemplateSidebar } from "../../components/builder/TemplateSidebar";
@@ -16,7 +16,8 @@ export const Route = createFileRoute("/form-builder/")({
 function FormBuilderComponent() {
 	const { form } = useFormBuilder();
 	const isMobile = useIsMobile();
-	const { activeTab } = useSidebarStore();
+	const settings = useSettings();
+	const activeTab = settings?.activeTab;
 
 	const renderSidebarContent = () => {
 		switch (activeTab) {

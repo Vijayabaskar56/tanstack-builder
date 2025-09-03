@@ -1,10 +1,9 @@
-import { useAppForm } from "@/components/ui/tanstack-form";
 import type { FormElement, FormElementOrList, FormStep } from "@/form-types";
-import { useFormStore } from "@/hooks/use-form-store";
+import useSettings from "@/hooks/use-settings";
 import { getDefaultValues } from "@/lib/form-code-generators/react/generate-default-value";
 import { getFormElementCode } from "@/lib/form-code-generators/react/generate-form-component";
 import { generateImports } from "@/lib/form-code-generators/react/generate-imports";
-import { flattenFormSteps } from "@/lib/form-elements-helpers";
+import { flattenFormSteps, } from "@/lib/form-elements-helpers";
 
 const renderFields = (fields: FormElementOrList[]) => {
 	return fields
@@ -27,16 +26,16 @@ export const generateFormCode = ({
 	formElements: FormElementOrList[] | FormStep[];
 	isMS: boolean;
 }): { file: string; code: string }[] => {
-	const flattenedFormElements = isMS
-		? flattenFormSteps(formElements as FormStep[]).flat()
-		: formElements.flat();
-
+  const flattenedFormElements = isMS
+  ? flattenFormSteps(formElements as FormStep[]).flat()
+  : formElements.flat();
+  const defaultValues = getDefaultValues();
 	const imports = Array.from(
-		generateImports(flattenedFormElements as FormElement[]),
+    generateImports(flattenedFormElements as FormElement[]),
 	).join("\n");
+  const settings = useSettings()
 
- const defaultValues = getDefaultValues()
- const {settings} = useFormStore()
+
 	const singleStepFormCode = [
 		{
 			file: "single-step-form.tsx",
@@ -114,6 +113,7 @@ return (
 	const stringifiedStepComponents = stringifyStepComponents(
 		formElements as FormStep[],
 	);
+
 
 	const MSF_Code = `
   ${imports}

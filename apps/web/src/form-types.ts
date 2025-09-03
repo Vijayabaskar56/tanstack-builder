@@ -189,6 +189,14 @@ export type FormStep = {
 	id: string;
 	stepFields: FormElementList;
 };
+
+export type FormArray = {
+	fieldType: "FormArray";
+	id: string;
+	name: string;
+	label?: string;
+	arrayField: FormElementList;
+};
 //------------------------------------------------------------Form Element Handlers
 /**
  * @DropElement is a function that is used to drop an element to the form elements array
@@ -238,6 +246,10 @@ export type AppendElement = (options: {
 	 */
 	fieldIndex?: number | null;
 	stepIndex?: number;
+	id?: string;
+	name?: string;
+	content?: string;
+	required?: boolean;
 }) => void;
 
 export type SetTemplate = (template: string) => void;

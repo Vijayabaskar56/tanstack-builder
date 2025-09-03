@@ -1,10 +1,8 @@
-// apps/web/src/components/builder/SettingsSidebar.tsx
 
-import { Eye, Hash, Save, Shield } from "lucide-react";
+import { Eye, Hash, Shield } from "lucide-react";
 import { useId } from "react";
 import { toast } from "sonner";
 import * as z from "zod";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -17,15 +15,19 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { useAppForm } from "@/components/ui/tanstack-form";
+import { settingsCollection } from "@/db-collections";
 import { useFormStore } from "@/hooks/use-form-store";
+import useSettings from "@/hooks/use-settings";
 
 // Zod schema for settings validation
 const settingsSchema = z.object({
 	defaultRequiredValidation: z.boolean(),
 	numericInput: z.boolean(),
 	focusOnError: z.boolean(),
-	validationMethod: z.enum(["onChange","onBlue","onDynamic"]),
+	validationMethod: z.enum(["onChange", "onBlue", "onDynamic"]),
 	asyncValidation: z.number().min(0).max(10000),
+	preferredSchema: z.enum(["zod", "valibot", "arktype"]),
+	preferredFramework: z.enum(["react", "vue", "angular", "solid"]),
 });
 
 export function SettingsSidebar() {
@@ -34,15 +36,19 @@ export function SettingsSidebar() {
 	const focusOnErrorId = useId();
 	const validationMethodId = useId();
 	const asyncValidationId = useId();
-	//TODO: Prefered Schema , Prefered Framework
-	const {settings, actions} = useFormStore();
- const form = useAppForm({
+	const preferredSchemaId = useId();
+	const preferredFrameworkId = useId();
+	const data = useSettings();
+	const { actions } = useFormStore();
+	const form = useAppForm({
 		defaultValues: {
-			defaultRequiredValidation: true,
-			numericInput: false,
-			focusOnError: true,
-			validationMethod: "onDynamic",
-			asyncValidation: 300,
+			defaultRequiredValidation: data?.defaultRequiredValidation,
+			numericInput: data?.numericInput,
+			focusOnError: data?.focusOnError,
+			validationMethod: data?.validationMethod,
+			asyncValidation: data?.asyncValidation,
+			preferredSchema: data?.preferredSchema,
+			preferredFramework: data?.preferredFramework,
 		} as z.infer<typeof settingsSchema>,
 		validators: {
 			onChange: settingsSchema,
@@ -52,12 +58,27 @@ export function SettingsSidebar() {
 			console.log("Settings saved:", value);
 			toast.success("Settings saved successfully!");
 		},
-  listeners : ({
-   onChangeDebounceMs : 1000,
-   onChange :({formApi}) => {
-     actions.setSettings(formApi.baseStore.state.values)
-   }
-  })
+		listeners: {
+			onChangeDebounceMs: 1000,
+			onChange: ({ formApi }) => {
+				settingsCollection.update("user-settings", (draft) => {
+					draft.defaultRequiredValidation =
+						formApi.baseStore.state.values.defaultRequiredValidation;
+					draft.numericInput = formApi.baseStore.state.values.numericInput;
+					draft.focusOnError = formApi.baseStore.state.values.focusOnError;
+					draft.validationMethod =
+						formApi.baseStore.state.values.validationMethod;
+					draft.asyncValidation =
+						formApi.baseStore.state.values.asyncValidation;
+					draft.preferredSchema =
+						formApi.baseStore.state.values.preferredSchema;
+					draft.preferredFramework =
+						formApi.baseStore.state.values.preferredFramework;
+				});
+
+				//  actions.setSettings(formApi.baseStore.state.values)
+			},
+		},
 	});
 
 	return (
@@ -138,7 +159,7 @@ export function SettingsSidebar() {
 													</Label>
 												</div>
 												<Switch
-            disabled
+													disabled={true}
 													id={numericInputId}
 													checked={field.state.value}
 													onCheckedChange={field.handleChange}
@@ -146,7 +167,6 @@ export function SettingsSidebar() {
 											</div>
 										)}
 									</form.AppField>
-
 
 									<form.AppField name="validationMethod" mode="value">
 										{(field) => (
@@ -159,10 +179,12 @@ export function SettingsSidebar() {
 												</Label>
 												<Select
 													value={field.state.value}
-             disabled
+													disabled={true}
 													onValueChange={(value) =>
 														field.handleChange(
-															value as z.infer<typeof settingsSchema>['validationMethod']
+															value as z.infer<
+																typeof settingsSchema
+															>["validationMethod"],
 														)
 													}
 												>
@@ -172,7 +194,9 @@ export function SettingsSidebar() {
 													<SelectContent>
 														<SelectItem value="onBlue">On Blur</SelectItem>
 														<SelectItem value="onChange">On Change</SelectItem>
-														<SelectItem value="onDynamic">On Dynamic</SelectItem>
+														<SelectItem value="onDynamic">
+															On Dynamic
+														</SelectItem>
 													</SelectContent>
 												</Select>
 												<field.FormMessage />
@@ -191,7 +215,7 @@ export function SettingsSidebar() {
 												</Label>
 												<Input
 													id={asyncValidationId}
-             disabled
+													disabled={true}
 													type="number"
 													min="0"
 													max="10000"
@@ -202,6 +226,73 @@ export function SettingsSidebar() {
 													onBlur={field.handleBlur}
 													placeholder="300"
 												/>
+												<field.FormMessage />
+											</div>
+										)}
+									</form.AppField>
+
+									<form.AppField name="preferredSchema" mode="value">
+										{(field) => (
+											<div className="p-3 border rounded-lg">
+												<Label
+													htmlFor={preferredSchemaId}
+													className="text-sm font-medium mb-2 block"
+												>
+													Preferred Schema
+												</Label>
+												<Select
+													value={field.state.value}
+													onValueChange={(value) =>
+														field.handleChange(
+															value as z.infer<
+																typeof settingsSchema
+															>["preferredSchema"],
+														)
+													}
+												>
+													<SelectTrigger id={preferredSchemaId}>
+														<SelectValue placeholder="Select preferred schema" />
+													</SelectTrigger>
+													<SelectContent>
+														<SelectItem value="zod">Zod</SelectItem>
+														<SelectItem value="valibot">Valibot</SelectItem>
+														<SelectItem value="arktype">Arktype</SelectItem>
+													</SelectContent>
+												</Select>
+												<field.FormMessage />
+											</div>
+										)}
+									</form.AppField>
+
+									<form.AppField name="preferredFramework" mode="value">
+										{(field) => (
+											<div className="p-3 border rounded-lg">
+												<Label
+													htmlFor={preferredFrameworkId}
+													className="text-sm font-medium mb-2 block"
+												>
+													Preferred Framework
+												</Label>
+												<Select
+													value={field.state.value}
+													onValueChange={(value) =>
+														field.handleChange(
+															value as z.infer<
+																typeof settingsSchema
+															>["preferredFramework"],
+														)
+													}
+												>
+													<SelectTrigger id={preferredFrameworkId}>
+														<SelectValue placeholder="Select preferred framework" />
+													</SelectTrigger>
+													<SelectContent>
+														<SelectItem value="react">React</SelectItem>
+														<SelectItem value="vue">Vue</SelectItem>
+														<SelectItem value="angular">Angular</SelectItem>
+														<SelectItem value="solid">Solid</SelectItem>
+													</SelectContent>
+												</Select>
 												<field.FormMessage />
 											</div>
 										)}

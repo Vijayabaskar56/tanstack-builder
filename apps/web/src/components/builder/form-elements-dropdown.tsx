@@ -10,6 +10,15 @@ import { formElementsList } from "@/constants/form-elements-list";
 import type { FormElement } from "@/form-types";
 import { useFormStore } from "@/hooks/use-form-store";
 
+type DropdownContext = "nested" | "multistep" | "formarray";
+
+interface BaseDropdownProps {
+	context: DropdownContext;
+	fieldIndex?: number;
+	stepIndex?: number;
+	formArrayId?: string;
+}
+
 /**
  * Use for adding a nested form element
  */
@@ -44,6 +53,210 @@ export function FormElementsDropdown({
 								fieldType: o.fieldType as FormElement["fieldType"],
 								stepIndex,
 							});
+						}}
+						key={o.name}
+						disabled={!!o.static}
+						className="px-4"
+					>
+						{o.name}
+					</DropdownMenuItem>
+				))}
+			</DropdownMenuContent>
+		</DropdownMenu>
+	);
+}
+
+/**
+ * Unified dropdown for adding form elements in different contexts
+ */
+export function UnifiedFormElementsDropdown({
+	context,
+	fieldIndex,
+	stepIndex,
+	formArrayId,
+}: BaseDropdownProps) {
+	const { actions, formElements } = useFormStore();
+
+	const handleElementSelect = (fieldType: FormElement["fieldType"]) => {
+		switch (context) {
+			case "nested":
+				if (fieldIndex !== undefined) {
+					actions.appendElement({
+						fieldIndex,
+						fieldType,
+						stepIndex,
+					});
+				}
+				break;
+			case "multistep":
+				actions.appendElement({
+					fieldIndex: null,
+					fieldType,
+					stepIndex,
+				});
+				break;
+			case "formarray":
+				if (formArrayId) {
+					// Create a new form element based on fieldType
+					const baseElement = {
+						id: `field-${Date.now()}`,
+						name: `field-${Date.now()}`,
+						label: `${fieldType} Field`,
+						required: false,
+					};
+
+					let newElement: any;
+
+					switch (fieldType) {
+						case "Input":
+							newElement = {
+								...baseElement,
+								fieldType: "Input" as const,
+								type: "text",
+							};
+							break;
+						case "Textarea":
+							newElement = {
+								...baseElement,
+								fieldType: "Textarea" as const,
+							};
+							break;
+						case "Checkbox":
+							newElement = {
+								...baseElement,
+								fieldType: "Checkbox" as const,
+							};
+							break;
+						case "Select":
+							newElement = {
+								...baseElement,
+								fieldType: "Select" as const,
+								options: [],
+								placeholder: "Select an option",
+							};
+							break;
+						case "RadioGroup":
+							newElement = {
+								...baseElement,
+								fieldType: "RadioGroup" as const,
+								options: [],
+							};
+							break;
+						case "Switch":
+							newElement = {
+								...baseElement,
+								fieldType: "Switch" as const,
+							};
+							break;
+						case "Slider":
+							newElement = {
+								...baseElement,
+								fieldType: "Slider" as const,
+								min: 0,
+								max: 100,
+								step: 1,
+							};
+							break;
+						case "DatePicker":
+							newElement = {
+								...baseElement,
+								fieldType: "DatePicker" as const,
+							};
+							break;
+						case "Password":
+							newElement = {
+								...baseElement,
+								fieldType: "Password" as const,
+								type: "password",
+							};
+							break;
+						case "OTP":
+							newElement = {
+								...baseElement,
+								fieldType: "OTP" as const,
+								maxLength: 6,
+							};
+							break;
+						case "MultiSelect":
+							newElement = {
+								...baseElement,
+								fieldType: "MultiSelect" as const,
+								options: [],
+								placeholder: "Select options",
+							};
+							break;
+						case "ToggleGroup":
+							newElement = {
+								...baseElement,
+								fieldType: "ToggleGroup" as const,
+								options: [],
+								type: "single" as const,
+							};
+							break;
+						default:
+							newElement = {
+								...baseElement,
+								fieldType: "Input" as const,
+								type: "text",
+							};
+					}
+
+					// Find the FormArray and update it
+					const formArrayElement = (formElements as any[]).find(
+						(el: any) => el.id === formArrayId
+					);
+
+					if (formArrayElement && formArrayElement.arrayField) {
+						const updatedArrayField = [...formArrayElement.arrayField, newElement];
+						actions.updateFormArray(formArrayId, updatedArrayField);
+					}
+				}
+				break;
+		}
+	};
+
+	const getTriggerButton = () => {
+		switch (context) {
+			case "formarray":
+				return (
+					<Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+						<PlusCircle className="h-4 w-4" />
+					</Button>
+				);
+			case "multistep":
+				return (
+					<Button variant="outline">
+						<div className="flex items-center justify-center gap-2">
+							<PlusCircle />
+							Add Element
+						</div>
+					</Button>
+				);
+			default:
+				return (
+					<Button variant="ghost" size="icon" className="rounded-xl h-9">
+						<Plus />
+					</Button>
+				);
+		}
+	};
+
+	return (
+		<DropdownMenu modal={context === "multistep" ? false : undefined}>
+			<DropdownMenuTrigger asChild>
+				{getTriggerButton()}
+			</DropdownMenuTrigger>
+			<DropdownMenuContent
+				data-align="end"
+				className="space-y-3 max-h-64 overflow-y-scroll"
+			>
+				{formElementsList.map((o) => (
+					<DropdownMenuItem
+						onSelect={(e) => {
+							if (context === "multistep") {
+								e.preventDefault(); // Prevent the menu from closing for multistep
+							}
+							handleElementSelect(o.fieldType as FormElement["fieldType"]);
 						}}
 						key={o.name}
 						disabled={!!o.static}

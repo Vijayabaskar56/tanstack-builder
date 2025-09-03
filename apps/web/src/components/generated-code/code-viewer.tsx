@@ -1,9 +1,8 @@
-// apps/web/src/components/generated-code/code-viewer.tsx
 
 import {
-	CodeBlock,
-	CodeBlockCode,
-	CodeBlockGroup,
+ CodeBlock,
+ CodeBlockCode,
+ CodeBlockGroup,
 } from "@/components/ui/code-block";
 import { CopyButton } from "@/components/ui/copy-button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -15,7 +14,6 @@ import { getArkTypeSchemaString } from "@/lib/schema-generators/generate-arktype
 import { getValiSchemaString } from "@/lib/schema-generators/generate-valibot-schema";
 import { getZodSchemaString } from "@/lib/schema-generators/generate-zod-schema";
 import { formatCode } from "@/lib/utils";
-import { GeneratedCodeInfoCard } from "./tech-stack-info-card";
 
 const Wrapper = ({
 	children,

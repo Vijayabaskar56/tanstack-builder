@@ -1,5 +1,5 @@
 import { Delete, Plus } from "lucide-react";
-import { FormElementsStepDropdown } from "@/components/builder/form-elements-dropdown";
+import { UnifiedFormElementsDropdown } from "@/components/builder/form-elements-dropdown";
 import { Button } from "@/components/ui/button";
 import { useFormStore } from "@/hooks/use-form-store";
 //======================================
@@ -14,7 +14,10 @@ export function StepContainer({
 	return (
 		<div className="rounded-lg px-3 md:px-4 md:py-5 py-4 border-dashed border bg-muted">
 			<div className="flex items-center justify-between mb-3">
-				<FormElementsStepDropdown stepIndex={stepIndex} />
+				<UnifiedFormElementsDropdown
+					context="multistep"
+					stepIndex={stepIndex}
+				/>
 				<div className="text-muted-foreground center font-medium pr-2">
 					Step {stepIndex + 1}
 				</div>

@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { Reorder } from "motion/react";
 import { useState } from "react";
-import { FormElementsDropdown } from "@/components/builder/form-elements-dropdown";
+import { FormElementsDropdown, UnifiedFormElementsDropdown } from "@/components/builder/form-elements-dropdown";
 import { RenderFormElement } from "@/components/builder/render-form-element";
 import { StepContainer } from "@/components/builder/step-container";
 import {
@@ -625,6 +625,73 @@ export function FormEdit() {
 										tabIndex={-1}
 									>
 										{step.stepFields.map((element, fieldIndex) => {
+											// Check if element is a FormArray
+											if (typeof element === 'object' && element !== null && 'arrayField' in element) {
+												const formArrayElement = element as any;
+												return (
+													<Reorder.Item
+														key={formArrayElement.id}
+														value={formArrayElement}
+														variants={animateVariants}
+														initial="initial"
+														animate="animate"
+														exit="exit"
+														className="rounded-xl border-2 border-dashed border-muted-foreground/30 py-3 w-full bg-muted/20"
+														layout
+													>
+														<div className="px-3">
+															<div className="flex items-center justify-between mb-3">
+																<div className="flex items-center gap-2">
+																	<LucideGripVertical className="dark:text-muted-foreground text-muted-foreground" />
+																	<span className="text-sm font-medium text-muted-foreground">
+																		Form Array
+																	</span>
+																</div>
+																<div className="flex items-center gap-2">
+																	<Button
+																		variant="ghost"
+																		size="sm"
+																		onClick={() => {
+																			const newElement = {
+																				id: `field-${Date.now()}`,
+																				fieldType: "Input" as const,
+																				name: `field-${Date.now()}`,
+																				label: "New Field",
+																				required: false,
+																			};
+																			const updatedArrayField = [...formArrayElement.arrayField, newElement];
+																			actions.updateFormArray(formArrayElement.id, updatedArrayField);
+																		}}
+																		className="h-8 w-8 p-0"
+																	>
+																		<PlusCircle className="h-4 w-4" />
+																	</Button>
+																	<Button
+																		variant="ghost"
+																		size="sm"
+																		onClick={() => actions.removeFormArray(formArrayElement.id)}
+																		className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+																	>
+																		<Delete className="h-4 w-4" />
+																	</Button>
+																</div>
+															</div>
+															<div className="space-y-2">
+																{formArrayElement.arrayField.map((field: any, arrayFieldIndex: number) => (
+																	<div key={field.id} className="rounded-lg border border-dashed p-2 bg-background">
+																		<EditFormItem
+																			element={field}
+																			fieldIndex={fieldIndex}
+																			stepIndex={stepIndex}
+																		/>
+																	</div>
+																))}
+															</div>
+														</div>
+													</Reorder.Item>
+												);
+											}
+
 											if (Array.isArray(element)) {
 												return (
 													<Reorder.Item
@@ -701,12 +768,66 @@ export function FormEdit() {
 					className="flex flex-col gap-3 rounded-lg px-3 md:px-4 md:py-5 py-4 border-dashed border bg-muted"
 					tabIndex={-1}
 				>
-					{(formElements as FormElementOrList[]).map((element, i) => {
+					{(formElements as any[]).map((element, i) => {
+						// Check if element is a FormArray
+						if (typeof element === 'object' && element !== null && 'arrayField' in element) {
+							const formArrayElement = element as any;
+							return (
+								<Reorder.Item
+									key={formArrayElement.id}
+									value={formArrayElement}
+									className="rounded-xl border-2 border-dashed border-muted-foreground/30 py-3 w-full bg-muted/20"
+									variants={animateVariants}
+									initial="initial"
+									animate="animate"
+									exit="exit"
+									layout
+								>
+									<div className="px-3">
+										<div className="flex items-center justify-between mb-3">
+											<div className="flex items-center gap-2">
+												<LucideGripVertical className="dark:text-muted-foreground text-muted-foreground" />
+												<span className="text-sm font-medium text-muted-foreground">
+													Form Array
+												</span>
+											</div>
+											<div className="flex items-center gap-2">
+												<UnifiedFormElementsDropdown
+													context="formarray"
+													formArrayId={formArrayElement.id}
+												/>
+            <UnifiedFormElementsDropdown context="formarray" formArrayId={formArrayElement.id} />
+            <Button
+													variant="ghost"
+													size="sm"
+													onClick={() => actions.removeFormArray(formArrayElement.id)}
+													className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+												>
+													<Delete className="h-4 w-4" />
+												</Button>
+											</div>
+										</div>
+										<div className="space-y-2">
+											{formArrayElement.arrayField.map((field: any, fieldIndex: number) => (
+												<div key={field.id} className="rounded-lg border border-dashed p-2 bg-background">
+													<EditFormItem
+														element={field}
+														fieldIndex={i}
+														stepIndex={undefined}
+													/>
+												</div>
+											))}
+										</div>
+									</div>
+								</Reorder.Item>
+							);
+						}
+
 						if (Array.isArray(element)) {
 							return (
 								<Reorder.Item
 									value={element}
-									key={element[0].id}
+									key={(element as any)[0].id}
 									variants={animateVariants}
 									initial="initial"
 									animate="animate"
@@ -724,7 +845,7 @@ export function FormEdit() {
 										className="flex items-center justify-start gap-2 w-full"
 										tabIndex={-1}
 									>
-										{element.map((el, j) => (
+										{element.map((el: any, j: number) => (
 											<Reorder.Item
 												key={el.id}
 												value={el}
@@ -749,7 +870,7 @@ export function FormEdit() {
 						}
 						return (
 							<Reorder.Item
-								key={element.id}
+								key={(element as any).id}
 								value={element}
 								className="rounded-xl border border-dashed py-1.5 w-full bg-background"
 								variants={animateVariants}
@@ -759,9 +880,9 @@ export function FormEdit() {
 								layout
 							>
 								<EditFormItem
-									key={element.id}
+									key={(element as any).id}
 									fieldIndex={i}
-									element={element}
+									element={element as any}
 								/>
 							</Reorder.Item>
 						);

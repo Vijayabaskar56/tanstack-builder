@@ -1,4 +1,3 @@
-// apps/web/src/lib/schema-generators/generate-valibot-schema.tsx
 import * as v from "valibot";
 import type { FormElement } from "@/form-types";
 import { isStatic } from "@/lib/utils";

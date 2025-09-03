@@ -1,6 +1,8 @@
-import { useLocation, useNavigate } from "@tanstack/react-router";
+
+import { useLocation } from "@tanstack/react-router";
 import {
 	BookMarked,
+	Brackets,
 	ChevronDown,
 	Code,
 	FormInput,
@@ -31,27 +33,25 @@ import { Label } from "@/components/ui/label";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { settingsCollection } from "@/db-collections";
 import { useFormBuilder } from "@/hooks/use-form-builder";
 import { useFormStore } from "@/hooks/use-form-store";
-import { useSidebarStore } from "@/hooks/use-sidebar-store";
+import useSettings from "@/hooks/use-settings";
 import type { Framework, ValidationSchema } from "./builder/types";
 import { GeneratedFormCodeViewer } from "./generated-code/code-viewer";
 export default function FormHeader() {
 	const _links = [{ to: "/", label: "Home" }];
-
-	const navigate = useNavigate();
 	const location = useLocation();
-	const { activeTab, actions: sidebarActions } = useSidebarStore();
-
+	const { activeTab } = useSettings();
 	const frameworks = ["react", "vue", "angular", "solid"];
 	const validationLibs = ["zod", "valibot", "arktype"];
 
 	const isFormBuilder = location.pathname.startsWith("/form-builder");
 
 	const handleSubTabChange = (newSubTab: string) => {
-		sidebarActions.setActiveTab(
-			newSubTab as "builder" | "template" | "settings",
-		);
+		settingsCollection.update("user-settings", (draft) => {
+			draft.activeTab = newSubTab as "builder" | "template" | "settings";
+		});
 	};
 	const id = useId();
 	const { actions, isMS, framework, validationSchema } = useFormStore();
@@ -81,20 +81,26 @@ export default function FormHeader() {
 							className="flex"
 						>
 							<TabsList className="bg-background h-auto -space-x-px p-0 shadow-xs">
-         <TabsList>
-        <TabsTrigger value="builder" >
-        <FormInput className="-ms-0.5 me-1.5 opacity-60" size={16} />
-									Builder
-        </TabsTrigger>
-        <TabsTrigger value="template">
-         <BookMarked className="-ms-0.5 me-1.5 opacity-60" size={16} />
-									Template
-        </TabsTrigger>
-        <TabsTrigger value="settings">
-         <Settings className="-ms-0.5 me-1.5 opacity-60" size={16} />
-									Settings
-        </TabsTrigger>
-      </TabsList>
+								<TabsList>
+									<TabsTrigger value="builder">
+										<FormInput
+											className="-ms-0.5 me-1.5 opacity-60"
+											size={16}
+										/>
+										Builder
+									</TabsTrigger>
+									<TabsTrigger value="template">
+										<BookMarked
+											className="-ms-0.5 me-1.5 opacity-60"
+											size={16}
+										/>
+										Template
+									</TabsTrigger>
+									<TabsTrigger value="settings">
+										<Settings className="-ms-0.5 me-1.5 opacity-60" size={16} />
+										Settings
+									</TabsTrigger>
+								</TabsList>
 							</TabsList>
 						</Tabs>
 					</div>
@@ -117,11 +123,13 @@ export default function FormHeader() {
 								{frameworks.map((framework) => (
 									<DropdownMenuItem
 										key={framework}
-          disabled={framework !== 'react'}
+										disabled={framework !== "react"}
 										onClick={() => actions.setFramework(framework as Framework)}
 									>
 										{framework.charAt(0).toUpperCase() + framework.slice(1)}
-          {framework !== 'react' && <p className="text-primary">soon!</p>}
+										{framework !== "react" && (
+											<p className="text-primary">soon!</p>
+										)}
 									</DropdownMenuItem>
 								))}
 							</DropdownMenuContent>
@@ -150,7 +158,7 @@ export default function FormHeader() {
 					</nav>
 
 					<div className="h-4 w-px bg-border" />
-     	{/* <div className="flex justify-center items-center gap-2">
+					{/* <div className="flex justify-center items-center gap-2">
 						<Switch
 							id={id}
 							onClick={() => actions.setIsMS(!isMS)}
@@ -173,6 +181,11 @@ export default function FormHeader() {
 						</Label>
 						<p>Multi Step Form</p>
 					</div>
+					<div className="h-4 w-px bg-border" />
+     <Button variant="ghost" size="sm" onClick={()=>actions.addFormArray([])}>
+						<Brackets className="w-4 h-4 mr-1" />
+						Field Array
+					</Button>
 					<div className="h-4 w-px bg-border" />
 					<Button variant="ghost" size="sm" onClick={resetForm}>
 						<RotateCcw className="w-4 h-4 mr-1" />
@@ -228,8 +241,11 @@ export default function FormHeader() {
 									>
 										Cancel
 									</Button>
-									<Button onClick={handleSaveForm} disabled={!saveFormName.trim()}>
-										Save Form
+									<Button
+										onClick={handleSaveForm}
+										disabled={!saveFormName.trim()}
+									>
+										Save
 									</Button>
 								</div>
 							</div>
@@ -326,12 +342,12 @@ export default function FormHeader() {
 								<span className="hidden sm:inline ml-1">Reset</span>
 							</Button>
 							<div className="h-4 w-px bg-border" />
-							<Button variant="ghost" size="sm">
+							<Button variant="ghost" size="sm" disabled>
 								<Upload className="w-4 h-4" />
 								<span className="hidden sm:inline ml-1">Import</span>
 							</Button>
 							<div className="h-4 w-px bg-border" />
-							<Button variant="ghost" size="sm">
+							<Button variant="ghost" size="sm" disabled>
 								<Share className="w-4 h-4" />
 								<span className="hidden sm:inline ml-1">Share</span>
 							</Button>

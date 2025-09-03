@@ -1,10 +1,11 @@
 // multi-step-form-preview.tsx
 /** biome-ignore-all lint/suspicious/noArrayIndexKey: <explanation> */
 import { AnimatePresence, motion } from "motion/react";
+import { FormArrayPreview } from "@/components/builder/form-array-preview";
 import { RenderFormElement } from "@/components/builder/render-form-element";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import type { FormElement, FormStep } from "@/form-types";
+import type { FormArray, FormElement, FormStep } from "@/form-types";
 import type { AppForm } from "@/hooks/use-form-builder";
 import { useMultiStepForm } from "@/hooks/use-multi-step-form";
 export function MultiStepFormPreview({
@@ -19,7 +20,13 @@ export function MultiStepFormPreview({
 		onStepValidation: async (step) => {
 			const stepFields = (step.stepFields as FormElement[])
 				.flat()
-				.filter((o) => !o.static)
+				.filter((o) => {
+					// Skip FormArray elements and static elements
+					if (typeof o === 'object' && o !== null && 'arrayField' in o) {
+						return false; // Skip FormArray
+					}
+					return !o.static;
+				})
 				.map((o) => o.name);
 			let isValid = true;
 			for (const fieldName of stepFields) {
@@ -55,6 +62,19 @@ export function MultiStepFormPreview({
 				>
 
 					{current?.stepFields?.map((field, i) => {
+						// Check if field is a FormArray
+						if (typeof field === 'object' && field !== null && 'arrayField' in field) {
+							return (
+								<div key={(field as any).id + i} className="w-full">
+									<FormArrayPreview
+										formArray={field as unknown as FormArray}
+										form={form}
+										index={i}
+									/>
+								</div>
+							);
+						}
+
 						if (Array.isArray(field)) {
 							return (
 								<div
@@ -62,7 +82,7 @@ export function MultiStepFormPreview({
 									className="flex items-center justify-between flex-wrap sm:flex-nowrap w-full gap-2"
 								>
 
-									{field.map((el: FormElement, ii: number) => (
+									{field.map((el: any, ii: number) => (
 										<div key={el.name + ii} className="w-full">
 
 											<RenderFormElement formElement={el} form={form} />
@@ -74,7 +94,7 @@ export function MultiStepFormPreview({
 						return (
 							<div key={i} className="w-full">
 
-								<RenderFormElement formElement={field} form={form} />
+								<RenderFormElement formElement={field as any} form={form} />
 							</div>
 						);
 					})}

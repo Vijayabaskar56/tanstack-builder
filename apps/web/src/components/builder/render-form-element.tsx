@@ -1,5 +1,4 @@
 /** biome-ignore-all lint/correctness/noChildrenProp: Required for form field rendering */
-// apps/web/src/components/builder/render-form-element.tsx
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import type * as React from "react";
@@ -62,10 +61,10 @@ export const RenderFormElement = ({
 							</field.FormLabel>
 							<field.FormControl>
 								<Input
-         name={field.name}
-									placeholder={formElement.placeholder}
+         							placeholder={formElement.placeholder}
 									disabled={formElement.disabled}
 									type={formElement.type ?? "text"}
+									name={formElement.name}
 									value={field.state.value as string}
 									onChange={(e) => {
 										field.handleChange(e.target.value);
@@ -92,10 +91,10 @@ export const RenderFormElement = ({
 							</field.FormLabel>
 							<field.FormControl>
 								<Input
-         name={field.name}
 									placeholder={formElement.placeholder}
 									disabled={formElement.disabled}
 									type={"password"}
+									name={formElement.name}
 									value={field.state.value as string}
 									onChange={(e) => field.handleChange(e.target.value)}
 									onBlur={field.handleBlur}
@@ -157,11 +156,11 @@ export const RenderFormElement = ({
 							</field.FormLabel>
 							<field.FormControl>
 								<Textarea
-									name={field.name}
-         placeholder={formElement.placeholder}
+						         placeholder={formElement.placeholder}
 									required={formElement.required}
 									disabled={formElement.disabled}
 									value={field.state.value as string}
+									name={formElement.name}
 									onChange={(e) => field.handleChange(e.target.value)}
 									onBlur={field.handleBlur}
 									className="resize-none"
@@ -183,7 +182,6 @@ export const RenderFormElement = ({
 						<field.FormItem className="flex items-start gap-2 w-full py-1 space-y-0">
 							<field.FormControl>
 								<Checkbox
-         name={field.name}
          checked={field.state.value as boolean}
 									onCheckedChange={field.handleChange}
 								/>
@@ -214,8 +212,8 @@ export const RenderFormElement = ({
 							</field.FormLabel>
 							<field.FormControl>
 								<RadioGroup
-         name={field.name}
 									onValueChange={field.handleChange}
+									name={formElement.name}
 									defaultValue={field.state.value as string}
 								>
 									{formElement.options.map(({ label, value }) => (
@@ -239,6 +237,7 @@ export const RenderFormElement = ({
 		case "ToggleGroup": {
 			const options = formElement.options.map(({ label, value }) => (
 				<ToggleGroupItem
+					name={formElement.name}
 					value={value}
 					key={value}
 					className="flex items-center gap-x-2 px-1"
@@ -308,7 +307,7 @@ export const RenderFormElement = ({
 								</field.FormLabel>
 								<field.FormControl>
 									<Switch
-          name={field.name}
+										name={formElement.name}
 										checked={field.state.value as boolean}
 										onCheckedChange={field.handleChange}
 									/>
@@ -347,8 +346,8 @@ export const RenderFormElement = ({
 								</field.FormLabel>
 								<field.FormControl>
 									<Slider
-          name={field.name}
-          min={min}
+										name={formElement.name}
+										min={min}
 										max={max}
 										step={step}
 										value={sliderValue}
@@ -376,7 +375,7 @@ export const RenderFormElement = ({
 								{formElement.label} {formElement.required && " *"}
 							</field.FormLabel>
 							<Select
-        name={field.name}
+								name={formElement.name}
 								value={field.state.value as string}
 								onValueChange={field.handleChange}
 								defaultValue={String(field?.state.value ?? "")}
@@ -409,12 +408,14 @@ export const RenderFormElement = ({
 				<form.AppField
 					name={formElement.name}
 					children={(field) => (
+						<>
+							{console.log(field.state.value , 'field')}
 						<field.FormItem className="w-full">
 							<field.FormLabel>
 								{formElement.label} {formElement.required ? " *" : ""}
 							</field.FormLabel>
 							<MultiSelect
-								value={field.state.value as string[]}
+								// value={field.state.value as string[]}
 								onValueChange={field.handleChange}
 							>
 								<field.FormControl>
@@ -439,6 +440,7 @@ export const RenderFormElement = ({
 							</field.FormDescription>
 							<field.FormMessage />
 						</field.FormItem>
+						</>
 					)}
 				/>
 			);
