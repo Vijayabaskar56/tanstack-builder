@@ -1,11 +1,30 @@
 import { type } from "arktype";
-import type { FormElement } from "@/form-types";
+import type { FormElement, FormArray } from "@/form-types";
 import { isStatic } from "@/lib/utils";
 
-export const generateArkTypeSchemaObject = (formElements: FormElement[]) => {
+// Type guard to check if an element is a FormArray
+const isFormArray = (element: any): element is FormArray => {
+	return typeof element === 'object' && element !== null && 'arrayField' in element;
+};
+
+export const generateArkTypeSchemaObject = (formElements: (FormElement | FormArray)[]) => {
 	const schemaObject: Record<string, any> = {};
 
-	const addType = (element: FormElement): void => {
+	const addType = (element: FormElement | FormArray): void => {
+		if (isFormArray(element)) {
+			// Handle FormArray
+			const arraySchema = generateArkTypeSchemaObject(element.arrayField as FormElement[]);
+			let elementSchema: any = type([arraySchema, "[]"]);
+
+			if (!("required" in element) || element.required !== true) {
+				elementSchema = type([elementSchema, "undefined"]);
+			}
+
+			schemaObject[element.name] = elementSchema;
+			return;
+		}
+
+		// Handle regular FormElement
 		if (isStatic(element.fieldType)) return;
 
 		let elementSchema: any;
@@ -57,6 +76,10 @@ export const generateArkTypeSchemaObject = (formElements: FormElement[]) => {
 				elementSchema = type("string >= 1");
 				break;
 
+			case "Textarea":
+				elementSchema = type("string >= 10");
+				break;
+
 			default:
 				elementSchema = type("string");
 		}
@@ -80,7 +103,15 @@ export const generateArkTypeSchemaObject = (formElements: FormElement[]) => {
 		schemaObject[element.name] = elementSchema;
 	};
 
-	formElements.flat().forEach(addType);
+	// Process all elements, handling both arrays and single elements
+	formElements.forEach((element) => {
+		if (Array.isArray(element)) {
+			element.forEach(addType);
+		} else {
+			addType(element);
+		}
+	});
+
 	return type(schemaObject);
 };
 export const generateArkTypeSchemaString = (schema: any): string => {
@@ -232,79 +263,105 @@ export const generateArkTypeSchemaString = (schema: any): string => {
 
 	return '"unknown"';
 };
-export const getArkTypeSchemaString = (formElements: FormElement[]): string => {
+export const getArkTypeSchemaString = (formElements: (FormElement | FormArray)[]): string => {
 	// Generate ArkType definitions directly from form elements
-	const schemaEntries = formElements
-		.filter(element => !isStatic(element.fieldType))
-		.map(element => {
-			let typeDefinition: string;
+	const processElements = (elements: (FormElement | FormArray)[]): string[] => {
+		return elements
+			.filter((element) => {
+				if (isFormArray(element)) return true;
+				return !isStatic(element.fieldType);
+			})
+			.map((element) => {
+				if (isFormArray(element)) {
+					// Handle FormArray
+					const arrayFieldSchemas = processElements(element.arrayField as FormElement[]);
+					const arrayObjectSchema = `{\n${arrayFieldSchemas.join(",\n")}\n  }`;
+					let typeDefinition = `"${arrayObjectSchema}[]"`;
 
-			switch (element.fieldType) {
-				case "Input":
-					if (element.type === "email") {
-						typeDefinition = '"string.email"';
-					} else if (element.type === "number") {
-						typeDefinition = '"number"';
+					// Handle optional FormArray
+					if (!("required" in element) || element.required !== true) {
+						const fieldName = `"${element.name}?"`;
+						return `  ${fieldName}: ${typeDefinition}`;
 					} else {
+						return `  "${element.name}": ${typeDefinition}`;
+					}
+				}
+
+				// Handle regular FormElement
+				let typeDefinition: string;
+
+				switch (element.fieldType) {
+					case "Input":
+						if (element.type === "email") {
+							typeDefinition = '"string.email"';
+						} else if (element.type === "number") {
+							typeDefinition = '"number"';
+						} else {
+							typeDefinition = '"string"';
+						}
+						break;
+
+					case "DatePicker":
+						typeDefinition = '"Date"';
+						break;
+
+					case "Checkbox":
+						typeDefinition = '"boolean"';
+						break;
+
+					case "Slider":
+						if (element.min !== undefined && element.max !== undefined) {
+							typeDefinition = `"number >= ${element.min} & number <= ${element.max}"`;
+						} else if (element.min !== undefined) {
+							typeDefinition = `"number >= ${element.min}"`;
+						} else if (element.max !== undefined) {
+							typeDefinition = `"number <= ${element.max}"`;
+						} else {
+							typeDefinition = '"number"';
+						}
+						break;
+
+					case "Switch":
+						typeDefinition = '"boolean"';
+						break;
+
+					case "Select":
+						typeDefinition = '"string >= 1"';
+						break;
+
+					case "ToggleGroup":
+						typeDefinition = element.type === "single"
+							? '"string >= 1"'
+							: '"string[] >= 1"';
+						break;
+
+					case "MultiSelect":
+						typeDefinition = '"string[] >= 1"';
+						break;
+
+					case "RadioGroup":
+						typeDefinition = '"string >= 1"';
+						break;
+
+					case "Textarea":
+						typeDefinition = '"string >= 10"';
+						break;
+
+					default:
 						typeDefinition = '"string"';
-					}
-					break;
+				}
 
-				case "DatePicker":
-					typeDefinition = '"Date"';
-					break;
+				// Handle optional fields - ArkType uses the ? syntax or union with undefined
+				if (!("required" in element) || element.required !== true) {
+					const fieldName = `"${element.name}?"`;
+					return `  ${fieldName}: ${typeDefinition}`;
+				} else {
+					return `  "${element.name}": ${typeDefinition}`;
+				}
+			});
+	};
 
-				case "Checkbox":
-					typeDefinition = '"boolean"';
-					break;
-
-				case "Slider":
-					if (element.min !== undefined && element.max !== undefined) {
-						typeDefinition = `"number >= ${element.min} & number <= ${element.max}"`;
-					} else if (element.min !== undefined) {
-						typeDefinition = `"number >= ${element.min}"`;
-					} else if (element.max !== undefined) {
-						typeDefinition = `"number <= ${element.max}"`;
-					} else {
-						typeDefinition = '"number"';
-					}
-					break;
-
-				case "Switch":
-					typeDefinition = '"boolean"';
-					break;
-
-				case "Select":
-					typeDefinition = '"string >= 1"';
-					break;
-
-				case "ToggleGroup":
-					typeDefinition = element.type === "single"
-						? '"string >= 1"'
-						: '"string[] >= 1"';
-					break;
-
-				case "MultiSelect":
-					typeDefinition = '"string[] >= 1"';
-					break;
-
-				case "RadioGroup":
-					typeDefinition = '"string >= 1"';
-					break;
-
-				default:
-					typeDefinition = '"string"';
-			}
-
-			// Handle optional fields - ArkType uses the ? syntax or union with undefined
-			if (!("required" in element) || element.required !== true) {
-				const fieldName = `"${element.name}?"`;
-				return `  ${fieldName}: ${typeDefinition}`;
-			} else {
-				return `  "${element.name}": ${typeDefinition}`;
-			}
-		})
-		.join(",\n");
+	const schemaEntries = processElements(formElements).join(",\n");
 
 	return `import { type } from "arktype"
 

@@ -4,6 +4,7 @@ import { FormArrayPreview } from "@/components/builder/form-array-preview";
 import { MultiStepFormPreview } from "@/components/builder/multi-step-preview";
 import { RenderFormElement } from "@/components/builder/render-form-element";
 import { Button } from "@/components/ui/button";
+
 import type { FormArray, FormStep } from "@/form-types";
 import type { AppForm } from "@/hooks/use-form-builder";
 import { useFormBuilder } from "@/hooks/use-form-builder";
@@ -72,10 +73,10 @@ export function SingleStepFormPreview({ form }: FormPreviewProps) {
 								return (
 									<div
 										key={i}
-										className="flex items-center justify-between flex-wrap sm:flex-nowrap w-full gap-2"
+										className="flex items-start flex-wrap sm:flex-nowrap w-full gap-2"
 									>
 										{element.map((el: any, ii: number) => (
-											<div key={el.name + ii} className="w-full">
+											<div key={el.name + ii} className="flex-1 min-w-0">
 												<RenderFormElement formElement={el} form={form} />
 											</div>
 										))}

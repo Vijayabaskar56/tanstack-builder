@@ -1,13 +1,31 @@
 import { type ZodType, z } from "zod";
-import type { FormElement } from "@/form-types";
+import type { FormElement, FormArray } from "@/form-types";
 import { isStatic } from "@/lib/utils";
 
+// Type guard to check if an element is a FormArray
+const isFormArray = (element: any): element is FormArray => {
+	return typeof element === 'object' && element !== null && 'arrayField' in element;
+};
+
 export const generateZodSchemaObject = (
-	formElements: FormElement[],
+	formElements: (FormElement | FormArray)[],
 ): z.ZodObject<any> => {
 	const schemaObject: Record<string, ZodType> = {};
 
-	const addType = (element: FormElement): void => {
+	const addType = (element: FormElement | FormArray | FormElement[]): void => {
+		if (Array.isArray(element)) {
+			element.forEach(addType);
+			return;
+		}
+		if (isFormArray(element)) {
+			// Add fields from entries
+			element.entries.forEach((entry) => {
+				entry.fields.forEach((field) => addType(field));
+			});
+			return;
+		}
+
+		// Handle regular FormElement
 		if (isStatic(element.fieldType)) return;
 
 		let elementSchema: ZodType;
@@ -51,9 +69,9 @@ export const generateZodSchemaObject = (
 				break;
 			case "RadioGroup":
 				elementSchema = z.string().min(1, "Please select an item");
-    break;
-   case "Textarea":
-     elementSchema = z.string().nonempty('This Field is Required').min(10,'Minimum Value Should be 10')
+      break;
+    case "Textarea":
+      elementSchema = z.string().nonempty('This Field is Required').min(10,'Minimum Value Should be 10')
 				break;
 			default:
 				elementSchema = z.string();
@@ -79,7 +97,15 @@ export const generateZodSchemaObject = (
 		// Ensure fieldSchema is of typZodType
 		schemaObject[element.name] = elementSchema as ZodType;
 	};
-	formElements.flat().forEach(addType);
+
+	// Process all elements, handling both arrays and single elements
+	formElements.forEach((element) => {
+		if (Array.isArray(element)) {
+			element.forEach(addType);
+		} else {
+			addType(element);
+		}
+	});
 
 	return z.object(schemaObject);
 };
@@ -123,26 +149,52 @@ export const generateZodSchemaString = (schema: ZodType): string => {
 		return result;
 	}
 
-	if (schema instanceof z.ZodString) {
-		let result = "z.string()";
-		if ("checks" in schema.def && schema.def.checks) {
-			schema.def.checks.forEach((check: any) => {
-				if (check.kind === "min") {
-					result += `.min(${check.value})`;
-				} else if (check.kind === "max") {
-					result += `.max(${check.value})`;
-				}
-			});
-		}
-		return result;
-	}
+  if (schema instanceof z.ZodString) {
+    let result = "z.string()";
+    let hasMinConstraint = false;
+
+    if ("checks" in schema.def && schema.def.checks && Array.isArray(schema.def.checks)) {
+      schema.def.checks.forEach((check: any) => {
+        // Handle different check structures
+        if (check.kind === "min") {
+          result += `.min(${check.value}, "${check.message || ""}")`;
+          hasMinConstraint = true;
+        } else if (check.kind === "max") {
+          result += `.max(${check.value}, "${check.message || ""}")`;
+        } else if (check.kind === "nonempty") {
+          result += `.nonempty("${check.message || ""}")`;
+          hasMinConstraint = true;
+        }
+        // Handle Zod v4 structure with _zod property
+        else if (check._zod && check._zod.def) {
+          const checkDef = check._zod.def;
+          if (checkDef.check === "min") {
+            result += `.min(${checkDef.value}, "${checkDef.message || ""}")`;
+            hasMinConstraint = true;
+          } else if (checkDef.check === "max") {
+            result += `.max(${checkDef.value}, "${checkDef.message || ""}")`;
+          }
+        }
+      });
+    }
+
+    // If this is not an optional string and doesn't have min constraint, add default min(1)
+    // This handles the case where required string fields should have min validation
+    if (!hasMinConstraint && !(schema instanceof z.ZodOptional)) {
+      result += `.min(1, "This field is required")`;
+    }
+
+    return result;
+  }
 
 	if (schema instanceof z.ZodDate) {
 		return "z.date()";
 	}
 
 	if (schema instanceof z.ZodArray) {
-		return `z.array(${generateZodSchemaString(schema.element as ZodType)}).nonempty("Please at least one item")`;
+		const elementString = generateZodSchemaString(schema.element as ZodType);
+		// For FormArrays, don't add nonempty validation by default
+		return `z.array(${elementString})`;
 	}
 
 	if (schema instanceof z.ZodTuple) {
@@ -167,7 +219,7 @@ export const generateZodSchemaString = (schema: ZodType): string => {
 	return "z.unknown()";
 };
 
-export const getZodSchemaString = (formElements: FormElement[]): string => {
+export const getZodSchemaString = (formElements: (FormElement | FormArray)[]): string => {
 	const schema = generateZodSchemaObject(formElements);
 	const schemaEntries = Object.entries(schema.shape)
 		.map(([key, value]) => {

@@ -6,7 +6,8 @@ import type z from "zod";
 import { useAppForm } from "@/components/ui/tanstack-form";
 import type { FormElement, FormStep } from "@/form-types";
 import { useFormStore, useIsMultiStep } from "@/hooks/use-form-store";
-import { processFormElements } from "@/lib/form-code-generators/react/generate-default-value";
+import useSettings from "@/hooks/use-settings";
+
 import { flattenFormSteps } from "@/lib/form-elements-helpers";
 import { generateZodSchemaObject } from "@/lib/schema-generators/generate-zod-schema";
 
@@ -44,28 +45,18 @@ export const useFormBuilder = (): {
 	onSubmit: (data: any) => Promise<void>;
 	resetForm: () => void;
 } => {
-	interface DefaultValues {
-		[key: string]: any;
-	}
 	const isMS = useIsMultiStep();
-	const { actions, formElements, settings } = useFormStore();
+	const { actions, formElements } = useFormStore();
 	const flattenFormElements = isMS
 		? flattenFormSteps(formElements as FormStep[]).flat()
 		: (formElements.flat() as FormElement[]);
 	const filteredFormFields = flattenFormElements.filter((o) => !o.static);
-	// const defaultValues: DefaultValues = filteredFormFields.reduce(
-	// 	(acc: DefaultValues, element) => {
-	// 		acc[element.name] = element?.defaultValue ?? "";
-	// 		return acc;
-	// 	},
-	// 	{},
-	// );
-	// Generate default values based on form field types
-	const defaultValues = processFormElements(formElements);
+	const settings = useSettings();
 
 	const zodSchema = generateZodSchemaObject(filteredFormFields);
+	// console.log("🚀 ~ useFormBuilder ~ defaultValues:", defaultValues ,JSON.stringify(zodSchema , null ,2) )
 	const form = useAppForm({
-		defaultValues: defaultValues as z.infer<typeof zodSchema>,
+		defaultValues: {} as z.infer<typeof zodSchema>,
 		validationLogic: revalidateLogic(),
 		validators: { onDynamic: zodSchema },
 		listeners: {
@@ -74,7 +65,8 @@ export const useFormBuilder = (): {
 					formApi.baseStore.state.values,
 					formApi.baseStore.state.fieldMetaBase,
 				);
-				formApi.reset();
+    console.log(formApi.getAllErrors())
+				// formApi.reset();
 				toast.success("Submitted Successfully");
 			},
 		},
@@ -101,7 +93,7 @@ export const useFormBuilder = (): {
 		actions.resetFormElements();
 		reset();
 	};
-	const onSubmit = async (data: any): Promise<void> => {
+	const onSubmit = async (): Promise<void> => {
 		return new Promise<void>((resolve) => setTimeout(() => resolve(), 2000));
 	};
 	return { form: form as unknown as AppForm, onSubmit, resetForm };
