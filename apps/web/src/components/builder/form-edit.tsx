@@ -907,9 +907,9 @@ export function FormEdit() {
 																		size="sm"
 																		onClick={() => {
 																			const newElement = {
-																				id: `field-${Date.now()}`,
+																				id: `field_${Date.now()}`,
 																				fieldType: "Input" as const,
-																				name: `field-${Date.now()}`,
+																				name: `field_${Date.now()}`,
 																				label: "New Field",
 																				required: false,
 																			};

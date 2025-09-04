@@ -122,8 +122,8 @@ export function UnifiedFormElementsDropdown({
 				if (formArrayId) {
 					// Create a new form element based on fieldType
 					const baseElement = {
-						id: `field-${Date.now()}`,
-						name: `field-${Date.now()}`,
+						id: `field_${Date.now()}`,
+						name: `field_${Date.now()}`,
 						label: `${fieldType} Field`,
 						required: false,
 					};

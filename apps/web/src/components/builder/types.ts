@@ -1,3 +1,4 @@
+// types.ts
 export type FieldType =
   | 'text'
   | 'email'
@@ -70,7 +71,7 @@ export const createDefaultField = (type: FieldType, id: string): Field => {
     id,
     type,
     label: `${type[0].toUpperCase()}${type.slice(1)} field`,
-    name: `${type}-${id.slice(0, 4)}`,
+    name: `${type}_${id.slice(0, 4)}`,
     validation: {},
     appearance: { placeholder: '', helpText: '', width: 'full' },
   };
@@ -80,8 +81,8 @@ export const createDefaultField = (type: FieldType, id: string): Field => {
       ...base,
       type,
       options: [
-        { id: `${id}-opt1`, label: 'Option 1', value: 'option1' },
-        { id: `${id}-opt2`, label: 'Option 2', value: 'option2' },
+        { id: `${id}_opt1`, label: 'Option 1', value: 'option1' },
+        { id: `${id}_opt2`, label: 'Option 2', value: 'option2' },
       ],
     } as Field;
   }

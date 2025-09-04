@@ -157,7 +157,7 @@ export const formElementsList = [
 		static: true,
 		icon: Minus,
 	},
-	{ group: "field", name: "Slider", fieldType: "Slider", icon: Sliders },
+	{ group: "field", name: "Slider", fieldType: "Slider", icon: Sliders ,  min: 1, max: 100 , step: 2 },
 	{
 		group: "field",
 		name: "Switch",

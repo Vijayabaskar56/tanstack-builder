@@ -1,13 +1,14 @@
 // use-form-builder.tsx
 
 import { revalidateLogic } from "@tanstack/react-form";
+import { useMemo } from "react";
 import { toast } from "sonner";
 import type z from "zod";
 import { useAppForm } from "@/components/ui/tanstack-form";
 import type { FormElement, FormStep } from "@/form-types";
 import { useFormStore, useIsMultiStep } from "@/hooks/use-form-store";
 import useSettings from "@/hooks/use-settings";
-
+import { getDefaultFormElement } from "@/lib/form-code-generators/react/generate-default-value";
 import { flattenFormSteps } from "@/lib/form-elements-helpers";
 import { generateZodSchemaObject } from "@/lib/schema-generators/generate-zod-schema";
 
@@ -53,10 +54,17 @@ export const useFormBuilder = (): {
 	const filteredFormFields = flattenFormElements.filter((o) => !o.static);
 	const settings = useSettings();
 
-	const zodSchema = generateZodSchemaObject(filteredFormFields);
+	const zodSchema = useMemo(
+		() => generateZodSchemaObject(filteredFormFields),
+		[filteredFormFields],
+	)
+	const defaultValue = useMemo(
+		() => getDefaultFormElement(filteredFormFields),
+		[filteredFormFields],
+	);
 	// console.log("🚀 ~ useFormBuilder ~ defaultValues:", defaultValues ,JSON.stringify(zodSchema , null ,2) )
 	const form = useAppForm({
-		defaultValues: {} as z.infer<typeof zodSchema>,
+		defaultValues: defaultValue as z.infer<typeof zodSchema>,
 		validationLogic: revalidateLogic(),
 		validators: { onDynamic: zodSchema },
 		listeners: {
@@ -65,7 +73,7 @@ export const useFormBuilder = (): {
 					formApi.baseStore.state.values,
 					formApi.baseStore.state.fieldMetaBase,
 				);
-    console.log(formApi.getAllErrors())
+				console.log(formApi.getAllErrors());
 				// formApi.reset();
 				toast.success("Submitted Successfully");
 			},

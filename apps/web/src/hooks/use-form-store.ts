@@ -187,21 +187,21 @@ const validateFieldIndex = (
 		}
 		return true;
 	};
-	const syncEntriesForFormArray = (formArray: FormArray): FormArrayEntry[] => {
-		return formArray.entries.map((entry: FormArrayEntry) => {
-			const syncedFields = formArray.arrayField.map((templateField: any, index: number) => {
-				if (Array.isArray(templateField)) {
-					// Handle nested arrays
-					if (Array.isArray(entry.fields[index])) {
-						// Both template and existing are arrays, sync them
-						return templateField.map((nestedTemplate: any, nestedIndex: number) => {
-							const existingNested = (entry.fields[index] as any)[nestedIndex];
-							if (existingNested && existingNested.fieldType === nestedTemplate.fieldType) {
-								// Keep existing data but update structure
+ 	const syncEntriesForFormArray = (formArray: FormArray): FormArrayEntry[] => {
+		 return formArray.entries.map((entry: FormArrayEntry, entryIndex: number) => {
+			 const syncedFields = formArray.arrayField.map((templateField: any, index: number) => {
+				 if (Array.isArray(templateField)) {
+					 // Handle nested arrays
+					 if (Array.isArray(entry.fields[index])) {
+						 // Both template and existing are arrays, sync them
+						 return templateField.map((nestedTemplate: any, nestedIndex: number) => {
+							 const existingNested = (entry.fields[index] as any)[nestedIndex];
+							 if (existingNested && existingNested.fieldType === nestedTemplate.fieldType) {
+								 // Keep existing data but update structure
 								return {
 									...nestedTemplate,
 									id: existingNested.id,
-									name: existingNested.name,
+									name: `${formArray.name.replace(/-/g, '_')}[${entryIndex}].${nestedTemplate.name.replace(/-/g, '_')}`,
 									// Preserve user data where possible
 									...(existingNested && typeof existingNested === 'object' && 'value' in existingNested ? { value: existingNested.value } : {}),
 								};
@@ -210,7 +210,7 @@ const validateFieldIndex = (
 								return {
 									...nestedTemplate,
 									id: uuid(),
-									name: `${nestedTemplate.name}_${entry.id.slice(0, 4)}_${index}_${nestedIndex}`,
+									name: `${formArray.name.replace(/-/g, '_')}[${entryIndex}].${nestedTemplate.name.replace(/-/g, '_')}`,
 								};
 							}
 						});
@@ -219,7 +219,7 @@ const validateFieldIndex = (
 						return templateField.map((nestedTemplate: any, nestedIndex: number) => ({
 							...nestedTemplate,
 							id: uuid(),
-							name: `${nestedTemplate.name}_${entry.id.slice(0, 4)}_${index}_${nestedIndex}`,
+							name: `${formArray.name.replace(/-/g, '_')}[${entryIndex}].${nestedTemplate.name.replace(/-/g, '_')}`,
 						}));
 					}
 				} else {
@@ -229,7 +229,7 @@ const validateFieldIndex = (
 						return {
 							...templateField,
 							id: (entry.fields[index] as any).id,
-							name: (entry.fields[index] as any).name,
+							name: `${formArray.name.replace(/-/g, '_')}[${entryIndex}].${templateField.name.replace(/-/g, '_')}`,
 							// Preserve user data where possible
 							...((entry.fields[index] as any) && typeof (entry.fields[index] as any) === 'object' && 'value' in (entry.fields[index] as any) ? { value: (entry.fields[index] as any).value } : {}),
 						};
@@ -238,7 +238,7 @@ const validateFieldIndex = (
 						return {
 							...templateField,
 							id: uuid(),
-							name: `${templateField.name}_${entry.id.slice(0, 4)}_${index}`,
+							name: `${formArray.name.replace(/-/g, '_')}[${entryIndex}].${templateField.name.replace(/-/g, '_')}`,
 						};
 					}
 				}
@@ -260,7 +260,7 @@ const validateFieldIndex = (
 				...defaultFormElements[fieldType],
 				content: content || defaultFormElements[fieldType].content,
 				label: content || (defaultFormElements[fieldType] as any).label,
-				name: name || `${fieldType}-${Date.now()}`,
+				name: name || `${fieldType}_${Date.now()}`,
 				required: true,
 				fieldType,
 				...rest,
@@ -563,7 +563,7 @@ const validateFieldIndex = (
 				}
 				const nextPosition = currentPosition + 1;
 				const updatedSteps = insertAtIndex(
-     formSteps,
+     				formSteps,
 					defaultStep,
 					nextPosition,
 				);
@@ -604,14 +604,14 @@ const validateFieldIndex = (
 						return field.map((nestedField: any) => ({
 							...nestedField,
 							id: uuid(),
-							name: `${nestedField.name}_default_${Date.now()}`,
+							name: `${nestedField.name.replace(/-/g, '_')}_default_${Date.now()}`,
 						}));
 					} else {
 						// Handle single fields
 						return {
 							...field,
 							id: uuid(),
-							name: `${field.name}_default_${Date.now()}`,
+							name: `${field.name.replace(/-/g, '_')}_default_${Date.now()}`,
 						};
 					}
 				})
@@ -620,7 +620,7 @@ const validateFieldIndex = (
 			const newFormArray: FormArray = {
 				id: uuid(),
 				fieldType: "FormArray",
-				name: `formArray-${Date.now()}`,
+				name: `formArray_${Date.now()}`,
 				label: "Form Array",
 				arrayField,
 				entries: [defaultEntry] // Start with default entry
@@ -706,7 +706,7 @@ const validateFieldIndex = (
 		});
 	};
 
-	const addFormArrayEntry = (arrayId: string) => {
+  	const addFormArrayEntry = (arrayId: string) => {
 		store.setState((state) => {
 			const findAndUpdateFormArray = (elements: any[]): any[] => {
 				return elements.map(el => {
@@ -720,14 +720,14 @@ const validateFieldIndex = (
 									return field.map((nestedField: any) => ({
 										...nestedField,
 										id: uuid(),
-										name: `${nestedField.name}_${el.entries.length}`
+										name: `${el.name.replace(/-/g, '_')}[${el.entries.length}].${nestedField.name.replace(/-/g, '_')}`
 									}));
 								} else {
 									// Handle single fields
 									return {
 										...field,
 										id: uuid(),
-										name: `${field.name}_${el.entries.length}`
+										name: `${el.name.replace(/-/g, '_')}[${el.entries.length}].${field.name.replace(/-/g, '_')}`
 									};
 								}
 							})
@@ -900,7 +900,7 @@ const validateFieldIndex = (
 					...defaultFormElements[fieldType],
 					content: defaultFormElements[fieldType].content,
 					label: (defaultFormElements[fieldType] as any).label || defaultFormElements[fieldType].content,
-					name: `${fieldType}-${Date.now()}`,
+					name: `${fieldType}_${Date.now()}`.replace(/-/g, '_'),
 					required: true,
 					fieldType,
 				} as FormElement;

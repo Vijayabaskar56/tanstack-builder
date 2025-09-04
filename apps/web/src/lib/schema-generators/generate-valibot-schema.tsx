@@ -1,18 +1,25 @@
+// genrate-valibot-schema.tsx
 import * as v from "valibot";
-import type { FormElement, FormArray } from "@/form-types";
+import type { FormArray, FormElement } from "@/form-types";
 import { isStatic } from "@/lib/utils";
 
 // Type guard to check if an element is a FormArray
 const isFormArray = (element: any): element is FormArray => {
-	return typeof element === 'object' && element !== null && 'arrayField' in element;
+	return (
+		typeof element === "object" && element !== null && "arrayField" in element
+	);
 };
 
-export const generateValiSchemaObject = (formElements: (FormElement | FormArray)[]) => {
+export const generateValiSchemaObject = (
+	formElements: (FormElement | FormArray)[],
+) => {
 	const schemaObject: Record<string, any> = {};
 	const addType = (element: FormElement | FormArray): void => {
 		if (isFormArray(element)) {
 			// Handle FormArray
-			const arraySchema = generateValiSchemaObject(element.arrayField as FormElement[]);
+			const arraySchema = generateValiSchemaObject(
+				element.arrayField as FormElement[],
+			);
 			let elementSchema: any = v.array(arraySchema.objectSchema);
 
 			if (!("required" in element) || element.required !== true) {
@@ -28,6 +35,7 @@ export const generateValiSchemaObject = (formElements: (FormElement | FormArray)
 		let elementSchema: any;
 		switch (element.fieldType) {
 			case "Input":
+			case "Password":
 				if (element.type === "email") {
 					elementSchema = v.pipe(v.string(), v.email());
 					break;
@@ -38,6 +46,15 @@ export const generateValiSchemaObject = (formElements: (FormElement | FormArray)
 				}
 				elementSchema = v.string();
 				break;
+			case "OTP":
+				elementSchema = v.pipe(
+					v.string(),
+					v.minLength(
+						element.maxLength || 6,
+						`OTP must be at least ${element.maxLength || 6} characters`,
+					),
+				);
+				break;
 			case "DatePicker":
 				elementSchema = v.pipe(
 					v.string(),
@@ -46,7 +63,7 @@ export const generateValiSchemaObject = (formElements: (FormElement | FormArray)
 				);
 				break;
 			case "Checkbox":
-				elementSchema = v.optional(v.boolean(), true)
+				elementSchema = v.optional(v.boolean(), true);
 				break;
 			case "Slider":
 				elementSchema = v.pipe(v.string(), v.transform(Number), v.number());
@@ -84,7 +101,7 @@ export const generateValiSchemaObject = (formElements: (FormElement | FormArray)
 			case "Textarea":
 				elementSchema = v.pipe(
 					v.string(),
-      v.nonEmpty('This Field is Required'),
+					v.nonEmpty("This Field is Required"),
 					v.minLength(10, "Minimum Value Should be 10"),
 				);
 				break;
@@ -211,9 +228,12 @@ export const generateValiSchemaString = (schema: any): string => {
 	// Handle objects
 	if (schema?.type === "object") {
 		const shape = schema.entries || {};
-		const shapeStrs = Object.entries(shape).map(
-			([key, value]) => `${key}: ${generateValiSchemaString(value)}`,
-		);
+		const shapeStrs = Object.entries(shape).map(([key, value]) => {
+			// Quote keys that need it (contain spaces or start with number)
+			const needsQuotes = /\s/.test(key) || /^\d/.test(key);
+			const quotedKey = needsQuotes ? `"${key}"` : key;
+			return `${quotedKey}: ${generateValiSchemaString(value)}`;
+		});
 		return `v.object({\n  ${shapeStrs.join(",\n  ")}\n})`;
 	}
 
@@ -255,7 +275,9 @@ export const getValiSchemaStringDirect = (
 			.map((element) => {
 				if (isFormArray(element)) {
 					// Handle FormArray
-					const arrayFieldSchemas = processElements(element.arrayField as FormElement[]);
+					const arrayFieldSchemas = processElements(
+						element.arrayField as FormElement[],
+					);
 					const arrayObjectSchema = `v.object({\n${arrayFieldSchemas.join(",\n")}\n  })`;
 					let typeDefinition = `v.array(${arrayObjectSchema})`;
 
@@ -264,7 +286,11 @@ export const getValiSchemaStringDirect = (
 						typeDefinition = `v.optional(${typeDefinition})`;
 					}
 
-					return `  "${element.name}": ${typeDefinition}`;
+					// Quote keys that need it (contain spaces or start with number)
+					const needsQuotes =
+						/\s/.test(element.name) || /^\d/.test(element.name);
+					const quotedKey = needsQuotes ? `"${element.name}"` : element.name;
+					return `  ${quotedKey}: ${typeDefinition}`;
 				}
 
 				// Handle regular FormElement
@@ -272,6 +298,7 @@ export const getValiSchemaStringDirect = (
 
 				switch (element.fieldType) {
 					case "Input":
+					case "Password":
 						if (element.type === "email") {
 							typeDefinition = "v.pipe(v.string(), v.email())";
 						} else if (element.type === "number") {
@@ -280,6 +307,10 @@ export const getValiSchemaStringDirect = (
 						} else {
 							typeDefinition = "v.string()";
 						}
+						break;
+
+					case "OTP":
+						typeDefinition = `v.pipe(v.string(), v.minLength(${element.maxLength || 6}, "OTP must be at least ${element.maxLength || 6} characters"))`;
 						break;
 
 					case "DatePicker":
@@ -334,7 +365,8 @@ export const getValiSchemaStringDirect = (
 						break;
 
 					case "Textarea":
-						typeDefinition = 'v.pipe(v.string(), v.nonEmpty("This Field is Required"), v.minLength(10, "Minimum Value Should be 10"))';
+						typeDefinition =
+							'v.pipe(v.string(), v.nonEmpty("This Field is Required"), v.minLength(10, "Minimum Value Should be 10"))';
 						break;
 
 					default:
@@ -346,7 +378,10 @@ export const getValiSchemaStringDirect = (
 					typeDefinition = `v.optional(${typeDefinition})`;
 				}
 
-				return `  "${element.name}": ${typeDefinition}`;
+				// Quote keys that need it (contain spaces or start with number)
+				const needsQuotes = /\s/.test(element.name) || /^\d/.test(element.name);
+				const quotedKey = needsQuotes ? `"${element.name}"` : element.name;
+				return `  ${quotedKey}: ${typeDefinition}`;
 			});
 	};
 
@@ -360,6 +395,8 @@ ${schemaEntries}
 };
 
 // Keep the original function for now but use the direct approach
-export const getValiSchemaString = (formElements: (FormElement | FormArray)[]): string => {
+export const getValiSchemaString = (
+	formElements: (FormElement | FormArray)[],
+): string => {
 	return getValiSchemaStringDirect(formElements);
 };

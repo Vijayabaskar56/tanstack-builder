@@ -1,4 +1,5 @@
 /** biome-ignore-all lint/correctness/noChildrenProp: Required for form field rendering */
+// render-form-element.tsx
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import type * as React from "react";
@@ -123,6 +124,7 @@ export const RenderFormElement = ({
 									name={formElement.name}
 									value={field.state.value as string}
 									onChange={field.handleChange}
+									required={formElement.required}
 								>
 									<InputOTPGroup>
 										<InputOTPSlot index={0} />
@@ -214,11 +216,11 @@ export const RenderFormElement = ({
 								<RadioGroup
 									onValueChange={field.handleChange}
 									name={formElement.name}
-									defaultValue={field.state.value as string}
+									defaultValue={(field.state.value || '1') as string | undefined}
 								>
 									{formElement.options.map(({ label, value }) => (
 										<div key={value} className="flex items-center gap-x-2">
-											<RadioGroupItem value={value} id={value} />
+											<RadioGroupItem value={value} id={value} required={formElement.required} />
 											<Label htmlFor={value}>{label}</Label>
 										</div>
 									))}
@@ -309,7 +311,11 @@ export const RenderFormElement = ({
 									<Switch
 										name={formElement.name}
 										checked={field.state.value as boolean}
-										onCheckedChange={field.handleChange}
+										onCheckedChange={(checked) => {
+											field.handleChange(checked);
+											// Trigger validation by simulating blur
+											field.handleBlur();
+										}}
 									/>
 								</field.FormControl>
 							</div>
@@ -351,9 +357,11 @@ export const RenderFormElement = ({
 										max={max}
 										step={step}
 										value={sliderValue}
-										onValueChange={(newValue) =>
-											field.handleChange(newValue[0])
-										}
+										onValueChange={(newValue) => {
+											field.handleChange(newValue[0]);
+											// Trigger validation by simulating blur
+											field.handleBlur();
+										}}
 									/>
 								</field.FormControl>
 								<field.FormDescription className="py-1">

@@ -1,18 +1,81 @@
-import type { FormElement, FormElementOrList, FormStep } from "@/form-types";
+// generate-form-code
+import type {
+	FormArray,
+	FormElement,
+	FormElementOrList,
+	FormStep,
+} from "@/form-types";
 import useSettings from "@/hooks/use-settings";
-import { getDefaultValues } from "@/lib/form-code-generators/react/generate-default-value";
+import {
+	getDefaultValuesString,
+	objectToLiteralString,
+	processFormElements,
+} from "@/lib/form-code-generators/react/generate-default-value";
 import { getFormElementCode } from "@/lib/form-code-generators/react/generate-form-component";
 import { generateImports } from "@/lib/form-code-generators/react/generate-imports";
-import { flattenFormSteps, } from "@/lib/form-elements-helpers";
+import { flattenFormSteps } from "@/lib/form-elements-helpers";
 
-const renderFields = (fields: FormElementOrList[]) => {
+const modifyElement = (
+	el: FormElementOrList,
+	prefix: string,
+): FormElementOrList => {
+	if (Array.isArray(el)) {
+		return el.map((e) => modifyElement(e, prefix)) as FormElement[];
+	} else {
+		return { ...el, name: prefix + el.name };
+	}
+};
+
+const renderFields = (fields: (FormElementOrList | FormArray)[]): string => {
 	return fields
-		.map((FormElement) => {
+		.map((FormElement, i) => {
+			console.log("🚀 ~ renderFields ~ FormElement:", FormElement);
 			if (Array.isArray(FormElement)) {
 				return `
           <div className="flex items-center justify-between flex-wrap sm:flex-nowrap w-full gap-2">
             ${FormElement.map((field) => getFormElementCode(field)).join("")}
           </div>`;
+			}
+			if (FormElement.fieldType === "FormArray") {
+				const formArray = FormElement as FormArray;
+				const defaultEntry = processFormElements(
+					formArray.arrayField as FormElementOrList[],
+				);
+				const pushValueStr = objectToLiteralString(defaultEntry);
+				return (
+					"{form.Field({\n" +
+					'  name: "' +
+					formArray.name +
+					'",\n' +
+					'  mode: "array",\n' +
+					"  children: (field) => (\n" +
+					'    <div className="w-full space-y-4">\n' +
+					"      {field.state.value.map((_, i) => (\n" +
+					'        <div key={i} className="space-y-3 p-4 relative">\n' +
+					"          <Separator />\n" +
+					"          " +
+					renderFields(
+						(formArray.arrayField as FormElementOrList[]).map((el) =>
+							modifyElement(el, "`" + formArray.name + "[${i}]."),
+						),
+					) +
+					"\n" +
+					"        </div>\n" +
+					"      ))}\n" +
+					'      <div className="flex justify-between pt-2">\n' +
+					'        <Button variant="outline" onClick={() => field.pushValue(' +
+					pushValueStr +
+					")}>\n" +
+					'          <Plus className="h-4 w-4 mr-2" /> Add\n' +
+					"        </Button>\n" +
+					'        <Button variant="outline" onClick={() => field.removeValue(field.state.value.length - 1)} disabled={field.state.value.length <= 1}>\n' +
+					'          <Trash2 className="h-4 w-4 mr-2" /> Remove\n' +
+					"        </Button>\n" +
+					"      </div>\n" +
+					"    </div>\n" +
+					"  )\n" +
+					"})}"
+				);
 			}
 			return getFormElementCode(FormElement);
 		})
@@ -26,15 +89,14 @@ export const generateFormCode = ({
 	formElements: FormElementOrList[] | FormStep[];
 	isMS: boolean;
 }): { file: string; code: string }[] => {
-  const flattenedFormElements = isMS
-  ? flattenFormSteps(formElements as FormStep[]).flat()
-  : formElements.flat();
-  const defaultValues = getDefaultValues();
+	const flattenedFormElements = isMS
+		? flattenFormSteps(formElements as FormStep[]).flat()
+		: formElements.flat();
+	const defaultValues = getDefaultValuesString();
 	const imports = Array.from(
-    generateImports(flattenedFormElements as FormElement[]),
+		generateImports(flattenedFormElements as (FormElement | FormArray)[]),
 	).join("\n");
-  const settings = useSettings()
-
+	const settings = useSettings();
 
 	const singleStepFormCode = [
 		{
@@ -51,7 +113,9 @@ const form = useAppForm({
   onSubmit : ({value}) => {
   console.log(value)
 			toast.success("success");
-  },${settings.focusOnError && `
+  },${
+		settings.focusOnError
+			? `
   onSubmitInvalid({ formApi }) {
 				const errorMap = formApi.state.errorMap.onDynamic!;
 				const inputs = Array.from(
@@ -66,7 +130,9 @@ const form = useAppForm({
 					}
 				}
 				firstInput?.focus();
-		}`},
+		}`
+			: ""
+	}
 });
 
 
@@ -84,7 +150,7 @@ return (
   <div>
     <form.AppForm>
       <form onSubmit={handleSubmit} className="flex flex-col p-2 md:p-5 w-full mx-auto rounded-md max-w-3xl gap-2 border"  noValidate>
-        ${renderFields(formElements as FormElementOrList[])}
+         ${renderFields(formElements as (FormElementOrList | FormArray)[])}
         <div className="flex justify-end items-center w-full pt-3">
           <Button className="rounded-lg" size="sm">
             {isSubmitting ? 'Submitting...' : 'Submit'}
@@ -113,7 +179,6 @@ return (
 	const stringifiedStepComponents = stringifyStepComponents(
 		formElements as FormStep[],
 	);
-
 
 	const MSF_Code = `
   ${imports}

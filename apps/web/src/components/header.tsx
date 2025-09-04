@@ -1,4 +1,4 @@
-
+// header.tsx
 import { useLocation } from "@tanstack/react-router";
 import {
 	BookMarked,
@@ -40,8 +40,8 @@ import useSettings from "@/hooks/use-settings";
 import type { Framework, ValidationSchema } from "./builder/types";
 import { GeneratedFormCodeViewer } from "./generated-code/code-viewer";
 export default function FormHeader() {
-	const _links = [{ to: "/", label: "Home" }];
-	const location = useLocation();
+		const _links = [{ to: "/", label: "Home" }];
+		const location = useLocation();
 	const { activeTab } = useSettings();
 	const frameworks = ["react", "vue", "angular", "solid"];
 	const validationLibs = ["zod", "valibot", "arktype"];
@@ -182,7 +182,7 @@ export default function FormHeader() {
 						<p>Multi Step Form</p>
 					</div>
 					<div className="h-4 w-px bg-border" />
-     <Button variant="ghost" size="sm" onClick={()=>actions.addFormArray([])}>
+     				<Button variant="ghost" size="sm" onClick={()=>actions.addFormArray([])}>
 						<Brackets className="w-4 h-4 mr-1" />
 						Field Array
 					</Button>
@@ -218,9 +218,9 @@ export default function FormHeader() {
 							</DialogHeader>
 							<div className="space-y-4">
 								<div>
-									<Label htmlFor={`form-name-${id}`}>Form Name</Label>
+									<Label htmlFor={`form_name_${id}`}>Form Name</Label>
 									<Input
-										id={`form-name-${id}`}
+										id={`form_name_${id}`}
 										placeholder="Enter form name..."
 										value={saveFormName}
 										onChange={(e) => setSaveFormName(e.target.value)}

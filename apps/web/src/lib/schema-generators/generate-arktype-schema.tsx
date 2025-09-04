@@ -1,19 +1,26 @@
+// generate-arktype-schema.tsx
 import { type } from "arktype";
-import type { FormElement, FormArray } from "@/form-types";
+import type { FormArray, FormElement } from "@/form-types";
 import { isStatic } from "@/lib/utils";
 
 // Type guard to check if an element is a FormArray
 const isFormArray = (element: any): element is FormArray => {
-	return typeof element === 'object' && element !== null && 'arrayField' in element;
+	return (
+		typeof element === "object" && element !== null && "arrayField" in element
+	);
 };
 
-export const generateArkTypeSchemaObject = (formElements: (FormElement | FormArray)[]) => {
+export const generateArkTypeSchemaObject = (
+	formElements: (FormElement | FormArray)[],
+) => {
 	const schemaObject: Record<string, any> = {};
 
 	const addType = (element: FormElement | FormArray): void => {
 		if (isFormArray(element)) {
 			// Handle FormArray
-			const arraySchema = generateArkTypeSchemaObject(element.arrayField as FormElement[]);
+			const arraySchema = generateArkTypeSchemaObject(
+				element.arrayField as FormElement[],
+			);
 			let elementSchema: any = type([arraySchema, "[]"]);
 
 			if (!("required" in element) || element.required !== true) {
@@ -31,6 +38,7 @@ export const generateArkTypeSchemaObject = (formElements: (FormElement | FormArr
 
 		switch (element.fieldType) {
 			case "Input":
+			case "Password":
 				if (element.type === "email") {
 					elementSchema = type("string.email");
 					break;
@@ -40,6 +48,10 @@ export const generateArkTypeSchemaObject = (formElements: (FormElement | FormArr
 					break;
 				}
 				elementSchema = type("string");
+				break;
+
+			case "OTP":
+				elementSchema = type(`string >= ${element.maxLength || 6}`);
 				break;
 
 			case "DatePicker":
@@ -63,9 +75,10 @@ export const generateArkTypeSchemaObject = (formElements: (FormElement | FormArr
 				break;
 
 			case "ToggleGroup":
-				elementSchema = element.type === "single"
-					? type("string >= 1")
-					: type("string[] >= 1");
+				elementSchema =
+					element.type === "single"
+						? type("string >= 1")
+						: type("string[] >= 1");
 				break;
 
 			case "MultiSelect":
@@ -87,7 +100,9 @@ export const generateArkTypeSchemaObject = (formElements: (FormElement | FormArr
 		// Add validation constraints for Slider
 		if (element.fieldType === "Slider") {
 			if (element.min !== undefined && element.max !== undefined) {
-				elementSchema = type(`number >= ${element.min} & number <= ${element.max}`);
+				elementSchema = type(
+					`number >= ${element.min} & number <= ${element.max}`,
+				);
 			} else if (element.min !== undefined) {
 				elementSchema = type(`number >= ${element.min}`);
 			} else if (element.max !== undefined) {
@@ -140,8 +155,12 @@ export const generateArkTypeSchemaString = (schema: any): string => {
 	// Handle unions (including optional fields)
 	if (schema.kind === "union") {
 		if (schema.branches?.length === 2) {
-			const nonUndefined = schema.branches.find((b: any) => b.kind !== "unit" || b.unit !== undefined);
-			const hasUndefined = schema.branches.some((b: any) => b.kind === "unit" && b.unit === undefined);
+			const nonUndefined = schema.branches.find(
+				(b: any) => b.kind !== "unit" || b.unit !== undefined,
+			);
+			const hasUndefined = schema.branches.some(
+				(b: any) => b.kind === "unit" && b.unit === undefined,
+			);
 
 			if (hasUndefined && nonUndefined) {
 				// This is an optional field
@@ -149,17 +168,19 @@ export const generateArkTypeSchemaString = (schema: any): string => {
 			}
 		}
 
-		const unionStrs = schema.branches?.map((branch: any) =>
-			generateArkTypeSchemaString(branch)
-		) || [];
+		const unionStrs =
+			schema.branches?.map((branch: any) =>
+				generateArkTypeSchemaString(branch),
+			) || [];
 		return unionStrs.join(" | ");
 	}
 
 	// Handle intersections
 	if (schema.kind === "intersection") {
-		const intersectionStrs = schema.branches?.map((branch: any) =>
-			generateArkTypeSchemaString(branch)
-		) || [];
+		const intersectionStrs =
+			schema.branches?.map((branch: any) =>
+				generateArkTypeSchemaString(branch),
+			) || [];
 		return intersectionStrs.join(" & ");
 	}
 
@@ -195,12 +216,18 @@ export const generateArkTypeSchemaString = (schema: any): string => {
 
 	if (schema.kind === "domain") {
 		switch (schema.domain) {
-			case "string": return '"string"';
-			case "number": return '"number"';
-			case "boolean": return '"boolean"';
-			case "object": return '"object"';
-			case "bigint": return '"bigint"';
-			case "symbol": return '"symbol"';
+			case "string":
+				return '"string"';
+			case "number":
+				return '"number"';
+			case "boolean":
+				return '"boolean"';
+			case "object":
+				return '"object"';
+			case "bigint":
+				return '"bigint"';
+			case "symbol":
+				return '"symbol"';
 		}
 	}
 
@@ -242,13 +269,23 @@ export const generateArkTypeSchemaString = (schema: any): string => {
 
 		required.forEach((entry: any) => {
 			if (entry.key && entry.value) {
-				entries.push(`${entry.key}: ${generateArkTypeSchemaString(entry.value)}`);
+				// Quote keys that need it (contain spaces or start with number)
+				const needsQuotes = /\s/.test(entry.key) || /^\d/.test(entry.key);
+				const quotedKey = needsQuotes ? `"${entry.key}"` : entry.key;
+				entries.push(
+					`${quotedKey}: ${generateArkTypeSchemaString(entry.value)}`,
+				);
 			}
 		});
 
 		optional.forEach((entry: any) => {
 			if (entry.key && entry.value) {
-				entries.push(`"${entry.key}?": ${generateArkTypeSchemaString(entry.value)}`);
+				// Quote keys that need it (contain spaces or start with number)
+				const needsQuotes = /\s/.test(entry.key) || /^\d/.test(entry.key);
+				const quotedKey = needsQuotes ? `"${entry.key}?"` : `${entry.key}?`;
+				entries.push(
+					`${quotedKey}: ${generateArkTypeSchemaString(entry.value)}`,
+				);
 			}
 		});
 
@@ -263,7 +300,9 @@ export const generateArkTypeSchemaString = (schema: any): string => {
 
 	return '"unknown"';
 };
-export const getArkTypeSchemaString = (formElements: (FormElement | FormArray)[]): string => {
+export const getArkTypeSchemaString = (
+	formElements: (FormElement | FormArray)[],
+): string => {
 	// Generate ArkType definitions directly from form elements
 	const processElements = (elements: (FormElement | FormArray)[]): string[] => {
 		return elements
@@ -274,16 +313,27 @@ export const getArkTypeSchemaString = (formElements: (FormElement | FormArray)[]
 			.map((element) => {
 				if (isFormArray(element)) {
 					// Handle FormArray
-					const arrayFieldSchemas = processElements(element.arrayField as FormElement[]);
+					const arrayFieldSchemas = processElements(
+						element.arrayField as FormElement[],
+					);
 					const arrayObjectSchema = `{\n${arrayFieldSchemas.join(",\n")}\n  }`;
-					let typeDefinition = `"${arrayObjectSchema}[]"`;
+					const typeDefinition = `"${arrayObjectSchema}[]"`;
 
 					// Handle optional FormArray
 					if (!("required" in element) || element.required !== true) {
-						const fieldName = `"${element.name}?"`;
-						return `  ${fieldName}: ${typeDefinition}`;
+						// Quote keys that need it (contain spaces or start with number)
+						const needsQuotes =
+							/\s/.test(element.name) || /^\d/.test(element.name);
+						const quotedKey = needsQuotes
+							? `"${element.name}?"`
+							: `${element.name}?`;
+						return `  ${quotedKey}: ${typeDefinition}`;
 					} else {
-						return `  "${element.name}": ${typeDefinition}`;
+						// Quote keys that need it (contain spaces or start with number)
+						const needsQuotes =
+							/\s/.test(element.name) || /^\d/.test(element.name);
+						const quotedKey = needsQuotes ? `"${element.name}"` : element.name;
+						return `  ${quotedKey}: ${typeDefinition}`;
 					}
 				}
 
@@ -292,6 +342,7 @@ export const getArkTypeSchemaString = (formElements: (FormElement | FormArray)[]
 
 				switch (element.fieldType) {
 					case "Input":
+					case "Password":
 						if (element.type === "email") {
 							typeDefinition = '"string.email"';
 						} else if (element.type === "number") {
@@ -299,6 +350,10 @@ export const getArkTypeSchemaString = (formElements: (FormElement | FormArray)[]
 						} else {
 							typeDefinition = '"string"';
 						}
+						break;
+
+					case "OTP":
+						typeDefinition = `"string >= ${element.maxLength || 6}"`;
 						break;
 
 					case "DatePicker":
@@ -330,9 +385,8 @@ export const getArkTypeSchemaString = (formElements: (FormElement | FormArray)[]
 						break;
 
 					case "ToggleGroup":
-						typeDefinition = element.type === "single"
-							? '"string >= 1"'
-							: '"string[] >= 1"';
+						typeDefinition =
+							element.type === "single" ? '"string >= 1"' : '"string[] >= 1"';
 						break;
 
 					case "MultiSelect":
@@ -353,10 +407,19 @@ export const getArkTypeSchemaString = (formElements: (FormElement | FormArray)[]
 
 				// Handle optional fields - ArkType uses the ? syntax or union with undefined
 				if (!("required" in element) || element.required !== true) {
-					const fieldName = `"${element.name}?"`;
-					return `  ${fieldName}: ${typeDefinition}`;
+					// Quote keys that need it (contain spaces or start with number)
+					const needsQuotes =
+						/\s/.test(element.name) || /^\d/.test(element.name);
+					const quotedKey = needsQuotes
+						? `"${element.name}?"`
+						: `${element.name}?`;
+					return `  ${quotedKey}: ${typeDefinition}`;
 				} else {
-					return `  "${element.name}": ${typeDefinition}`;
+					// Quote keys that need it (contain spaces or start with number)
+					const needsQuotes =
+						/\s/.test(element.name) || /^\d/.test(element.name);
+					const quotedKey = needsQuotes ? `"${element.name}"` : element.name;
+					return `  ${quotedKey}: ${typeDefinition}`;
 				}
 			});
 	};
