@@ -1,32 +1,28 @@
 /** biome-ignore-all lint/correctness/noChildrenProp: Required for form field rendering */
 /** biome-ignore-all lint/correctness/useUniqueElementIds: <explanation> */
 // apps/web/src/routes/testing/index.tsx
+
 import { revalidateLogic, useStore } from "@tanstack/react-form";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { Plus, Trash2 } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
-import { type JSX, useCallback } from "react";
+import { useCallback } from "react";
 import { toast } from "sonner";
-// import * as v from "valibot";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import { Progress } from "@/components/ui/progress";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
+	MultiSelect,
+	MultiSelectContent,
+	MultiSelectItem,
+	MultiSelectList,
+	MultiSelectTrigger,
+	MultiSelectValue,
+} from "@/components/ui/multi-select";
 import { Separator } from "@/components/ui/separator";
-import { useAppForm, withForm } from "@/components/ui/tanstack-form";
+import { Slider } from "@/components/ui/slider";
+import { useAppForm } from "@/components/ui/tanstack-form";
 import { Textarea } from "@/components/ui/textarea";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import type { FormStep } from "@/form-types";
-import { useMultiStepForm } from "@/hooks/use-multi-step-form";
 export const Route = createFileRoute("/testing/")({
 	component: DraftForm,
 	beforeLoad: () => {
@@ -42,15 +38,21 @@ export const formSchema = z.object({
 	email: z.email(),
 	message: z.string().min(1, "This field is required"),
 	agree: z.boolean(),
-	formArray_1756983656732: z.array(
+	formArray_1757004280383: z.array(
 		z.object({
-			RadioGroup_1756983667534: z.string().min(1, "This field is required"),
-			Select_1756983672102: z.string().min(1, "This field is required"),
-			Input_1756983678351: z.string().min(1, "This field is required"),
-			Select_1756983700030: z.string().min(1, "This field is required"),
+			MultiSelect_1757004347270: z.array(
+				z.string().min(1, "This field is required"),
+			),
+			Input_1757005548473: z.string().min(1, "This field is required"),
+			Input_1757005553144: z.string().min(1, "This field is required"),
 		}),
 	),
+	Slider_1757004336873: z
+		.number()
+		.min(0, "Must be at least 0")
+		.max(100, "Must be at most 100"),
 });
+
 export function DraftForm() {
 	const form = useAppForm({
 		defaultValues: {
@@ -58,14 +60,14 @@ export function DraftForm() {
 			email: "",
 			message: "",
 			agree: false,
-			formArray_1756983656732: [
+			formArray_1757004280383: [
 				{
-					RadioGroup_1756983667534: "1",
-					Select_1756983672102: "1",
-					Input_1756983678351: "",
-					Select_1756983700030: "1",
+					MultiSelect_1757004347270: [],
+					Input_1757005548473: "",
+					Input_1757005553144: "",
 				},
 			],
+			Slider_1757004336873: 0,
 		} as z.infer<typeof formSchema>,
 		validationLogic: revalidateLogic(),
 		validators: {
@@ -75,6 +77,20 @@ export function DraftForm() {
 		onSubmit: ({ value }) => {
 			console.log(value);
 			toast.success("success");
+		},
+		onSubmitInvalid({ formApi }) {
+			const errorMap = formApi.state.errorMap.onDynamic!;
+			const inputs = Array.from(
+				document.querySelectorAll("#previewForm input"),
+			) as HTMLInputElement[];
+			let firstInput: HTMLInputElement | undefined;
+			for (const input of inputs) {
+				if (errorMap[input.name]) {
+					firstInput = input;
+					break;
+				}
+			}
+			firstInput?.focus();
 		},
 	});
 	const handleSubmit = useCallback(
@@ -141,7 +157,7 @@ export function DraftForm() {
 					</div>
 
 					<form.AppField
-						name="message"
+						name={message}
 						children={(field) => (
 							<field.FormItem>
 								<field.FormLabel>Message *</field.FormLabel>
@@ -185,7 +201,7 @@ export function DraftForm() {
 						)}
 					/>
 					{form.Field({
-						name: "formArray_1756983656732",
+						name: "formArray_1757004280383",
 						mode: "array",
 						children: (field) => (
 							<div className="w-full space-y-4">
@@ -193,83 +209,48 @@ export function DraftForm() {
 									<div key={i} className="space-y-3 p-4 relative">
 										<Separator />
 
-										<div className="flex items-center justify-between flex-wrap sm:flex-nowrap w-full gap-2">
-											<form.AppField
-												name={`formArray_1756983656732[${i}].RadioGroup_1756983667534`}
-												children={(field) => {
-													const options = [
-														{ value: "option-1", label: "Option 1" },
-														{ value: "option-2", label: "Option 2" },
-														{ value: "option-3", label: "Option 3" },
-													];
-													return (
-														<field.FormItem className="flex flex-col gap-2 w-full py-1">
-															<field.FormLabel>
-																Pick one option *
-															</field.FormLabel>
+										<form.AppField
+											name={`formArray_1757004280383[${i}].MultiSelect_1757004347270`}
+											children={(field) => {
+												const options = [
+													{ value: "1", label: "Option 1" },
+													{ value: "2", label: "Option 2" },
+													{ value: "2", label: "Option 3" },
+												];
+												return (
+													<field.FormItem className="w-full">
+														<field.FormLabel>
+															Select multiple options *
+														</field.FormLabel>
+														<MultiSelect
+															value={field.state.value}
+															onValueChange={field.handleChange}
+														>
 															<field.FormControl>
-																<RadioGroup
-																	name={field.name}
-																	onValueChange={field.handleChange}
-																	defaultValue={field.state.value}
-																>
-																	{options.map(({ label, value }) => (
-																		<RadioGroupItem
-																			key={value}
-																			value={value}
-																			className="flex items-center gap-x-2"
-																		>
-																			{label}
-																		</RadioGroupItem>
-																	))}
-																</RadioGroup>
+																<MultiSelectTrigger>
+																	<MultiSelectValue placeholder={"Select Item"} />
+																</MultiSelectTrigger>
 															</field.FormControl>
-															<field.FormMessage />
-														</field.FormItem>
-													);
-												}}
-											/>
-											<form.AppField
-												name={`formArray_1756983656732[${i}].Select_1756983672102`}
-												children={(field) => {
-													const options = [
-														{ value: "option-1", label: "Option 1" },
-														{ value: "option-2", label: "Option 2" },
-														{ value: "option-3", label: "Option 3" },
-													];
-													return (
-														<field.FormItem className="w-full">
-															<field.FormLabel>Select option *</field.FormLabel>
-															<Select
-																name={field.name}
-																onValueChange={field.handleChange}
-																defaultValue={field.state.value}
-																value={field.state.value as string}
-															>
-																<field.FormControl>
-																	<SelectTrigger className="w-full">
-																		<SelectValue placeholder="" />
-																	</SelectTrigger>
-																</field.FormControl>
-																<SelectContent>
+															<MultiSelectContent>
+																<MultiSelectList>
 																	{options.map(({ label, value }) => (
-																		<SelectItem key={value} value={value}>
+																		<MultiSelectItem key={label} value={value}>
 																			{label}
-																		</SelectItem>
+																		</MultiSelectItem>
 																	))}
-																</SelectContent>
-															</Select>
+																</MultiSelectList>
+															</MultiSelectContent>
+														</MultiSelect>
 
-															<field.FormMessage />
-														</field.FormItem>
-													);
-												}}
-											/>
-										</div>
+														<field.FormMessage />
+													</field.FormItem>
+												);
+											}}
+										/>
 
 										<div className="flex items-center justify-between flex-wrap sm:flex-nowrap w-full gap-2">
 											<form.AppField
-												name={`formArray_1756983656732[${i}].Input_1756983678351`}
+												name={`formArray_1757004280383[${i}].Input_1757005548473`}
 												children={(field) => (
 													<field.FormItem className="w-full">
 														<field.FormLabel>Input Field *</field.FormLabel>
@@ -290,42 +271,27 @@ export function DraftForm() {
 													</field.FormItem>
 												)}
 											/>
-
 											<form.AppField
-												name={`formArray_1756983656732[${i}].Select_1756983700030`}
-												children={(field) => {
-													const options = [
-														{ value: "option-1", label: "Option 1" },
-														{ value: "option-2", label: "Option 2" },
-														{ value: "option-3", label: "Option 3" },
-													];
-													return (
-														<field.FormItem className="w-full">
-															<field.FormLabel>Select option *</field.FormLabel>
-															<Select
+												name={`formArray_1757004280383[${i}].Input_1757005553144`}
+												children={(field) => (
+													<field.FormItem className="w-full">
+														<field.FormLabel>Input Field *</field.FormLabel>
+														<field.FormControl>
+															<Input
 																name={field.name}
-																onValueChange={field.handleChange}
-																defaultValue={field.state.value}
-																value={field.state.value as string}
-															>
-																<field.FormControl>
-																	<SelectTrigger className="w-full">
-																		<SelectValue placeholder="" />
-																	</SelectTrigger>
-																</field.FormControl>
-																<SelectContent>
-																	{options.map(({ label, value }) => (
-																		<SelectItem key={value} value={value}>
-																			{label}
-																		</SelectItem>
-																	))}
-																</SelectContent>
-															</Select>
+																placeholder="Enter your text"
+																type={"text"}
+																value={field.state.value}
+																onBlur={field.handleBlur}
+																onChange={(e) =>
+																	field.handleChange(e.target.value)
+																}
+															/>
+														</field.FormControl>
 
-															<field.FormMessage />
-														</field.FormItem>
-													);
-												}}
+														<field.FormMessage />
+													</field.FormItem>
+												)}
 											/>
 										</div>
 									</div>
@@ -335,10 +301,9 @@ export function DraftForm() {
 										variant="outline"
 										onClick={() =>
 											field.pushValue({
-												RadioGroup_1756983667534: "1",
-												Select_1756983672102: "1",
-												Input_1756983678351: "",
-												Select_1756983700030: "1",
+												MultiSelect_1757004347270: [],
+												Input_1757005548473: "",
+												Input_1757005553144: "",
 											})
 										}
 									>
@@ -357,6 +322,33 @@ export function DraftForm() {
 							</div>
 						),
 					})}
+
+					<form.AppField
+						name="Slider_1757004336873"
+						children={(field) => (
+							<field.FormItem>
+								<field.FormLabel className="flex justify-between items-center">
+									Set Range<span>{field.state.value}/100</span>
+								</field.FormLabel>
+								<field.FormControl>
+									<Slider
+										name={field.name}
+										min={0}
+										max={100}
+										step={5}
+										defaultValue={[5]}
+										onValueChange={(values) => {
+											field.handleChange(values[0]);
+										}}
+									/>
+								</field.FormControl>
+								<field.FormDescription>
+									Adjust the range by sliding.
+								</field.FormDescription>
+								<field.FormMessage />
+							</field.FormItem>
+						)}
+					/>
 					<div className="flex justify-end items-center w-full pt-3">
 						<Button className="rounded-lg" size="sm">
 							{isSubmitting ? "Submitting..." : "Submit"}

@@ -22,14 +22,13 @@ const modifyElement = (
 	if (Array.isArray(el)) {
 		return el.map((e) => modifyElement(e, prefix)) as FormElement[];
 	} else {
-		return { ...el, name: prefix + el.name };
+		return { ...el, name: prefix + el.name + '`' };
 	}
 };
 
 const renderFields = (fields: (FormElementOrList | FormArray)[]): string => {
 	return fields
 		.map((FormElement, i) => {
-			console.log("🚀 ~ renderFields ~ FormElement:", FormElement);
 			if (Array.isArray(FormElement)) {
 				return `
           <div className="flex items-center justify-between flex-wrap sm:flex-nowrap w-full gap-2">
