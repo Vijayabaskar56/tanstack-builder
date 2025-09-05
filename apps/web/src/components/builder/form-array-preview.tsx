@@ -67,13 +67,15 @@ export function FormArrayPreview({ formArray, form }: FormArrayPreviewProps) {
 				<div className="flex justify-between pt-2">
 					<Button
 						variant="outline"
-						onClick={handleAddEntry}
+						type="button"
+      onClick={handleAddEntry}
 						disabled={arrayToUse.arrayField.length === 0}
 					>
 						<Plus className="h-4 w-4 mr-2" />
 						Add
 					</Button>
      <Button
+      type="button"
 						variant="outline"
       onClick={() => handleRemoveEntry(formArray.entries[formArray.entries.length - 1].id)}
 						disabled={formArray.entries.length === 1}
