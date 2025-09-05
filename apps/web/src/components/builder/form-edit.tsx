@@ -902,30 +902,7 @@ export function FormEdit() {
 																	</span>
 																</div>
 																<div className="flex items-center gap-2">
-																	<Button
-																		variant="ghost"
-																		size="sm"
-																		onClick={() => {
-																			const newElement = {
-																				id: `field_${Date.now()}`,
-																				fieldType: "Input" as const,
-																				name: `field_${Date.now()}`,
-																				label: "New Field",
-																				required: false,
-																			};
-																			const updatedArrayField = [
-																				...formArrayElement.arrayField,
-																				newElement,
-																			];
-																			actions.updateFormArray(
-																				formArrayElement.id,
-																				updatedArrayField,
-																			);
-																		}}
-																		className="h-8 w-8 p-0"
-																	>
-																		<PlusCircle className="h-4 w-4" />
-																	</Button>
+																	<FormElementsDropdown type="FA" arrayId={formArrayElement.id} />
 																	<Button
 																		variant="ghost"
 																		size="sm"
