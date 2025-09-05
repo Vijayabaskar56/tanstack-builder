@@ -1,3 +1,4 @@
+// form-type.ts
 import type { CheckboxProps } from "@radix-ui/react-checkbox";
 import type { RadioGroupProps } from "@radix-ui/react-radio-group";
 import type { SeparatorProps } from "@radix-ui/react-separator";
@@ -190,12 +191,18 @@ export type FormStep = {
 	stepFields: FormElementList;
 };
 
+export type FormArrayEntry = {
+	id: string;
+	fields: FormElementList;
+};
+
 export type FormArray = {
 	fieldType: "FormArray";
 	id: string;
 	name: string;
 	label?: string;
 	arrayField: FormElementList;
+	entries: FormArrayEntry[];
 };
 //------------------------------------------------------------Form Element Handlers
 /**
@@ -246,6 +253,7 @@ export type AppendElement = (options: {
 	 */
 	fieldIndex?: number | null;
 	stepIndex?: number;
+	j?: number;
 	id?: string;
 	name?: string;
 	content?: string;

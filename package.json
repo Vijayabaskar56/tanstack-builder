@@ -13,7 +13,9 @@
     "dev:web": "turbo -F web dev",
     "dev:server": "turbo -F server dev"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@tanstack/react-db": "^0.1.9"
+  },
   "devDependencies": {
     "turbo": "^2.5.4"
   },

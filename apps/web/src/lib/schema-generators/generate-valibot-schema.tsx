@@ -1,14 +1,41 @@
+// genrate-valibot-schema.tsx
 import * as v from "valibot";
-import type { FormElement } from "@/form-types";
+import type { FormArray, FormElement } from "@/form-types";
 import { isStatic } from "@/lib/utils";
 
-export const generateValiSchemaObject = (formElements: FormElement[]) => {
+// Type guard to check if an element is a FormArray
+const isFormArray = (element: any): element is FormArray => {
+	return (
+		typeof element === "object" && element !== null && "arrayField" in element
+	);
+};
+
+export const generateValiSchemaObject = (
+	formElements: (FormElement | FormArray)[],
+) => {
 	const schemaObject: Record<string, any> = {};
-	const addType = (element: FormElement): void => {
+	const addType = (element: FormElement | FormArray): void => {
+		if (isFormArray(element)) {
+			// Handle FormArray
+			const arraySchema = generateValiSchemaObject(
+				element.arrayField as FormElement[],
+			);
+			let elementSchema: any = v.array(arraySchema.objectSchema);
+
+			if (!("required" in element) || element.required !== true) {
+				elementSchema = v.optional(elementSchema);
+			}
+
+			schemaObject[element.name] = elementSchema;
+			return;
+		}
+
+		// Handle regular FormElement
 		if (isStatic(element.fieldType)) return;
 		let elementSchema: any;
 		switch (element.fieldType) {
 			case "Input":
+			case "Password":
 				if (element.type === "email") {
 					elementSchema = v.pipe(v.string(), v.email());
 					break;
@@ -19,6 +46,15 @@ export const generateValiSchemaObject = (formElements: FormElement[]) => {
 				}
 				elementSchema = v.string();
 				break;
+			case "OTP":
+				elementSchema = v.pipe(
+					v.string(),
+					v.minLength(
+						element.maxLength || 6,
+						`OTP must be at least ${element.maxLength || 6} characters`,
+					),
+				);
+				break;
 			case "DatePicker":
 				elementSchema = v.pipe(
 					v.string(),
@@ -27,7 +63,7 @@ export const generateValiSchemaObject = (formElements: FormElement[]) => {
 				);
 				break;
 			case "Checkbox":
-				elementSchema = v.optional(v.boolean(), true)
+				elementSchema = v.optional(v.boolean(), true);
 				break;
 			case "Slider":
 				elementSchema = v.pipe(v.string(), v.transform(Number), v.number());
@@ -65,7 +101,7 @@ export const generateValiSchemaObject = (formElements: FormElement[]) => {
 			case "Textarea":
 				elementSchema = v.pipe(
 					v.string(),
-     v.nonEmpty('This Field is Required'),
+					v.nonEmpty("This Field is Required"),
 					v.minLength(10, "Minimum Value Should be 10"),
 				);
 				break;
@@ -91,7 +127,16 @@ export const generateValiSchemaObject = (formElements: FormElement[]) => {
 		}
 		schemaObject[element.name] = elementSchema;
 	};
-	formElements.flat().forEach(addType);
+
+	// Process all elements, handling both arrays and single elements
+	formElements.forEach((element) => {
+		if (Array.isArray(element)) {
+			element.forEach(addType);
+		} else {
+			addType(element);
+		}
+	});
+
 	return { schemaObject, objectSchema: v.object(schemaObject) };
 };
 export const generateValiSchemaString = (schema: any): string => {
@@ -183,9 +228,12 @@ export const generateValiSchemaString = (schema: any): string => {
 	// Handle objects
 	if (schema?.type === "object") {
 		const shape = schema.entries || {};
-		const shapeStrs = Object.entries(shape).map(
-			([key, value]) => `${key}: ${generateValiSchemaString(value)}`,
-		);
+		const shapeStrs = Object.entries(shape).map(([key, value]) => {
+			// Quote keys that need it (contain spaces or start with number)
+			const needsQuotes = /\s/.test(key) || /^\d/.test(key);
+			const quotedKey = needsQuotes ? `"${key}"` : key;
+			return `${quotedKey}: ${generateValiSchemaString(value)}`;
+		});
 		return `v.object({\n  ${shapeStrs.join(",\n  ")}\n})`;
 	}
 
@@ -216,88 +264,128 @@ export const generateValiSchemaString = (schema: any): string => {
 };
 // Direct schema string generation approach (similar to Arktype)
 export const getValiSchemaStringDirect = (
-	formElements: FormElement[],
+	formElements: (FormElement | FormArray)[],
 ): string => {
-	const schemaEntries = formElements
-		.filter((element) => !isStatic(element.fieldType))
-		.map((element) => {
-			let typeDefinition: string;
+	const processElements = (elements: (FormElement | FormArray)[]): string[] => {
+		return elements
+			.filter((element) => {
+				if (isFormArray(element)) return true;
+				return !isStatic(element.fieldType);
+			})
+			.map((element) => {
+				if (isFormArray(element)) {
+					// Handle FormArray
+					const arrayFieldSchemas = processElements(
+						element.arrayField as FormElement[],
+					);
+					const arrayObjectSchema = `v.object({\n${arrayFieldSchemas.join(",\n")}\n  })`;
+					let typeDefinition = `v.array(${arrayObjectSchema})`;
 
-			switch (element.fieldType) {
-				case "Input":
-					if (element.type === "email") {
-						typeDefinition = "v.pipe(v.string(), v.email())";
-					} else if (element.type === "number") {
-						typeDefinition =
-							"v.pipe(v.string(), v.transform(Number), v.number())";
-					} else {
-						typeDefinition = "v.string()";
+					// Handle optional FormArray
+					if (!("required" in element) || element.required !== true) {
+						typeDefinition = `v.optional(${typeDefinition})`;
 					}
-					break;
 
-				case "DatePicker":
-					typeDefinition =
-						"v.pipe(v.string(), v.transform((value) => new Date(value)), v.date())";
-					break;
-
-				case "Checkbox":
-					typeDefinition = "v.optional(v.boolean(), true)";
-					break;
-
-				case "Slider": {
-					let sliderSchema =
-						"v.pipe(v.string(), v.transform(Number), v.number())";
-					if (element.min !== undefined) {
-						sliderSchema = `v.pipe(${sliderSchema}, v.minValue(${element.min}, "Must be at least ${element.min}"))`;
-					}
-					if (element.max !== undefined) {
-						sliderSchema = `v.pipe(${sliderSchema}, v.maxValue(${element.max}, "Must be at most ${element.max}"))`;
-					}
-					typeDefinition = sliderSchema;
-					break;
+					// Quote keys that need it (contain spaces or start with number)
+					const needsQuotes =
+						/\s/.test(element.name) || /^\d/.test(element.name);
+					const quotedKey = needsQuotes ? `"${element.name}"` : element.name;
+					return `  ${quotedKey}: ${typeDefinition}`;
 				}
 
-				case "Switch":
-					typeDefinition = "v.boolean()";
-					break;
+				// Handle regular FormElement
+				let typeDefinition: string;
 
-				case "Select":
-					typeDefinition =
-						'v.pipe(v.string(), v.minLength(1, "Please select an item"))';
-					break;
+				switch (element.fieldType) {
+					case "Input":
+					case "Password":
+						if (element.type === "email") {
+							typeDefinition = "v.pipe(v.string(), v.email())";
+						} else if (element.type === "number") {
+							typeDefinition =
+								"v.pipe(v.string(), v.transform(Number), v.number())";
+						} else {
+							typeDefinition = "v.string()";
+						}
+						break;
 
-				case "ToggleGroup":
-					if (element.type === "single") {
+					case "OTP":
+						typeDefinition = `v.pipe(v.string(), v.minLength(${element.maxLength || 6}, "OTP must be at least ${element.maxLength || 6} characters"))`;
+						break;
+
+					case "DatePicker":
+						typeDefinition =
+							"v.pipe(v.string(), v.transform((value) => new Date(value)), v.date())";
+						break;
+
+					case "Checkbox":
+						typeDefinition = "v.optional(v.boolean(), true)";
+						break;
+
+					case "Slider": {
+						let sliderSchema =
+							"v.pipe(v.string(), v.transform(Number), v.number())";
+						if (element.min !== undefined) {
+							sliderSchema = `v.pipe(${sliderSchema}, v.minValue(${element.min}, "Must be at least ${element.min}"))`;
+						}
+						if (element.max !== undefined) {
+							sliderSchema = `v.pipe(${sliderSchema}, v.maxValue(${element.max}, "Must be at most ${element.max}"))`;
+						}
+						typeDefinition = sliderSchema;
+						break;
+					}
+
+					case "Switch":
+						typeDefinition = "v.boolean()";
+						break;
+
+					case "Select":
 						typeDefinition =
 							'v.pipe(v.string(), v.minLength(1, "Please select an item"))';
-					} else {
+						break;
+
+					case "ToggleGroup":
+						if (element.type === "single") {
+							typeDefinition =
+								'v.pipe(v.string(), v.minLength(1, "Please select an item"))';
+						} else {
+							typeDefinition =
+								'v.pipe(v.array(v.string()), v.minLength(1, "Please select at least one item"))';
+						}
+						break;
+
+					case "MultiSelect":
 						typeDefinition =
 							'v.pipe(v.array(v.string()), v.minLength(1, "Please select at least one item"))';
-					}
-					break;
+						break;
 
-				case "MultiSelect":
-					typeDefinition =
-						'v.pipe(v.array(v.string()), v.minLength(1, "Please select at least one item"))';
-					break;
+					case "RadioGroup":
+						typeDefinition =
+							'v.pipe(v.string(), v.minLength(1, "Please select an item"))';
+						break;
 
-				case "RadioGroup":
-					typeDefinition =
-						'v.pipe(v.string(), v.minLength(1, "Please select an item"))';
-					break;
+					case "Textarea":
+						typeDefinition =
+							'v.pipe(v.string(), v.nonEmpty("This Field is Required"), v.minLength(10, "Minimum Value Should be 10"))';
+						break;
 
-				default:
-					typeDefinition = "v.string()";
-			}
+					default:
+						typeDefinition = "v.string()";
+				}
 
-			// Handle optional fields
-			if (!("required" in element) || element.required !== true) {
-				typeDefinition = `v.optional(${typeDefinition})`;
-			}
+				// Handle optional fields
+				if (!("required" in element) || element.required !== true) {
+					typeDefinition = `v.optional(${typeDefinition})`;
+				}
 
-			return `  "${element.name}": ${typeDefinition}`;
-		})
-		.join(",\n");
+				// Quote keys that need it (contain spaces or start with number)
+				const needsQuotes = /\s/.test(element.name) || /^\d/.test(element.name);
+				const quotedKey = needsQuotes ? `"${element.name}"` : element.name;
+				return `  ${quotedKey}: ${typeDefinition}`;
+			});
+	};
+
+	const schemaEntries = processElements(formElements).join(",\n");
 
 	return `import * as v from "valibot"
 
@@ -307,6 +395,8 @@ ${schemaEntries}
 };
 
 // Keep the original function for now but use the direct approach
-export const getValiSchemaString = (formElements: FormElement[]): string => {
+export const getValiSchemaString = (
+	formElements: (FormElement | FormArray)[],
+): string => {
 	return getValiSchemaStringDirect(formElements);
 };

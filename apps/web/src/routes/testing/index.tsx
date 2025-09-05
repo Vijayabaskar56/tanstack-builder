@@ -1,20 +1,28 @@
 /** biome-ignore-all lint/correctness/noChildrenProp: Required for form field rendering */
 /** biome-ignore-all lint/correctness/useUniqueElementIds: <explanation> */
+// apps/web/src/routes/testing/index.tsx
 
-import { useStore } from "@tanstack/react-form";
+import { revalidateLogic, useStore } from "@tanstack/react-form";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
-import { AnimatePresence, motion } from "motion/react";
-import { type JSX, useCallback } from "react";
-// import * as v from "valibot";
+import { Plus, Trash2 } from "lucide-react";
+import { useCallback } from "react";
+import { toast } from "sonner";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import { Progress } from "@/components/ui/progress";
-import { useAppForm, withForm } from "@/components/ui/tanstack-form";
+import {
+	MultiSelect,
+	MultiSelectContent,
+	MultiSelectItem,
+	MultiSelectList,
+	MultiSelectTrigger,
+	MultiSelectValue,
+} from "@/components/ui/multi-select";
+import { Separator } from "@/components/ui/separator";
+import { Slider } from "@/components/ui/slider";
+import { useAppForm } from "@/components/ui/tanstack-form";
 import { Textarea } from "@/components/ui/textarea";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import type { FormStep } from "@/form-types";
-import { useMultiStepForm } from "@/hooks/use-multi-step-form";
 export const Route = createFileRoute("/testing/")({
 	component: DraftForm,
 	beforeLoad: () => {
@@ -25,357 +33,293 @@ export const Route = createFileRoute("/testing/")({
 	},
 });
 
-// export const formSchema = v.object({
-//   name: v.pipe(v.string(), v.minLength(1, "Name is required")),
-//   lastName: v.optional(v.string()),
-//   yourEmail: v.pipe(v.string(), v.email()),
-//   phoneNumber: v.optional(
-//     v.pipe(v.string(), v.transform(Number), v.number())
-//   ),
-//   preferences: v.optional(
-//     v.pipe(
-//       v.array(v.string()),
-//       v.minLength(1, "Please select at least one item")
-//     )
-//   ),
-//   comment: v.optional(v.string()),
-// });
 
 export const formSchema = z.object({
-	name: z.string().min(1, "Name is required"),
-	lastName: z.string().optional(),
-	yourEmail: z.email(),
-	phoneNumber: z.number().optional(),
-	preferences: z
-		.array(z.string())
-		.nonempty("Please at least one item")
-		.optional(),
-	comment: z.string().optional(),
+  name: z.string().min(1, "This field is required"),
+  email: z.email(),
+  message: z.string().min(1, "This field is required"),
+  agree: z.boolean(),
+  formArray_1757004280383: z.array(z.object({
+    MultiSelect_1757004347270: z.array(z.string().min(1, "This field is required")),
+    Input_1757005548473: z.string().min(1, "This field is required"),
+    Input_1757005553144: z.string().min(1, "This field is required")
+  })),
+  Slider_1757004336873: z.number().min(0, "Must be at least 0").max(100, "Must be at most 100")
 });
+
 export function DraftForm() {
-	const form = useAppForm({
-		defaultValues: {} as z.infer<typeof formSchema>,
-		validators: {
-			onChange: formSchema,
-		},
-		onSubmit: ({ value }) => {
-			console.log(value);
-		},
-		onSubmitInvalid({ formApi }) {
-			const errorMap = formApi.state.errorMap.onSubmit!;
-			const inputs = Array.from(
-				// Must match the selector used in your form
-				document.querySelectorAll("#myform input"),
-			) as HTMLInputElement[];
+const form = useAppForm({
+    defaultValues: {
+      name: "",
+      email: "",
+      message: "",
+      agree: false,
+      formArray_1757004280383: [{
+        MultiSelect_1757004347270: [],
+        Input_1757005548473: "",
+        Input_1757005553144: ""
+      }],
+      Slider_1757004336873: 0
+    } as z.infer < typeof formSchema > ,
+    validationLogic: revalidateLogic(),
+    validators: {
+      onDynamicAsyncDebounceMs: 500,
+      onDynamic: formSchema
+    },
+    onSubmit: ({
+      value
+    }) => {
+      console.log(value)
+      toast.success("success");
+    },
+    onSubmitInvalid({
+      formApi
+    }) {
+      const errorMap = formApi.state.errorMap.onDynamic!;
+      const inputs = Array.from(document.querySelectorAll("#previewForm input"), ) as HTMLInputElement[];
+      let firstInput: HTMLInputElement | undefined;
+      for (const input of inputs) {
+        if (errorMap[input.name]) {
+          firstInput = input;
+          break;
+        }
+      }
+      firstInput?.focus();
+    }
+  });
+  const handleSubmit = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      form.handleSubmit();
+    },
+    [form]);
+  const isSubmitting = useStore(form.store, (state) => state.isSubmitting)
+  return (<div>
+    <form.AppForm>
+      <form onSubmit={handleSubmit} className="flex flex-col p-2 md:p-5 w-full mx-auto rounded-md max-w-3xl gap-2 border"  noValidate>
+         <h2 className="text-2xl font-bold">Contact us</h2>
+<p className="text-base">Please fill the form below to contact us</p>
 
-			let firstInput: HTMLInputElement | undefined;
-			for (const input of inputs) {
-				if (errorMap[input.name]) {
-					firstInput = input;
-					break;
-				}
-			}
-			firstInput?.focus();
-		},
-	});
-	const handleSubmit = useCallback(
-		(e: React.FormEvent) => {
-			e.preventDefault();
-			e.stopPropagation();
-			void form.handleSubmit();
-		},
-		[form],
-	);
-	const isSubmitting = useStore(form.store, (state) => state.isSubmitting);
-	return (
-		<div>
-			<form.AppForm>
-				<form
-					noValidate
-					onSubmit={handleSubmit}
-					className="flex flex-col p-2 md:p-5 w-full mx-auto rounded-md max-w-3xl gap-2 border"
-					id="myform"
-				>
-					<MultiStepViewer form={form} />
-					<div className="flex justify-end items-center w-full pt-3">
-						<Button className="rounded-lg" size="sm">
-							{isSubmitting ? "Submitting..." : "Submit"}
-						</Button>
-					</div>
-				</form>
-			</form.AppForm>
-		</div>
-	);
+          <div className="flex items-center justify-between flex-wrap sm:flex-nowrap w-full gap-2">
+            <form.AppField
+                name={"name"}
+                children={(field) => (
+                    <field.FormItem className="w-full">
+                     <field.FormLabel>Name *</field.FormLabel>
+                      <field.FormControl>
+                        <Input
+                          name={"name"}
+                          placeholder="Enter your name"
+                          type="text"
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                        />
+                      </field.FormControl>
+
+                      <field.FormMessage />
+                  </field.FormItem>
+                  )}
+              />
+              <form.AppField
+                name={"email"}
+                children={(field) => (
+                    <field.FormItem className="w-full">
+                     <field.FormLabel>Email *</field.FormLabel>
+                      <field.FormControl>
+                        <Input
+                          name={"email"}
+                          placeholder="Enter your email"
+                          type="email"
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                        />
+                      </field.FormControl>
+
+                      <field.FormMessage />
+                  </field.FormItem>
+                  )}
+              />
+
+          </div>
+
+        <form.AppField
+          name={"message"}
+          children={(field) => (
+            <field.FormItem>
+           <field.FormLabel>Message *</field.FormLabel>
+              <field.FormControl>
+                <Textarea
+                  placeholder="Enter your message"
+                  className="resize-none"
+                  name={"message"}
+                  value={field.state.value}
+                  onBlur={field.handleBlur}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                />
+              </field.FormControl>
+
+              <field.FormMessage />
+            </field.FormItem>
+          )}
+        />
+<form.AppField
+          name={"agree"}
+          children={(field) => (
+            <field.FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+              <field.FormControl>
+                <Checkbox
+                  name={"agree"}
+                  checked={field.state.value}
+                  onBlur={field.handleBlur}
+                  onCheckedChange={(checked : boolean) => {field.handleChange(checked)}}
+
+                />
+              </field.FormControl>
+              <div className="space-y-1 leading-none">
+                <field.FormLabel>I agree to the terms and conditions</field.FormLabel>
+
+                <field.FormMessage />
+              </div>
+            </field.FormItem>
+          )}
+        />
+{form.Field({
+  name: "formArray_1757004280383",
+  mode: "array",
+  children: (field) => (
+    <div className="w-full space-y-4">
+      {field.state.value.map((_, i) => (
+        <div key={i} className="space-y-3 p-4 relative">
+          <Separator />
+
+           <form.AppField
+              name={`formArray_1757004280383[${i}].MultiSelect_1757004347270`}
+              children={(field) => {
+              const options = [
+                      { value: '1', label: 'Option 1' },
+                      { value: '2', label: 'Option 2' },
+                      { value: '3', label: 'Option 3' },
+                    ]
+              return (
+                <field.FormItem className="w-full">
+                 <field.FormLabel>Select multiple options *</field.FormLabel>
+                  <MultiSelect value={field.state.value} onValueChange={field.handleChange}>
+                    <field.FormControl>
+                      <MultiSelectTrigger>
+                        <MultiSelectValue
+                          placeholder={"Select Item"}
+                        />
+                      </MultiSelectTrigger>
+                    </field.FormControl>
+                    <MultiSelectContent>
+                      <MultiSelectList>
+                        {options.map(({ label, value }) => (
+                          <MultiSelectItem key={label} value={value}>
+                            {label}
+                          </MultiSelectItem>
+                        ))}
+                      </MultiSelectList>
+                    </MultiSelectContent>
+                  </MultiSelect>
+
+                  <field.FormMessage />
+                </field.FormItem>
+              )}}
+            />
+
+          <div className="flex items-center justify-between flex-wrap sm:flex-nowrap w-full gap-2">
+            <form.AppField
+                name={`formArray_1757004280383[${i}].Input_1757005548473`}
+                children={(field) => (
+                    <field.FormItem className="w-full">
+                     <field.FormLabel>Input Field *</field.FormLabel>
+                      <field.FormControl>
+                        <Input
+                          name={`formArray_1757004280383[${i}].Input_1757005548473`}
+                          placeholder="Enter your text"
+                          type="text"
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                        />
+                      </field.FormControl>
+
+                      <field.FormMessage />
+                  </field.FormItem>
+                  )}
+              />
+              <form.AppField
+                name={`formArray_1757004280383[${i}].Input_1757005553144`}
+                children={(field) => (
+                    <field.FormItem className="w-full">
+                     <field.FormLabel>Input Field *</field.FormLabel>
+                      <field.FormControl>
+                        <Input
+                          name={`formArray_1757004280383[${i}].Input_1757005553144`}
+                          placeholder="Enter your text"
+                          type="text"
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                        />
+                      </field.FormControl>
+
+                      <field.FormMessage />
+                  </field.FormItem>
+                  )}
+              />
+
+          </div>
+        </div>
+      ))}
+      <div className="flex justify-between pt-2">
+        <Button variant="outline" onClick={() => field.pushValue({
+  MultiSelect_1757004347270: [],
+  Input_1757005548473: "",
+  Input_1757005553144: ""
+})}>
+          <Plus className="h-4 w-4 mr-2" /> Add
+        </Button>
+        <Button variant="outline" onClick={() => field.removeValue(field.state.value.length - 1)} disabled={field.state.value.length <= 1}>
+          <Trash2 className="h-4 w-4 mr-2" /> Remove
+        </Button>
+      </div>
+    </div>
+  )
+})}
+
+            <form.AppField
+              name={"Slider_1757004336873"}
+              children={(field) => (
+              <field.FormItem>
+                <field.FormLabel className="flex justify-between items-center">Set Range<span>{field.state.value}/100</span>
+                </field.FormLabel>
+                <field.FormControl>
+                  <Slider
+                    name={"Slider_1757004336873"}
+                    min={0}
+                    max={100}
+                    step={5}
+                    defaultValue={[5]}
+                    onValueChange={(values) => {
+                      field.handleChange(values[0]);
+                    }}
+                  />
+                </field.FormControl>
+                <field.FormDescription>Adjust the range by sliding.</field.FormDescription>
+                <field.FormMessage />
+              </field.FormItem>
+              )}
+            />
+        <div className="flex justify-end items-center w-full pt-3">
+          <Button className="rounded-lg" size="sm">
+            {isSubmitting ? 'Submitting...' : 'Submit'}
+          </Button>
+        </div>
+      </form>
+    </form.AppForm>
+  </div>)
 }
-//------------------------------
-// Define the form structure for type inference
-const multiStepFormOptions = {
-	defaultValues: {} as z.infer<typeof formSchema>,
-};
-
-/**
- * Multi-step form viewer using withForm HOC for proper type inference
- */
-const MultiStepViewer = withForm({
-	...multiStepFormOptions,
-	render: function MultiStepFormRender({ form }) {
-		const stepFormElements: {
-			[key: number]: JSX.Element;
-		} = {
-			1: (
-				<div>
-					<h2 className="text-2xl font-bold">Personal Details</h2>
-					<p className="text-base">Please provide your personal details</p>
-					<form.AppField
-						name="name"
-						children={(field) => (
-							<field.FormItem className="w-full">
-								<field.FormLabel>First name *</field.FormLabel>
-								<field.FormControl>
-									<Input
-										placeholder="First name"
-										type="text"
-										value={field.state.value}
-										onBlur={field.handleBlur}
-										onChange={(e) => field.handleChange(e.target.value)}
-									/>
-								</field.FormControl>
-
-								<field.FormMessage />
-							</field.FormItem>
-						)}
-					/>
-
-					<form.AppField
-						name="lastName"
-						children={(field) => (
-							<field.FormItem className="w-full">
-								<field.FormLabel>Last name </field.FormLabel>
-								<field.FormControl>
-									<Input
-										placeholder="Last name"
-										type="text"
-										value={field.state.value}
-										onBlur={field.handleBlur}
-										onChange={(e) => field.handleChange(e.target.value)}
-									/>
-								</field.FormControl>
-
-								<field.FormMessage />
-							</field.FormItem>
-						)}
-					/>
-				</div>
-			),
-			2: (
-				<div>
-					<h2 className="text-2xl font-bold">Contact Information</h2>
-					<p className="text-base">Please provide your contact information</p>
-					<form.AppField
-						name="yourEmail"
-						children={(field) => (
-							<field.FormItem className="w-full">
-								<field.FormLabel>Your Email *</field.FormLabel>
-								<field.FormControl>
-									<Input
-										placeholder="Enter your email"
-										type="email"
-										value={field.state.value}
-										onBlur={field.handleBlur}
-										onChange={(e) => field.handleChange(e.target.value)}
-									/>
-								</field.FormControl>
-
-								<field.FormMessage />
-							</field.FormItem>
-						)}
-					/>
-
-					<form.AppField
-						name="phoneNumber"
-						mode="value"
-						children={(field) => (
-							<field.FormItem className="w-full">
-								<field.FormLabel>Phone Number </field.FormLabel>
-								<field.FormControl>
-									<Input
-										placeholder="Enter your phone number"
-										type="tel"
-										value={field.state.value}
-										onBlur={field.handleBlur}
-										inputMode="tel"
-										pattern="[0-9]*"
-										onInput={(e) => {
-											const target = e.target as HTMLInputElement;
-											const numericValue = target.value.replace(/[^0-9]/g, "");
-											if (target.value !== numericValue) {
-												target.value = numericValue;
-												field.handleChange(Number(numericValue));
-											}
-										}}
-										onChange={(e) => field.handleChange(Number(e.target.value))}
-									/>
-								</field.FormControl>
-
-								<field.FormMessage />
-							</field.FormItem>
-						)}
-					/>
-				</div>
-			),
-			3: (
-				<div>
-					<h2 className="text-2xl font-bold">Your Preferences</h2>
-					<form.AppField
-						name="preferences"
-						children={(field) => {
-							const options = [
-								{ value: "monday", label: "Mon" },
-								{ value: "tuesday", label: "Tue" },
-								{ value: "wednesday", label: "Wed" },
-								{ value: "thursday", label: "Thu" },
-								{ value: "friday", label: "Fri" },
-								{ value: "saturday", label: "Sat" },
-								{ value: "sunday", label: "Sun" },
-							];
-							return (
-								<field.FormItem className="flex flex-col gap-2 w-full py-1">
-									<field.FormLabel>
-										Tell us about your interests and preferences.{" "}
-									</field.FormLabel>
-									<field.FormControl>
-										<ToggleGroup
-											variant="outline"
-											onValueChange={field.handleChange}
-											defaultValue={field.state.value}
-											type="multiple"
-											className="flex justify-start items-center gap-2 flex-wrap"
-										>
-											{options.map(({ label, value }) => (
-												<ToggleGroupItem
-													key={value}
-													value={value}
-													className="flex items-center gap-x-2"
-												>
-													{label}
-												</ToggleGroupItem>
-											))}
-										</ToggleGroup>
-									</field.FormControl>
-
-									<field.FormMessage />
-								</field.FormItem>
-							);
-						}}
-					/>
-
-					<form.AppField
-						name="comment"
-						children={(field) => (
-							<field.FormItem>
-								<field.FormLabel>Feedback Comment </field.FormLabel>
-								<field.FormControl>
-									<Textarea
-										placeholder="Share your feedback"
-										className="resize-none"
-										value={field.state.value}
-										onBlur={field.handleBlur}
-										onChange={(e) => field.handleChange(e.target.value)}
-									/>
-								</field.FormControl>
-
-								<field.FormMessage />
-							</field.FormItem>
-						)}
-					/>
-				</div>
-			),
-		};
-		const steps = Object.keys(stepFormElements).map(Number);
-		const fields = Object.keys(formSchema.shape);
-		const stepFields = {
-			1: fields.slice(0, 2),
-			2: fields.slice(2, 4),
-			3: fields.slice(4, 6),
-		};
-		const stepObjects = steps.map((step) => ({
-			id: step.toString(),
-			stepFields: stepFields[step as keyof typeof stepFields],
-		}));
-		const { currentStep, isLastStep, goToNext, goToPrevious } =
-			useMultiStepForm({
-				initialSteps: stepObjects as unknown as FormStep[],
-				onStepValidation: async (currentStepData) => {
-					const validationPromises = currentStepData.stepFields.map(
-						(fieldName) => {
-							// @ts-expect-error
-							return form.validateField(fieldName, "change");
-						},
-					);
-
-					const validationResults = await Promise.all(validationPromises);
-					const hasErrors = form.getAllErrors();
-					return Object.keys(hasErrors.fields).length === 0;
-				},
-			});
-
-		const current = stepFormElements[currentStep];
-		const {
-			baseStore: {
-				state: { isSubmitting },
-			},
-		} = form;
-
-		return (
-			<div className="flex flex-col gap-2 pt-3">
-				<div className="flex flex-col items-center justify-start gap-1">
-					<span>
-						Step {currentStep} of {steps.length}
-					</span>
-					<Progress value={(currentStep / steps.length) * 100} />
-				</div>
-				<AnimatePresence mode="popLayout">
-					<motion.div
-						key={currentStep}
-						initial={{ opacity: 0, x: 15 }}
-						animate={{ opacity: 1, x: 0 }}
-						exit={{ opacity: 0, x: -15 }}
-						transition={{ duration: 0.4, type: "spring" }}
-						className="flex flex-col gap-2"
-					>
-						{current}
-					</motion.div>
-				</AnimatePresence>
-				<div className="flex items-center justify-between gap-3 w-full pt-3">
-					<Button
-						size="sm"
-						variant="ghost"
-						onClick={goToPrevious}
-						type="button"
-					>
-						Previous
-					</Button>
-					{isLastStep ? (
-						<Button size="sm" type="submit">
-							{isSubmitting ? "Submitting..." : "Submit"}
-						</Button>
-					) : (
-						<Button
-							size="sm"
-							type="button"
-							variant="secondary"
-							onClick={async () => {
-								const success = await goToNext();
-								if (!success) {
-									// Optionally show error message or focus first invalid field
-									console.log("Validation failed, cannot proceed to next step");
-								}
-							}}
-						>
-							Next
-						</Button>
-					)}
-				</div>
-			</div>
-		)},
-});

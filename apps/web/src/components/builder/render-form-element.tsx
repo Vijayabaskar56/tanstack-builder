@@ -1,4 +1,5 @@
 /** biome-ignore-all lint/correctness/noChildrenProp: Required for form field rendering */
+// render-form-element.tsx
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import type * as React from "react";
@@ -65,7 +66,7 @@ export const RenderFormElement = ({
 									disabled={formElement.disabled}
 									type={formElement.type ?? "text"}
 									name={formElement.name}
-									value={field.state.value as string}
+									value={(field.state.value as string | undefined) ?? ""}
 									onChange={(e) => {
 										field.handleChange(e.target.value);
 									}}
@@ -95,7 +96,7 @@ export const RenderFormElement = ({
 									disabled={formElement.disabled}
 									type={"password"}
 									name={formElement.name}
-									value={field.state.value as string}
+									value={(field.state.value as string | undefined) ?? ""}
 									onChange={(e) => field.handleChange(e.target.value)}
 									onBlur={field.handleBlur}
 								/>
@@ -121,8 +122,9 @@ export const RenderFormElement = ({
 								<InputOTP
 									maxLength={formElement.maxLength ?? 6}
 									name={formElement.name}
-									value={field.state.value as string}
+									value={(field.state.value as string | undefined) ?? ""}
 									onChange={field.handleChange}
+									required={formElement.required}
 								>
 									<InputOTPGroup>
 										<InputOTPSlot index={0} />
@@ -159,7 +161,7 @@ export const RenderFormElement = ({
 						         placeholder={formElement.placeholder}
 									required={formElement.required}
 									disabled={formElement.disabled}
-									value={field.state.value as string}
+									value={(field.state.value as string | undefined) ?? ""}
 									name={formElement.name}
 									onChange={(e) => field.handleChange(e.target.value)}
 									onBlur={field.handleBlur}
@@ -182,7 +184,7 @@ export const RenderFormElement = ({
 						<field.FormItem className="flex items-start gap-2 w-full py-1 space-y-0">
 							<field.FormControl>
 								<Checkbox
-         checked={field.state.value as boolean}
+          checked={Boolean(field.state.value)}
 									onCheckedChange={field.handleChange}
 								/>
 							</field.FormControl>
@@ -214,11 +216,11 @@ export const RenderFormElement = ({
 								<RadioGroup
 									onValueChange={field.handleChange}
 									name={formElement.name}
-									defaultValue={field.state.value as string}
+									value={(field.state.value as string | undefined) ?? ""}
 								>
 									{formElement.options.map(({ label, value }) => (
 										<div key={value} className="flex items-center gap-x-2">
-											<RadioGroupItem value={value} id={value} />
+											<RadioGroupItem value={value} id={value} required={formElement.required} />
 											<Label htmlFor={value}>{label}</Label>
 										</div>
 									))}
@@ -308,8 +310,12 @@ export const RenderFormElement = ({
 								<field.FormControl>
 									<Switch
 										name={formElement.name}
-										checked={field.state.value as boolean}
-										onCheckedChange={field.handleChange}
+										checked={Boolean(field.state.value)}
+										onCheckedChange={(checked) => {
+											field.handleChange(checked);
+											// Trigger validation by simulating blur
+											field.handleBlur();
+										}}
 									/>
 								</field.FormControl>
 							</div>
@@ -351,9 +357,11 @@ export const RenderFormElement = ({
 										max={max}
 										step={step}
 										value={sliderValue}
-										onValueChange={(newValue) =>
-											field.handleChange(newValue[0])
-										}
+										onValueChange={(newValue) => {
+											field.handleChange(newValue[0]);
+											// Trigger validation by simulating blur
+											field.handleBlur();
+										}}
 									/>
 								</field.FormControl>
 								<field.FormDescription className="py-1">
@@ -376,7 +384,7 @@ export const RenderFormElement = ({
 							</field.FormLabel>
 							<Select
 								name={formElement.name}
-								value={field.state.value as string}
+								value={(field.state.value as string | undefined) ?? ""}
 								onValueChange={field.handleChange}
 								defaultValue={String(field?.state.value ?? "")}
 							>
@@ -409,7 +417,6 @@ export const RenderFormElement = ({
 					name={formElement.name}
 					children={(field) => (
 						<>
-							{console.log(field.state.value , 'field')}
 						<field.FormItem className="w-full">
 							<field.FormLabel>
 								{formElement.label} {formElement.required ? " *" : ""}
@@ -478,11 +485,11 @@ export const RenderFormElement = ({
 										<PopoverContent className="w-auto p-0" align="start">
 											<Calendar
 												mode="single"
-												selected={field.state.value as Date}
+												selected={field.state.value as Date | undefined}
 												onSelect={(newDate) => {
 													field.handleChange(newDate);
 												}}
-												initialFocus
+
 											/>
 										</PopoverContent>
 									</Popover>

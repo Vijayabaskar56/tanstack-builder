@@ -14,6 +14,7 @@ const useSettings = () => {
 			id: settings.id,
 			preferredSchema: settings.preferredSchema,
 			preferredFramework: settings.preferredFramework,
+   preferredPackageManager : settings.preferredPackageManager
 		})),
 	);
 

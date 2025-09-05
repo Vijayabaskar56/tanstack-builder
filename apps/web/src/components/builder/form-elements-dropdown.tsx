@@ -26,14 +26,37 @@ interface BaseDropdownProps {
 export function FormElementsDropdown({
 	fieldIndex,
 	stepIndex,
+ type = 'MS',
+ arrayId,
+ j,
+ isFormArrayField
 }: {
 	/**
 	 * Field Index where a nested element should be appended to the main array
 	 */
-	fieldIndex: number;
+	fieldIndex?: number;
 	stepIndex?: number;
+ arrayId?: string;
+ type?: 'FA' | 'MS';
+ j?: number;
+ isFormArrayField?: boolean;
 }) {
 	const { actions } = useFormStore();
+  const handleAddingElement = (fieldType : string) => {
+   if(type === 'MS' || isFormArrayField) {
+   		actions.appendElement({
+								fieldIndex,
+								fieldType: fieldType as FormElement["fieldType"],
+								stepIndex,
+								j: isFormArrayField ? j : undefined,
+							});
+   } else {
+    if(arrayId) {
+     actions.addFormArrayField(arrayId, fieldType as any);
+    }
+   }
+  }
+
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
@@ -47,13 +70,13 @@ export function FormElementsDropdown({
 			>
 				{formElementsList.map((o) => (
 					<DropdownMenuItem
-						onSelect={() => {
-							actions.appendElement({
-								fieldIndex,
-								fieldType: o.fieldType as FormElement["fieldType"],
-								stepIndex,
-							});
-						}}
+						onSelect={() =>
+       handleAddingElement(o.fieldType)}
+							// actions.appendElement({
+							// 	fieldIndex,
+							// 	fieldType: o.fieldType as FormElement["fieldType"],
+							// 	stepIndex,
+							// });
 						key={o.name}
 						disabled={!!o.static}
 						className="px-4"
@@ -99,8 +122,8 @@ export function UnifiedFormElementsDropdown({
 				if (formArrayId) {
 					// Create a new form element based on fieldType
 					const baseElement = {
-						id: `field-${Date.now()}`,
-						name: `field-${Date.now()}`,
+						id: `field_${Date.now()}`,
+						name: `field_${Date.now()}`,
 						label: `${fieldType} Field`,
 						required: false,
 					};

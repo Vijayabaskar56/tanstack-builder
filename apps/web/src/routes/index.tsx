@@ -27,6 +27,7 @@ export const Route = createFileRoute("/")({
 					asyncValidation: 300,
 					preferredSchema: "zod",
 					preferredFramework: "react",
+     preferredPackageManager : 'pnpm'
 				},
 			]);
 		}

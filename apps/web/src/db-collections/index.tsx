@@ -11,9 +11,10 @@ export const SettingsSchema = z.object({
 	focusOnError: z.boolean().default(true),
 	validationMethod: z.enum(["onChange","onBlue","onDynamic"]).default("onDynamic"),
 	asyncValidation: z.number().min(0).max(10000).default(500),
-  activeTab: z.enum(["builder","template","settings"]).default("builder"),
-  preferredSchema: z.enum(["zod","valibot","arktype"]).default("zod"),
-  preferredFramework: z.enum(["react","vue","angular","solid"]).default("react"),
+ activeTab: z.enum(["builder","template","settings"]).default("builder"),
+ preferredSchema: z.enum(["zod","valibot","arktype"]).default("zod"),
+ preferredFramework: z.enum(["react","vue","angular","solid"]).default("react"),
+ preferredPackageManager : z.enum(['pnpm','npm','yarn','bun']).default('pnpm')
 });
 
 
