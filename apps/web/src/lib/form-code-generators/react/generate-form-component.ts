@@ -10,7 +10,6 @@ const formatFieldName = (name: string) => {
 };
 
 export const getFormElementCode = (field: FormElement) => {
- console.log("Field names",field.name)
   switch (field.fieldType) {
     case 'Input':
       return `<form.AppField

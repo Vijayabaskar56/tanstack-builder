@@ -192,6 +192,7 @@ return (
     validators: { onChange: formSchema },
     onSubmit : ({value}) => {
     console.log(value)
+     toast.success('Submitted Successfully')
     }
   });
   const handleSubmit = useCallback(

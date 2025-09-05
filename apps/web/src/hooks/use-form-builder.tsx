@@ -62,22 +62,13 @@ export const useFormBuilder = (): {
 		() => getDefaultFormElement(filteredFormFields),
 		[filteredFormFields],
 	);
-	// console.log("🚀 ~ useFormBuilder ~ defaultValues:", defaultValues ,JSON.stringify(zodSchema , null ,2) )
 	const form = useAppForm({
 		defaultValues: defaultValue as z.infer<typeof zodSchema>,
 		validationLogic: revalidateLogic(),
 		validators: { onDynamic: zodSchema },
-		listeners: {
-			onSubmit: ({ formApi }) => {
-				console.log(
-					formApi.baseStore.state.values,
-					formApi.baseStore.state.fieldMetaBase,
-				);
-				console.log(formApi.getAllErrors());
-				// formApi.reset();
-				toast.success("Submitted Successfully");
-			},
-		},
+  onSubmit : () => {
+   toast.success('Submitted Successfully')
+  },
 		onSubmitInvalid({ formApi }) {
 			if (settings.focusOnError) {
 				const errorMap = formApi.state.errorMap.onDynamic!;

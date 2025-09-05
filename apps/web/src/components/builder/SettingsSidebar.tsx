@@ -1,7 +1,5 @@
-
 import { Eye, Hash, Shield } from "lucide-react";
 import { useId } from "react";
-import { toast } from "sonner";
 import * as z from "zod";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,7 +14,6 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { useAppForm } from "@/components/ui/tanstack-form";
 import { settingsCollection } from "@/db-collections";
-import { useFormStore } from "@/hooks/use-form-store";
 import useSettings from "@/hooks/use-settings";
 
 // Zod schema for settings validation
@@ -39,7 +36,6 @@ export function SettingsSidebar() {
 	const preferredSchemaId = useId();
 	const preferredFrameworkId = useId();
 	const data = useSettings();
-	const { actions } = useFormStore();
 	const form = useAppForm({
 		defaultValues: {
 			defaultRequiredValidation: data?.defaultRequiredValidation,
@@ -52,11 +48,6 @@ export function SettingsSidebar() {
 		} as z.infer<typeof settingsSchema>,
 		validators: {
 			onChange: settingsSchema,
-		},
-		onSubmit: async ({ value }) => {
-			// Handle settings save
-			console.log("Settings saved:", value);
-			toast.success("Settings saved successfully!");
 		},
 		listeners: {
 			onChangeDebounceMs: 1000,
