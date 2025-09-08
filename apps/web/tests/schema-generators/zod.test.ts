@@ -32,7 +32,6 @@ describe("Zod Schema Generator - FormArray Support", () => {
 		];
 
 		const schemaString = getZodSchemaString(formElements as any);
-		console.log("🚀 ~ schemaString:", schemaString);
 
 		expect(schemaString).toContain("users");
 		expect(schemaString).toContain("z.array");

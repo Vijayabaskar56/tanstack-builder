@@ -11,6 +11,7 @@ import NavBar from "@/components/nav-bar";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import "../index.css";
+import { settingsCollection } from "@/db-collections";
 
 export interface RouterAppContext {
 	builder: BuilderState;
@@ -18,6 +19,26 @@ export interface RouterAppContext {
 
 export const Route = createRootRouteWithContext<RouterAppContext>()({
 	component: RootComponent,
+ 	beforeLoad: async () => {
+		if (localStorage.getItem("settings")) {
+			return;
+		} else {
+			settingsCollection.insert([
+				{
+					id: "user-settings",
+					activeTab: "builder",
+					defaultRequiredValidation: true,
+					numericInput: false,
+					focusOnError: true,
+					validationMethod: "onDynamic",
+					asyncValidation: 300,
+					preferredSchema: "zod",
+					preferredFramework: "react",
+     preferredPackageManager : 'pnpm'
+				},
+			]);
+		}
+	},
 	head: () => ({
 		meta: [
 			{

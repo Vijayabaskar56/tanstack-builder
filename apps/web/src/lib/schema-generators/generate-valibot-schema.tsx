@@ -1,26 +1,36 @@
-// genrate-valibot-schema.tsx
+// generate-valibot-schema.tsx
 import * as v from "valibot";
 import type { FormArray, FormElement } from "@/form-types";
 import { isStatic } from "@/lib/utils";
 
+// Type definitions for Valibot schemas
+/** Valibot schema type - represents any Valibot schema */
+type ValiSchema = any;
+/** Record of field names to Valibot schemas */
+type ValiSchemaRecord = Record<string, ValiSchema>;
+
 // Type guard to check if an element is a FormArray
-const isFormArray = (element: any): element is FormArray => {
+const isFormArray = (element: unknown): element is FormArray => {
 	return (
-		typeof element === "object" && element !== null && "arrayField" in element
+		typeof element === "object" &&
+		element !== null &&
+		"arrayField" in element &&
+		"fieldType" in element &&
+		element.fieldType === "FormArray"
 	);
 };
 
 export const generateValiSchemaObject = (
 	formElements: (FormElement | FormArray)[],
 ) => {
-	const schemaObject: Record<string, any> = {};
+	const schemaObject: ValiSchemaRecord = {};
 	const addType = (element: FormElement | FormArray): void => {
 		if (isFormArray(element)) {
 			// Handle FormArray
 			const arraySchema = generateValiSchemaObject(
 				element.arrayField as FormElement[],
 			);
-			let elementSchema: any = v.array(arraySchema.objectSchema);
+			let elementSchema: ValiSchema = v.array(arraySchema.objectSchema);
 
 			if (!("required" in element) || element.required !== true) {
 				elementSchema = v.optional(elementSchema);
@@ -32,7 +42,7 @@ export const generateValiSchemaObject = (
 
 		// Handle regular FormElement
 		if (isStatic(element.fieldType)) return;
-		let elementSchema: any;
+		let elementSchema: ValiSchema;
 		switch (element.fieldType) {
 			case "Input":
 			case "Password":
@@ -111,13 +121,13 @@ export const generateValiSchemaObject = (
 		if (element.fieldType === "Slider") {
 			if (element.min !== undefined) {
 				elementSchema = v.pipe(
-					elementSchema as any,
+					elementSchema as any, // Valibot pipe requires specific schema types
 					v.minValue(element.min, `Must be at least ${element.min}`),
 				);
 			}
 			if (element.max !== undefined) {
 				elementSchema = v.pipe(
-					elementSchema as any,
+					elementSchema as any, // Valibot pipe requires specific schema types
 					v.maxValue(element.max, `Must be at most ${element.max}`),
 				);
 			}
@@ -139,7 +149,7 @@ export const generateValiSchemaObject = (
 
 	return { schemaObject, objectSchema: v.object(schemaObject) };
 };
-export const generateValiSchemaString = (schema: any): string => {
+export const generateValiSchemaString = (schema: ValiSchema): string => {
 	// Debug: Log the schema structure to understand what we're working with
 	console.log("Schema structure:", JSON.stringify(schema, null, 2));
 

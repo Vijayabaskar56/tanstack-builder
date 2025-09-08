@@ -1,6 +1,7 @@
+// code-button.tsx
 import { Check, Copy } from "lucide-react";
 import * as React from "react";
-import { Button } from "../../../../../../formcn/apps/web/src/components/ui/button";
+import { Button } from "./button";
 //======================================
 export function CopyButton({ text }: { text: string }) {
 	const [copied, setCopied] = React.useState(false);
