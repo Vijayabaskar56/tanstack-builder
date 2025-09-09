@@ -8,30 +8,9 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { settingsCollection } from "@/db-collections";
 
 export const Route = createFileRoute("/")({
 	component: HomePage,
-	beforeLoad: async () => {
-		if (localStorage.getItem("settings")) {
-			return;
-		} else {
-			settingsCollection.insert([
-				{
-					id: "user-settings",
-					activeTab: "builder",
-					defaultRequiredValidation: true,
-					numericInput: false,
-					focusOnError: true,
-					validationMethod: "onDynamic",
-					asyncValidation: 300,
-					preferredSchema: "zod",
-					preferredFramework: "react",
-     preferredPackageManager : 'pnpm'
-				},
-			]);
-		}
-	},
 });
 
 const features = [

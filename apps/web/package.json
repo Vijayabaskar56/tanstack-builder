@@ -12,7 +12,7 @@
     "test": "vitest",
     "test:run": "vitest run",
     "wrangler:dev": "wrangler dev --port=3001",
-    "deploy": "bun run build && wrangler deploy"
+    "deploy": "npm run build && wrangler deploy"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "^1.9.0",

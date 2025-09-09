@@ -1,70 +1,102 @@
 // generate-default-value.tsx
 
-import type { FormArray, FormElement, FormElementOrList } from "@/form-types";
+import type {
+	FormArray,
+	FormElement,
+	FormElementOrList,
+	FormStep,
+} from "@/form-types";
 import { useFormStore } from "@/hooks/use-form-store";
+import { flattenFormSteps } from "@/lib/form-elements-helpers";
+
+type DefaultValue =
+	| string
+	| number
+	| boolean
+	| string[]
+	| Record<string, unknown>[];
+type FieldTypeWithOptions = FormElement & {
+	options?: Array<{ value: string; label: React.ReactNode }>;
+};
+type FieldTypeWithType = FormElement & { type?: "single" | "multiple" };
+type FieldTypeWithMin = FormElement & { min?: number };
+
+const FORM_ELEMENT_DEFAULTS: Record<
+	string,
+	(field: FormElement) => DefaultValue
+> = {
+	Input: () => "",
+	Password: () => "",
+	Textarea: () => "",
+	OTP: () => "",
+	DatePicker: () => "",
+	Checkbox: () => false,
+	Switch: () => false,
+	RadioGroup: (field: FormElement) => {
+		const fieldWithOptions = field as FieldTypeWithOptions;
+		return fieldWithOptions.options?.[0]?.value ?? "";
+	},
+	Select: (field: FormElement) => {
+		const fieldWithOptions = field as FieldTypeWithOptions;
+		return fieldWithOptions.options?.[0]?.value ?? "";
+	},
+	MultiSelect: () => [],
+	ToggleGroup: (field: FormElement) => {
+		const fieldWithType = field as FieldTypeWithType;
+		if (fieldWithType.type === "multiple") {
+			return [];
+		}
+		const fieldWithOptions = field as FieldTypeWithOptions;
+		return fieldWithOptions.options?.[0]?.value ?? "";
+	},
+	Slider: (field: FormElement) => {
+		const fieldWithMin = field as FieldTypeWithMin;
+		return typeof fieldWithMin.min === "number" ? fieldWithMin.min : 0;
+	},
+};
+
+// Object map for FormArray defaults
+const FORM_ARRAY_DEFAULTS: Record<string, (field: FormArray) => DefaultValue> =
+	{
+		FormArray: (field: FormArray) => {
+			const defaultEntry = processFormElements(field.arrayField);
+			return [defaultEntry];
+		},
+	};
 
 /**
  * Gets the appropriate default value for a form field based on its type
  */
 const getFieldDefaultValue = (
 	field: FormElement | FormArray,
-): string | number | boolean | string[] | Record<string, any>[] | undefined => {
+): DefaultValue | undefined => {
 	if ("static" in field && field.static) {
 		return undefined; // Static elements don't need default values
 	}
 
-	switch (field.fieldType) {
-		case "Input":
-		case "Password":
-		case "Textarea":
-		case "OTP":
-		case "DatePicker":
-			return ""; // Text-based fields default to empty string
-
-		case "Checkbox":
-		case "Switch":
-			return false; // Boolean fields default to false
-
-		case "RadioGroup":
-		case "Select":
-			// Return first option value if available, otherwise empty string
-			if ("options" in field && field.options && field.options.length > 0) {
-				return field.options[0].value;
-			}
-			return "";
-
-		case "MultiSelect":
-			// Multi-select fields always default to empty array
-			return [];
-
-		case "ToggleGroup":
-			// Multi-select fields default to empty array
-			if ("type" in field && field.type === "multiple") {
-				return [];
-			}
-			// Single toggle group - return first option if available
-			if ("options" in field && field.options && field.options.length > 0) {
-				return field.options[0].value;
-			}
-			return "";
-
-		case "Slider":
-			// Slider defaults to min value or 0
-			if ("min" in field && typeof field.min === "number") {
-				return field.min;
-			}
-			return 0;
-
-		case "FormArray": {
-			// For FormArray, return an array with one default entry
-			const formArray = field as FormArray;
-			const defaultEntry = processFormElements(formArray.arrayField);
-			return [defaultEntry];
-		}
-
-		default:
-			return ""; // Default fallback
+	// Handle FormArray separately
+	if (field.fieldType === "FormArray") {
+		const defaultFn = FORM_ARRAY_DEFAULTS[field.fieldType];
+		return defaultFn ? defaultFn(field as FormArray) : [];
 	}
+
+	// Handle FormElement
+	const defaultFn = FORM_ELEMENT_DEFAULTS[field.fieldType];
+	return defaultFn ? defaultFn(field as FormElement) : ""; // Default fallback
+};
+
+/**
+ * Type guard to check if an element is static
+ */
+const isStaticElement = (element: FormElement): boolean => {
+	return "static" in element && element.static === true;
+};
+
+/**
+ * Sanitizes field names by replacing hyphens with underscores
+ */
+const sanitizeFieldName = (name: string): string => {
+	return name.replace(/-/g, "_");
 };
 
 /**
@@ -72,38 +104,26 @@ const getFieldDefaultValue = (
  */
 export const processFormElements = (
 	elements: FormElementOrList[],
-): Record<
-	string,
-	string | number | boolean | string[] | Record<string, any>[]
-> => {
-	const defaults: Record<
-		string,
-		string | number | boolean | string[] | Record<string, any>[]
-	> = {};
+): Record<string, DefaultValue> => {
+	const defaults: Record<string, DefaultValue> = {};
 
 	elements.forEach((element) => {
 		if (Array.isArray(element)) {
 			// Handle nested array of elements
 			element.forEach((nestedElement) => {
-				if (!("static" in nestedElement) || !nestedElement.static) {
-					if (nestedElement.name) {
-						const defaultValue = getFieldDefaultValue(nestedElement);
-						if (defaultValue !== undefined) {
-							// Sanitize field name by replacing hyphens with underscores for valid JS property names
-							const sanitizedName = nestedElement.name.replace(/-/g, "_");
-							defaults[sanitizedName] = defaultValue;
-						}
+				if (!isStaticElement(nestedElement) && nestedElement.name) {
+					const defaultValue = getFieldDefaultValue(nestedElement);
+					if (defaultValue !== undefined) {
+						defaults[sanitizeFieldName(nestedElement.name)] = defaultValue;
 					}
 				}
 			});
 		} else {
 			// Handle single element
-			if (!("static" in element) || !element.static) {
-				if (element.name) {
-					const defaultValue = getFieldDefaultValue(element);
-					if (defaultValue !== undefined) {
-						defaults[element.name] = defaultValue;
-					}
+			if (!isStaticElement(element) && element.name) {
+				const defaultValue = getFieldDefaultValue(element);
+				if (defaultValue !== undefined) {
+					defaults[element.name] = defaultValue;
 				}
 			}
 		}
@@ -115,30 +135,33 @@ export const processFormElements = (
 /**
  * Recursively converts a value to a JavaScript literal string with proper quoting
  */
-const valueToLiteralString = (value: any): string => {
+const valueToLiteralString = (value: unknown): string => {
 	if (typeof value === "string") {
 		return `"${value}"`;
-	} else if (typeof value === "boolean") {
+	}
+	if (typeof value === "boolean") {
 		return value.toString();
-	} else if (typeof value === "number") {
+	}
+	if (typeof value === "number") {
 		return value.toString();
-	} else if (Array.isArray(value)) {
+	}
+	if (Array.isArray(value)) {
 		if (value.length === 0) {
 			return "[]";
 		}
 		const arrayItems = value.map((item) => valueToLiteralString(item));
 		return `[\n  ${arrayItems.join(",\n  ")}\n]`;
-	} else if (typeof value === "object" && value !== null) {
-		return objectToLiteralString(value);
-	} else {
-		return String(value);
 	}
+	if (typeof value === "object" && value !== null) {
+		return objectToLiteralString(value as Record<string, unknown>);
+	}
+	return String(value);
 };
 
 /**
  * Converts an object to a JavaScript object literal string with properly quoted keys
  */
-export const objectToLiteralString = (obj: Record<string, any>): string => {
+export const objectToLiteralString = (obj: Record<string, unknown>): string => {
 	const entries = Object.entries(obj);
 
 	if (entries.length === 0) {
@@ -161,25 +184,45 @@ export const objectToLiteralString = (obj: Record<string, any>): string => {
 /**
  * Type guard to check if an element is a FormArray
  */
-const isFormArray = (element: any): element is FormArray => {
+const isFormArray = (element: unknown): element is FormArray => {
 	return (
-		typeof element === "object" && element !== null && "arrayField" in element
+		typeof element === "object" &&
+		element !== null &&
+		"arrayField" in element &&
+		"fieldType" in element &&
+		element.fieldType === "FormArray"
 	);
+};
+
+/**
+ * Type guard to check if an element is a FormStep
+ */
+const isFormStep = (element: unknown): element is FormStep => {
+	return (
+		typeof element === "object" &&
+		element !== null &&
+		"stepFields" in element &&
+		"id" in element &&
+		Array.isArray((element as FormStep).stepFields)
+	);
+};
+
+/**
+ * Type guard to check if formElements is a multi-step form
+ */
+const isMultiStepForm = (
+	formElements: unknown[],
+): formElements is FormStep[] => {
+	return formElements.length > 0 && isFormStep(formElements[0]);
 };
 
 /**
  * Recursively processes form elements including FormArrays
  */
 export const getDefaultFormElement = (
-	elements: any[],
-): Record<
-	string,
-	string | number | boolean | string[] | Record<string, any>[]
-> => {
-	const defaults: Record<
-		string,
-		string | number | boolean | string[] | Record<string, any>[]
-	> = {};
+	elements: (FormElementOrList | FormArray)[],
+): Record<string, DefaultValue> => {
+	const defaults: Record<string, DefaultValue> = {};
 
 	elements.forEach((element) => {
 		if (isFormArray(element)) {
@@ -187,43 +230,39 @@ export const getDefaultFormElement = (
 			if (element.name) {
 				const defaultValue = getFieldDefaultValue(element);
 				if (defaultValue !== undefined) {
-					// Sanitize field name by replacing hyphens with underscores for valid JS property names
-					const sanitizedName = element.name.replace(/-/g, "_");
-					defaults[sanitizedName] = defaultValue;
+					defaults[sanitizeFieldName(element.name)] = defaultValue;
 				}
 			}
 		} else if (Array.isArray(element)) {
-			// Handle nested array of elements
+			// Handle nested array of elements (FormElement[])
 			element.forEach((nestedElement) => {
 				if (isFormArray(nestedElement)) {
 					// Handle nested FormArray
-					if (nestedElement.name) {
-						const defaultValue = getFieldDefaultValue(nestedElement);
+					const formArray = nestedElement as FormArray;
+					if (formArray.name) {
+						const defaultValue = getFieldDefaultValue(formArray);
 						if (defaultValue !== undefined) {
-							// Sanitize field name by replacing hyphens with underscores for valid JS property names
-							const sanitizedName = nestedElement.name.replace(/-/g, "_");
-							defaults[sanitizedName] = defaultValue;
+							defaults[sanitizeFieldName(formArray.name)] = defaultValue;
 						}
 					}
-				} else if (!("static" in nestedElement) || !nestedElement.static) {
-					if (nestedElement.name) {
-						const defaultValue = getFieldDefaultValue(nestedElement);
+				} else {
+					// Handle regular FormElement
+					const formElement = nestedElement as FormElement;
+					if (!isStaticElement(formElement) && formElement.name) {
+						const defaultValue = getFieldDefaultValue(formElement);
 						if (defaultValue !== undefined) {
-							// Sanitize field name by replacing hyphens with underscores for valid JS property names
-							const sanitizedName = nestedElement.name.replace(/-/g, "_");
-							defaults[sanitizedName] = defaultValue;
+							defaults[sanitizeFieldName(formElement.name)] = defaultValue;
 						}
 					}
 				}
 			});
 		} else {
-			// Handle single element
-			if (!("static" in element) || !element.static) {
-				if (element.name) {
-					const defaultValue = getFieldDefaultValue(element);
-					if (defaultValue !== undefined) {
-						defaults[element.name] = defaultValue;
-					}
+			// Handle single element (FormElement)
+			const formElement = element as FormElement;
+			if (!isStaticElement(formElement) && formElement.name) {
+				const defaultValue = getFieldDefaultValue(formElement);
+				if (defaultValue !== undefined) {
+					defaults[formElement.name] = defaultValue;
 				}
 			}
 		}
@@ -236,9 +275,15 @@ export const getDefaultValuesString = () => {
 	const { validationSchema, schemaName, formElements } = useFormStore();
 	const schema = schemaName ? schemaName : "formSchema";
 
+	// Handle multi-step forms by flattening them to a single list of elements
+	let elementsToProcess = formElements;
+	if (isMultiStepForm(formElements)) {
+		elementsToProcess = flattenFormSteps(formElements);
+	}
+
 	// Generate default values based on form field types, including FormArrays
 	const defaultValues = getDefaultFormElement(
-		formElements as (FormElementOrList | FormArray)[],
+		elementsToProcess as (FormElementOrList | FormArray)[],
 	);
 
 	// Convert the defaults object to a JavaScript object literal string

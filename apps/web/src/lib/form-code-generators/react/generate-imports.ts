@@ -14,7 +14,7 @@ export const generateImports = (
 		'import { toast } from "sonner"',
 	]);
 	const processField = (field: FormElement | FormArray) => {
-		const { validationSchema } = useFormStore();
+		const { validationSchema , isMS} = useFormStore();
 		switch (field.fieldType) {
 			case "DatePicker":
 				importSet.add('import { format } from "date-fns"');
@@ -87,6 +87,10 @@ export const generateImports = (
 			importSet.add('import { valibotSchema } from "valibot"');
 		} else if (validationSchema === "arktype") {
 			importSet.add('import { type } from "arktype"');
+		}
+
+		if(isMS){
+			importSet.add('import type { FormStep } from "@/form-types"');
 		}
 	};
 

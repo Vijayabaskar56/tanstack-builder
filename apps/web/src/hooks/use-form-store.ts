@@ -33,6 +33,7 @@ type FormBuilderCoreState = {
 	schemaName: string;
 	validationSchema: ValidationSchema;
 	framework: Framework;
+	lastAddedStepIndex?: number;
 };
 // Actions type
 type FormBuilderActions = {
@@ -52,7 +53,7 @@ type FormBuilderActions = {
 	setTemplate: SetTemplate;
 	resetFormElements: () => void;
 	setIsMS: (isMS: boolean) => void;
-	addFormArray: (arrayField: FormElementList | []) => void;
+	addFormArray: (arrayField: FormElementList | [], stepIndex?: number) => void;
 	removeFormArray: (id: string) => void;
 	updateFormArray: (id: string, arrayField: FormElementList) => void;
 	reorderFormArray: (id: string, newOrder: FormElementList) => void;
@@ -127,6 +128,7 @@ const initialCoreState: FormBuilderCoreState = {
 	schemaName: "formSchema",
 	validationSchema: "zod",
 	framework: "react",
+	lastAddedStepIndex: undefined,
 };
 
 const formBuilderCoreStore = new Store<FormBuilderCoreState>(initialCoreState, {
@@ -563,13 +565,14 @@ const validateFieldIndex = (
 				}
 				const nextPosition = currentPosition + 1;
 				const updatedSteps = insertAtIndex(
-     				formSteps,
+      				formSteps,
 					defaultStep,
 					nextPosition,
 				);
-				return { ...state, formElements: updatedSteps };
+				return { ...state, formElements: updatedSteps, lastAddedStepIndex: nextPosition };
 			} else {
-				return { ...state, formElements: [...formSteps, defaultStep] };
+				const newIndex = formSteps.length;
+				return { ...state, formElements: [...formSteps, defaultStep], lastAddedStepIndex: newIndex };
 			}
 		});
 	};
@@ -593,7 +596,7 @@ const validateFieldIndex = (
 			return { ...state, formElements: updatedSteps };
 		});
 	};
-	const addFormArray = (arrayField: FormElementList) => {
+ 	const addFormArray = (arrayField: FormElementList, stepIndex?: number) => {
 		store.setState((state) => {
 			// Create default entry with all fields from template, preserving nested structure
 			const defaultEntry: FormArrayEntry = {
@@ -628,11 +631,15 @@ const validateFieldIndex = (
 			if (isFormArrayForm(state.formElements)) {
 				return { ...state, formElements: [...state.formElements, newFormArray] };
 			} else if (isMultiStepForm(state.formElements)) {
-				// Add to the first step
+				// Add to the specified step or last added step or last step
 				const formSteps = state.formElements as FormStep[];
-				const step = formSteps[0];
+				const targetStepIndex = stepIndex ?? state.lastAddedStepIndex ?? formSteps.length - 1;
+				if (stepIndex !== undefined) {
+					validateStepIndex(formSteps, targetStepIndex);
+				}
+				const step = formSteps[targetStepIndex];
 				const stepFields = [...step.stepFields, newFormArray];
-				const updatedSteps = formSteps.map((s, i) => i === 0 ? { ...s, stepFields } : s);
+				const updatedSteps = formSteps.map((s, i) => i === targetStepIndex ? { ...s, stepFields } : s);
 				return { ...state, formElements: updatedSteps };
 			} else {
 				// Add to FormElementList
@@ -643,10 +650,36 @@ const validateFieldIndex = (
 	};
 	const removeFormArray = (id: string) => {
 		store.setState((state) => {
-			// Check if there's a FormArray with the given id in the formElements
-			const hasFormArray = (state.formElements as any[]).some(
-				el => typeof el === 'object' && el !== null && 'arrayField' in el && el.id === id
-			);
+			// Helper function to find and remove FormArray
+			const findAndRemoveFormArray = (elements: any[]): any[] => {
+				return elements.filter(el => {
+					if (typeof el === 'object' && el !== null && 'arrayField' in el) {
+						return el.id !== id;
+					}
+					return true;
+				});
+			};
+
+			// Check if there's a FormArray with the given id
+			let hasFormArray = false;
+			const checkForFormArray = (elements: any[]): boolean => {
+				return elements.some(el => {
+					if (typeof el === 'object' && el !== null && 'arrayField' in el && el.id === id) {
+						return true;
+					}
+					return false;
+				});
+			};
+
+			if (isFormArrayForm(state.formElements)) {
+				hasFormArray = checkForFormArray(state.formElements);
+			} else if (isMultiStepForm(state.formElements)) {
+				const formSteps = state.formElements as FormStep[];
+				hasFormArray = formSteps.some(step => checkForFormArray(step.stepFields));
+			} else {
+				const currentElements = state.formElements as FormElementList;
+				hasFormArray = checkForFormArray(currentElements);
+			}
 
 			if (!hasFormArray) {
 				throw new FormBuilderError(
@@ -655,23 +688,56 @@ const validateFieldIndex = (
 				);
 			}
 
-			const filtered = (state.formElements as any[]).filter(el => {
-				if (typeof el === 'object' && el !== null && 'arrayField' in el) {
-					return el.id !== id;
-				}
-				return true;
-			});
+			let updatedElements;
+			if (isFormArrayForm(state.formElements)) {
+				updatedElements = findAndRemoveFormArray(state.formElements);
+			} else if (isMultiStepForm(state.formElements)) {
+				const formSteps = state.formElements as FormStep[];
+				updatedElements = formSteps.map(step => ({
+					...step,
+					stepFields: findAndRemoveFormArray(step.stepFields)
+				}));
+			} else {
+				const currentElements = state.formElements as FormElementList;
+				updatedElements = findAndRemoveFormArray(currentElements);
+			}
 
-			return { ...state, formElements: filtered as any };
+			return { ...state, formElements: updatedElements as any };
 		});
 	};
 	const updateFormArray = (id: string, arrayField: FormElementList) => {
 		batch(() => {
 			store.setState((state) => {
-				// Check if there's a FormArray with the given id in the formElements
-				const hasFormArray = (state.formElements as any[]).some(
-					el => typeof el === 'object' && el !== null && 'arrayField' in el && el.id === id
-				);
+				// Helper function to find and update FormArray
+				const findAndUpdateFormArray = (elements: any[]): any[] => {
+					return elements.map(el => {
+						if (typeof el === 'object' && el !== null && 'arrayField' in el && el.id === id) {
+							return { ...el, arrayField };
+						}
+						return el;
+					});
+				};
+
+				// Check if there's a FormArray with the given id
+				let hasFormArray = false;
+				const checkForFormArray = (elements: any[]): boolean => {
+					return elements.some(el => {
+						if (typeof el === 'object' && el !== null && 'arrayField' in el && el.id === id) {
+							return true;
+						}
+						return false;
+					});
+				};
+
+				if (isFormArrayForm(state.formElements)) {
+					hasFormArray = checkForFormArray(state.formElements);
+				} else if (isMultiStepForm(state.formElements)) {
+					const formSteps = state.formElements as FormStep[];
+					hasFormArray = formSteps.some(step => checkForFormArray(step.stepFields));
+				} else {
+					const currentElements = state.formElements as FormElementList;
+					hasFormArray = checkForFormArray(currentElements);
+				}
 
 				if (!hasFormArray) {
 					throw new FormBuilderError(
@@ -680,14 +746,21 @@ const validateFieldIndex = (
 					);
 				}
 
-				const updated = (state.formElements as any[]).map(el => {
-					if (typeof el === 'object' && el !== null && 'arrayField' in el && el.id === id) {
-						return { ...el, arrayField };
-					}
-					return el;
-				});
+				let updatedElements;
+				if (isFormArrayForm(state.formElements)) {
+					updatedElements = findAndUpdateFormArray(state.formElements);
+				} else if (isMultiStepForm(state.formElements)) {
+					const formSteps = state.formElements as FormStep[];
+					updatedElements = formSteps.map(step => ({
+						...step,
+						stepFields: findAndUpdateFormArray(step.stepFields)
+					}));
+				} else {
+					const currentElements = state.formElements as FormElementList;
+					updatedElements = findAndUpdateFormArray(currentElements);
+				}
 
-				return { ...state, formElements: updated as any };
+				return { ...state, formElements: updatedElements as any };
 			});
 			// Auto-sync entries when template changes
 			syncFormArrayEntries(id);
@@ -695,14 +768,26 @@ const validateFieldIndex = (
 	};
 	const reorderFormArray = (id: string, newOrder: FormElementList) => {
 		store.setState((state) => {
-			if (!isFormArrayForm(state.formElements)) {
+			if (isFormArrayForm(state.formElements)) {
+				const updated = state.formElements.map(arr => arr.id === id ? { ...arr, arrayField: newOrder } : arr);
+				return { ...state, formElements: updated };
+			} else if (isMultiStepForm(state.formElements)) {
+				const formSteps = state.formElements as FormStep[];
+				const updatedSteps = formSteps.map(step => ({
+					...step,
+					stepFields: step.stepFields.map(el =>
+						(typeof el === 'object' && el !== null && 'arrayField' in el && (el as any).id === id)
+							? { ...el, arrayField: newOrder }
+							: el
+					)
+				}));
+				return { ...state, formElements: updatedSteps };
+			} else {
 				throw new FormBuilderError(
-					"Not in FormArray mode",
-					"NOT_FORM_ARRAY_MODE",
+					"Not in FormArray or MultiStep mode",
+					"NOT_SUPPORTED_MODE",
 				);
 			}
-			const updated = state.formElements.map(arr => arr.id === id ? { ...arr, arrayField: newOrder } : arr);
-			return { ...state, formElements: updated };
 		});
 	};
 

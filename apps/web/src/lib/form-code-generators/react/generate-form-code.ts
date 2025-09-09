@@ -1,4 +1,4 @@
-// generate-form-code
+// generat-form-code
 import type {
 	FormArray,
 	FormElement,
@@ -22,7 +22,7 @@ const modifyElement = (
 	if (Array.isArray(el)) {
 		return el.map((e) => modifyElement(e, prefix)) as FormElement[];
 	} else {
-		return { ...el, name: prefix + el.name + '`' };
+		return { ...el, name: prefix + el.name + "`" };
 	}
 };
 
@@ -169,7 +169,7 @@ return (
 		const componentEntries = steps.map((step, index) => {
 			const stepNumber = index + 1;
 			const renderedFields = renderFields(step.stepFields);
-			return `  ${stepNumber}: <div>${renderedFields}</div>`;
+			return `  ${stepNumber}: <div className="space-y-4">${renderedFields}</div>`;
 		});
 
 		return `{\n${componentEntries.join(",\n")}\n}`;
@@ -230,7 +230,7 @@ const multiStepFormOptions = {
 const MultiStepViewer = withForm({
  ...multiStepFormOptions,
  render: function MultiStepFormRender({ form }) {
-    const stepFormElements: { [key: number]: JSX.Element } = ${stringifiedStepComponents};
+    const stepFormElements: { [key: number]: React.ReactElement } = ${stringifiedStepComponents};
 
     const steps = Object.keys(stepFormElements).map(Number);
     const { currentStep, isLastStep, goToNext, goToPrevious } = useMultiStepForm({
@@ -242,7 +242,7 @@ const MultiStepViewer = withForm({
       return true;
         },
       });
-  const current = stepFormElements[currentStep - 1]
+  const current = stepFormElements[currentStep]
   const { 	baseStore: {
 				state: { isSubmitting },
 			}, } = form
