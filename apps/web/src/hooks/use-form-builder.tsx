@@ -63,7 +63,7 @@ export const useFormBuilder = (): {
 		[filteredFormFields],
 	);
 	const form = useAppForm({
-		defaultValues: defaultValue as z.infer<typeof zodSchema>,
+		defaultValues: defaultValue as z.input<typeof zodSchema>,
 		validationLogic: revalidateLogic(),
 		validators: { onDynamic: zodSchema },
   onSubmit : () => {

@@ -291,12 +291,12 @@ export const getDefaultValuesString = () => {
 
 	switch (validationSchema) {
 		case "zod":
-			return `${defaultsString} as z.infer<typeof ${schema}>`;
+			return `${defaultsString} as z.input<typeof ${schema}>`;
 		case "valibot":
 			return `${defaultsString} as v.InferInput<typeof ${schema}>`;
 		case "arktype":
 			return `${defaultsString} as typeof ${schema}.infer`;
 		default:
-			return `${defaultsString} as z.infer<typeof ${schema}>`;
+			return `${defaultsString} as z.input<typeof ${schema}>`;
 	}
 };

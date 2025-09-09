@@ -177,7 +177,7 @@ describe("Default Value Generator - Multi-Step Form Support", () => {
 		expect(result).toContain("interests: []"); // Empty array for MultiSelect
 
 		// Should be properly formatted as a TypeScript type assertion
-		expect(result).toContain("as z.infer<typeof formSchema>");
+		expect(result).toContain("as z.input<typeof formSchema>");
 	});
 
 	it("should generate default values for multi-step forms with FormArrays", () => {
@@ -286,7 +286,7 @@ describe("Default Value Generator - Multi-Step Form Support", () => {
 
 		// Should return empty object
 		expect(result).toContain("{}");
-		expect(result).toContain("as z.infer<typeof formSchema>");
+		expect(result).toContain("as z.input<typeof formSchema>");
 	});
 
 	it("should work with different validation schemas for multi-step forms", () => {

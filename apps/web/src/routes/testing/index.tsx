@@ -1,15 +1,15 @@
-// testing.tsx
 /** biome-ignore-all lint/correctness/noChildrenProp: Required for form field rendering */
-/** biome-ignore-all lint/correctness/useUniqueElementIds: ids are preview-only */
+/** biome-ignore-all lint/correctness/useUniqueElementIds: Form elements need unique IDs */
 // apps/web/src/routes/testing/index.tsx
 
-import { useStore } from "@tanstack/react-form";
+import { revalidateLogic, useStore } from "@tanstack/react-form";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "motion/react";
 import { useCallback } from "react";
 import { toast } from "sonner";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { useAppForm, withForm } from "@/components/ui/tanstack-form";
@@ -25,18 +25,234 @@ export const Route = createFileRoute("/testing/")({
 		}
 	},
 });
-
 export const formSchema = z.object({
-	name: z.string().min(1, "This field is required"),
-	lastName: z.string().min(1, "This field is required").optional(),
-	yourEmail: z.email(),
-	phoneNumber: z.string().optional(),
-	preferences: z.array(z.string().min(1, "This field is required")).optional(),
-	comment: z.string().min(1, "This field is required").optional(),
+  name: z.string().min(1, "This field is required"),
+  lastName: z.string().min(1, "This field is required").optional(),
+  yourEmail: z.email(),
+  phoneNumber: z.number().optional(),
+  preferences: z.array(z.string().min(1, "This field is required")).optional(),
+  comment: z.string().min(1, "This field is required").optional()
 });
+
+
+
+// export const formSchema = z.object({
+//  name: z.string().min(1, "This field is required"),
+//  email: z.email(),
+//  message: z.string().min(1, "This field is required"),
+//  agree: z.boolean(),
+// });
+
+// export function DraftForm() {
+//  const form = useAppForm({
+//   defaultValues: {
+//    name: "",
+//    email: "",
+//    message: "",
+//    agree: false,
+//   } as z.input<typeof formSchema>,
+//   validationLogic: revalidateLogic(),
+//   validators: {
+//    onDynamicAsyncDebounceMs: 500,
+//    onDynamic: formSchema,
+//   },
+//    onSubmit: async ({ value }) => {
+//     console.log("Submitting form data:", value);
+
+//     try {
+//       // Simulate API call with realistic delay
+//       await new Promise((resolve, reject) => {
+//         setTimeout(() => {
+//           // Simulate occasional failure for testing
+//           if (Math.random() < 0.1) { // 10% chance of failure
+//             reject(new Error("Network error occurred"));
+//           } else {
+//             resolve(value);
+//           }
+//         }, 2000); // 2 second delay
+//       });
+
+//       // Success case
+//       toast.success("Form submitted successfully!", {
+//         description: "Thank you for your submission. We'll get back to you soon.",
+//         duration: 5000,
+//       });
+
+//       console.log("Form submission completed successfully");
+
+//     } catch (error) {
+//       // Error case
+//       console.error("Form submission failed:", error);
+//       toast.error("Submission failed", {
+//         description: error instanceof Error ? error.message : "Please try again later.",
+//         duration: 5000,
+//       });
+
+//       // Re-throw to let TanStack Form handle it
+//       throw error;
+//     }
+//    },
+//   onSubmitInvalid({ formApi }) {
+//    const errorMap = formApi.state.errorMap.onDynamic!;
+//    const inputs = Array.from(
+//     document.querySelectorAll("#previewForm input"),
+//    ) as HTMLInputElement[];
+//    let firstInput: HTMLInputElement | undefined;
+//    for (const input of inputs) {
+//     if (errorMap[input.name]) {
+//      firstInput = input;
+//      break;
+//     }
+//    }
+//    firstInput?.focus();
+//   },
+//  });
+//  const handleSubmit = useCallback(
+//   (e: React.FormEvent) => {
+//    e.preventDefault();
+//    e.stopPropagation();
+//    form.handleSubmit();
+//   },
+//   [form],
+//  );
+//  const isSubmitting = useStore(form.store, (state) => state.isSubmitting);
+//  return (
+//   <div>
+//    <form.AppForm>
+//     <form
+//      onSubmit={handleSubmit}
+//      className="flex flex-col p-2 md:p-5 w-full mx-auto rounded-md max-w-3xl gap-2 border"
+//      noValidate
+//     >
+//      <h2 className="text-2xl font-bold">Contact us</h2>
+//      <p className="text-base">Please fill the form below to contact us</p>
+
+//      <div className="flex items-center justify-between flex-wrap sm:flex-nowrap w-full gap-2">
+//       <form.AppField
+//        name={"name"}
+//        children={(field) => (
+//         <field.FormItem className="w-full">
+//          <field.FormLabel>Name *</field.FormLabel>
+//          <field.FormControl>
+//           <Input
+//            name={"name"}
+//            placeholder="Enter your name"
+//            type="text"
+//            value={field.state.value}
+//            onBlur={field.handleBlur}
+//            onChange={(e) => field.handleChange(e.target.value)}
+//           />
+//          </field.FormControl>
+
+//          <field.FormMessage />
+//         </field.FormItem>
+//        )}
+//       />
+//       <form.AppField
+//        name={"email"}
+//        children={(field) => (
+//         <field.FormItem className="w-full">
+//          <field.FormLabel>Email *</field.FormLabel>
+//          <field.FormControl>
+//           <Input
+//            name={"email"}
+//            placeholder="Enter your email"
+//            type="email"
+//            value={field.state.value}
+//            onBlur={field.handleBlur}
+//            onChange={(e) => field.handleChange(e.target.value)}
+//           />
+//          </field.FormControl>
+
+//          <field.FormMessage />
+//         </field.FormItem>
+//        )}
+//       />
+//      </div>
+
+//      <form.AppField
+//       name={"message"}
+//       children={(field) => (
+//        <field.FormItem>
+//         <field.FormLabel>Message *</field.FormLabel>
+//         <field.FormControl>
+//          <Textarea
+//           placeholder="Enter your message"
+//           className="resize-none"
+//           name={"message"}
+//           value={field.state.value}
+//           onBlur={field.handleBlur}
+//           onChange={(e) => field.handleChange(e.target.value)}
+//          />
+//         </field.FormControl>
+
+//         <field.FormMessage />
+//        </field.FormItem>
+//       )}
+//      />
+//      <form.AppField
+//       name={"agree"}
+//       children={(field) => (
+//        <field.FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+//         <field.FormControl>
+//          <Checkbox
+//           name={"agree"}
+//           checked={field.state.value}
+//           onBlur={field.handleBlur}
+//           onCheckedChange={(checked: boolean) => {
+//            field.handleChange(checked);
+//           }}
+//          />
+//         </field.FormControl>
+//         <div className="space-y-1 leading-none">
+//          <field.FormLabel>
+//           I agree to the terms and conditions
+//          </field.FormLabel>
+
+//          <field.FormMessage />
+//         </div>
+//        </field.FormItem>
+//       )}
+//      />
+
+//       <div className="flex justify-end items-center w-full pt-3">
+//        {/* <form.Subscribe selector={(state) => state.isSubmitting}>
+//         {(isSubmitting) => (
+//          <Button
+//           className="rounded-lg"
+//           size="sm"
+//           type="submit"
+//           disabled={isSubmitting}
+//          >
+//           {isSubmitting ? (
+//             <div className="flex items-center gap-2">
+//               <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+//               Submitting...
+//             </div>
+//           ) : (
+//             "Submit"
+//           )}
+//          </Button>
+//         )}
+//        </form.Subscribe> */}
+//        <form.SubscribeButton label="Submit" />
+//       </div>
+//     </form>
+//    </form.AppForm>
+//   </div>
+//  );
+// }
+
 export function DraftForm() {
 	const form = useAppForm({
-		defaultValues: {} as z.infer<typeof formSchema>,
+		defaultValues: {
+			name: "",
+			lastName: "",
+			yourEmail: "",
+			phoneNumber: 2,
+			preferences: [],
+			comment: "",
+		} as z.infer<typeof formSchema>,
 		validators: {
 			onChange: formSchema,
 		},
@@ -45,29 +261,16 @@ export function DraftForm() {
 			toast.success("Submitted Successfully");
 		},
 	});
-	const handleSubmit = useCallback(
-		(e: React.FormEvent) => {
-			e.preventDefault();
-			e.stopPropagation();
-			form.handleSubmit();
-		},
-		[form],
-	);
-	const isSubmitting = useStore(form.store, (state) => state.isSubmitting);
 	return (
 		<div>
 			<form.AppForm>
-				<form
-					onSubmit={handleSubmit}
-					className="flex flex-col p-2 md:p-5 w-full mx-auto rounded-md max-w-3xl gap-2 border"
+				<form.Form
 				>
 					<MultiStepViewer form={form} />
 					<div className="flex justify-end items-center w-full pt-3">
-						<Button className="rounded-lg" size="sm">
-							{isSubmitting ? "Submitting..." : "Submit"}
-						</Button>
+       <form.SubmitButton label="Submit" />
 					</div>
-				</form>
+				</form.Form>
 			</form.AppForm>
 		</div>
 	);
@@ -75,7 +278,14 @@ export function DraftForm() {
 //------------------------------
 // Define the form structure for type inference
 const multiStepFormOptions = {
-	defaultValues: {} as z.infer<typeof formSchema>,
+	defaultValues: {
+		name: "",
+		lastName: "",
+		yourEmail: "",
+		phoneNumber: 1,
+		preferences: [],
+		comment: "",
+	} as z.infer<typeof formSchema>,
 };
 //------------------------------
 const MultiStepViewer = withForm({
@@ -85,7 +295,7 @@ const MultiStepViewer = withForm({
 			[key: number]: React.ReactNode;
 		} = {
 			1: (
-				<div className="space-x-4">
+				<div>
 					<h2 className="text-2xl font-bold">Personal Details</h2>
 					<p className="text-base">Please provide your personal details</p>
 					<form.AppField
@@ -132,7 +342,7 @@ const MultiStepViewer = withForm({
 				</div>
 			),
 			2: (
-				<div className="space-x-4">
+				<div>
 					<h2 className="text-2xl font-bold">Contact Information</h2>
 					<p className="text-base">Please provide your contact information</p>
 					<form.AppField
@@ -168,7 +378,7 @@ const MultiStepViewer = withForm({
 										type="number"
 										value={field.state.value}
 										onBlur={field.handleBlur}
-										onChange={(e) => field.handleChange(e.target.value)}
+										onChange={(e) => field.handleChange(Number(e.target.value))}
 									/>
 								</field.FormControl>
 
@@ -179,7 +389,7 @@ const MultiStepViewer = withForm({
 				</div>
 			),
 			3: (
-				<div className="space-x-4">
+				<div>
 					<h2 className="text-2xl font-bold">Your Preferences</h2>
 					<form.AppField
 						name={"preferences"}
@@ -202,7 +412,7 @@ const MultiStepViewer = withForm({
 										<ToggleGroup
 											variant="outline"
 											onValueChange={field.handleChange}
-											defaultValue={field.state.value || []}
+											defaultValue={field.state.value}
 											type="multiple"
 											className="flex justify-start items-center gap-2 flex-wrap"
 										>
@@ -217,6 +427,7 @@ const MultiStepViewer = withForm({
 											))}
 										</ToggleGroup>
 									</field.FormControl>
+									undefined
 									<field.FormMessage />
 								</field.FormItem>
 							);
@@ -246,41 +457,28 @@ const MultiStepViewer = withForm({
 				</div>
 			),
 		};
-
-		const steps = Object.keys(stepFormElements).map(Number);
-		const fields = Object.keys(formSchema.shape);
 		const stepFields: Record<number, string[]> = {
-			1: fields.slice(0, 2),
-			2: fields.slice(2, 4),
-			3: fields.slice(4, 6),
+			0: ["name", "lastName"],
+			1: ["yourEmail", "phoneNumber"],
+			2: ["preferences", "comment"],
 		};
-		const stepObjects = steps.map((step) => ({
-			id: step.toString(),
-			stepFields: stepFields[step],
-		}));
+		const steps = Object.keys(stepFormElements).map(Number);
 		const { currentStep, isLastStep, goToNext, goToPrevious } =
 			useMultiStepForm({
-				initialSteps: stepObjects as any,
+				initialSteps: stepFields,
 				onStepValidation: async (currentStepData) => {
-					const validationPromises = (currentStepData.stepFields as unknown as string[]).map(
-						(fieldName) =>
-							form.validateField(
-								fieldName as any,
-								"submit",
-							),
+					const validationPromises = currentStepData.map((fieldName) =>
+						form.validateField(fieldName as any, "submit"),
 					);
-
 					await Promise.all(validationPromises);
 					const hasErrors = form.getAllErrors();
-					return Object.keys(hasErrors.fields).length === 0;
+					const hasErrorsFields = currentStepData.filter((fieldName) =>
+						Object.keys(hasErrors.fields).includes(fieldName),
+					);
+					return hasErrorsFields.length === 0;
 				},
 			});
 		const current = stepFormElements[currentStep];
-		const {
-			baseStore: {
-				state: { isSubmitting },
-			},
-		} = form;
 		return (
 			<div className="flex flex-col gap-2 pt-3">
 				<div className="flex flex-col items-center justify-start gap-1">
@@ -302,27 +500,11 @@ const MultiStepViewer = withForm({
 					</motion.div>
 				</AnimatePresence>
 				<div className="flex items-center justify-between gap-3 w-full pt-3">
-					<Button
-						size="sm"
-						variant="ghost"
-						onClick={goToPrevious}
-						type="button"
-					>
-						Previous
-					</Button>
+     <form.StepButton label="Previous" handleMovement={goToPrevious} />
 					{isLastStep ? (
-						<Button size="sm" type="submit">
-							{isSubmitting ? "Submitting..." : "Submit"}
-						</Button>
+						<form.SubmitButton label="Submit" />
 					) : (
-						<Button
-							size="sm"
-							type="button"
-							variant={"secondary"}
-							onClick={goToNext}
-						>
-							Next
-						</Button>
+      <form.StepButton label="Next" handleMovement={goToNext} />
 					)}
 				</div>
 			</div>

@@ -18,7 +18,7 @@ export const SettingsSchema = z.object({
 });
 
 
-export type SettingsCollection = z.infer<typeof SettingsSchema>
+export type SettingsCollection = z.input<typeof SettingsSchema>
 
 export const settingsCollection = createCollection(
   localStorageCollectionOptions({

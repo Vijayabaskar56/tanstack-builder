@@ -4,7 +4,9 @@ import {
 	createFormHookContexts,
 	useStore,
 } from "@tanstack/react-form";
+import type { VariantProps } from "class-variance-authority";
 import * as React from "react";
+import { Button, type buttonVariants } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
@@ -25,7 +27,11 @@ const { useAppForm, withForm } = createFormHook({
 		FormMessage,
 		FormItem,
 	},
-	formComponents: {},
+	formComponents: {
+		SubmitButton,
+  StepButton,
+		Form,
+	},
 });
 
 type FormItemContextValue = {
@@ -135,6 +141,58 @@ function FormMessage({ className, ...props }: React.ComponentProps<"p">) {
 		>
 			{body}
 		</p>
+	);
+}
+
+function Form({ children }: { children?: React.ReactNode }) {
+	const form = useFormContext();
+	const handleSubmit = React.useCallback(
+		(e: React.FormEvent) => {
+			e.preventDefault();
+			e.stopPropagation();
+			form.handleSubmit();
+		},
+		[form],
+	);
+	return (
+		<form
+			onSubmit={handleSubmit}
+			className="flex flex-col p-2 md:p-5 w-full mx-auto rounded-md max-w-3xl gap-2 border"
+			noValidate
+		>
+			{children}
+		</form>
+	);
+}
+
+function SubmitButton({ label }: { label: string }) {
+	const form = useFormContext();
+	return (
+		<form.Subscribe selector={(state) => state.isSubmitting}>
+			{(isSubmitting) => (
+				<Button type="submit" disabled={isSubmitting}>
+					{isSubmitting && (
+						<div className="w-4 h-4 border-2 border-secondary border-t-transparent rounded-full animate-spin" />
+					)}
+					{label}
+				</Button>
+			)}
+		</form.Subscribe>
+	);
+}
+
+function StepButton({
+	label,
+	handleMovement,
+}: React.ComponentProps<"button"> &
+	VariantProps<typeof buttonVariants> & {
+		label: string;
+		handleMovement: () => Promise<boolean> | void;
+	}) {
+	return (
+		<Button size="sm" variant="ghost" type="button" onClick={handleMovement}>
+			{label}
+		</Button>
 	);
 }
 

@@ -1,7 +1,9 @@
+// apps/web/src/lib/form-elements-helpers.ts
 import type {
+	FormElement,
 	FormElementList,
 	FormElementOrList,
-	FormStep,
+	FormStep
 } from "../form-types";
 
 /**
@@ -58,3 +60,24 @@ export const transformToStepFormList = (
 ): FormStep[] => {
 	return [{ id: "1", stepFields: formElementList }];
 };
+
+export const getStepFields = (step: FormStep[]) => {
+	const stepFields: Record<number, string[]> = {};
+	step.forEach((stepData, index) => {
+	  if(stepData.stepFields && stepData.stepFields.length > 0) {
+		const fieldNameWithStep = stepData.stepFields
+		  .filter((field): field is FormElement => {
+			return typeof field === 'object' &&
+				   field !== null &&
+				   'name' in field &&
+				   !field.static;
+		  })
+		  .map((field) => (field as FormElement).name);
+		stepFields[index] = fieldNameWithStep;
+	  } else {
+		stepFields[index] = [];
+	  }
+	});
+	return stepFields;
+  };
+

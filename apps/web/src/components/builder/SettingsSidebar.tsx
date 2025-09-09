@@ -45,7 +45,7 @@ export function SettingsSidebar() {
 			asyncValidation: data?.asyncValidation,
 			preferredSchema: data?.preferredSchema,
 			preferredFramework: data?.preferredFramework,
-		} as z.infer<typeof settingsSchema>,
+		} as z.input<typeof settingsSchema>,
 		validators: {
 			onChange: settingsSchema,
 		},
@@ -173,7 +173,7 @@ export function SettingsSidebar() {
 													disabled={true}
 													onValueChange={(value) =>
 														field.handleChange(
-															value as z.infer<
+															value as z.input<
 																typeof settingsSchema
 															>["validationMethod"],
 														)
@@ -235,7 +235,7 @@ export function SettingsSidebar() {
 													value={field.state.value}
 													onValueChange={(value) =>
 														field.handleChange(
-															value as z.infer<
+															value as z.input<
 																typeof settingsSchema
 															>["preferredSchema"],
 														)
@@ -268,7 +268,7 @@ export function SettingsSidebar() {
 													value={field.state.value}
 													onValueChange={(value) =>
 														field.handleChange(
-															value as z.infer<
+															value as z.input<
 																typeof settingsSchema
 															>["preferredFramework"],
 														)

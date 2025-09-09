@@ -6,6 +6,7 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { formElementsList } from "@/constants/form-elements-list";
 import type { FormElement } from "@/form-types";
 import { useFormStore } from "@/hooks/use-form-store";
@@ -65,25 +66,29 @@ export function FormElementsDropdown({
 				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent
-				data-align="end" // not working
-				className="space-y-3 max-h-64 overflow-y-scroll"
+				data-align="end"
+				className="p-0"
 			>
-				{formElementsList.map((o) => (
-					<DropdownMenuItem
-						onSelect={() =>
-       handleAddingElement(o.fieldType)}
-							// actions.appendElement({
-							// 	fieldIndex,
-							// 	fieldType: o.fieldType as FormElement["fieldType"],
-							// 	stepIndex,
-							// });
-						key={o.name}
-						disabled={!!o.static}
-						className="px-4"
-					>
-						{o.name}
-					</DropdownMenuItem>
-				))}
+				<ScrollArea className="h-64">
+					<div className="space-y-3 p-3">
+						{formElementsList.map((o) => (
+							<DropdownMenuItem
+								onSelect={() =>
+			handleAddingElement(o.fieldType)}
+									// actions.appendElement({
+									// 	fieldIndex,
+									// 	fieldType: o.fieldType as FormElement["fieldType"],
+									// 	stepIndex,
+									// });
+								key={o.name}
+								disabled={!!o.static}
+								className="px-4"
+							>
+								{o.name}
+							</DropdownMenuItem>
+						))}
+					</div>
+				</ScrollArea>
 			</DropdownMenuContent>
 		</DropdownMenu>
 	);
@@ -271,23 +276,27 @@ export function UnifiedFormElementsDropdown({
 			</DropdownMenuTrigger>
 			<DropdownMenuContent
 				data-align="end"
-				className="space-y-3 max-h-64 overflow-y-scroll"
+				className="p-0"
 			>
-				{formElementsList.map((o) => (
-					<DropdownMenuItem
-						onSelect={(e) => {
-							if (context === "multistep") {
-								e.preventDefault(); // Prevent the menu from closing for multistep
-							}
-							handleElementSelect(o.fieldType as FormElement["fieldType"]);
-						}}
-						key={o.name}
-						disabled={!!o.static}
-						className="px-4"
-					>
-						{o.name}
-					</DropdownMenuItem>
-				))}
+				<ScrollArea className="h-64">
+					<div className="space-y-3 p-3">
+						{formElementsList.map((o) => (
+							<DropdownMenuItem
+								onSelect={(e) => {
+									if (context === "multistep") {
+										e.preventDefault(); // Prevent the menu from closing for multistep
+									}
+									handleElementSelect(o.fieldType as FormElement["fieldType"]);
+								}}
+								key={o.name}
+								disabled={!!o.static}
+								className="px-4"
+							>
+								{o.name}
+							</DropdownMenuItem>
+						))}
+					</div>
+				</ScrollArea>
 			</DropdownMenuContent>
 		</DropdownMenu>
 	);
@@ -315,24 +324,28 @@ export function FormElementsStepDropdown({
 			</DropdownMenuTrigger>
 			<DropdownMenuContent
 				data-align="end" // not working
-				className="space-y-3 max-h-64 overflow-y-scroll"
+				className="p-0"
 			>
-				{formElementsList.map((o) => (
-					<DropdownMenuItem
-						onSelect={(e) => {
-							e.preventDefault(); // Prevent the menu from closing
-							actions.appendElement({
-								fieldIndex: null,
-								fieldType: o.fieldType as FormElement["fieldType"],
-								stepIndex,
-							});
-						}}
-						key={o.name}
-						className="px-4"
-					>
-						{o.name}
-					</DropdownMenuItem>
-				))}
+				<ScrollArea className="h-64">
+					<div className="space-y-3 p-3">
+						{formElementsList.map((o) => (
+							<DropdownMenuItem
+								onSelect={(e) => {
+									e.preventDefault(); // Prevent the menu from closing
+									actions.appendElement({
+										fieldIndex: null,
+										fieldType: o.fieldType as FormElement["fieldType"],
+										stepIndex,
+									});
+								}}
+								key={o.name}
+								className="px-4"
+							>
+								{o.name}
+							</DropdownMenuItem>
+						))}
+					</div>
+				</ScrollArea>
 			</DropdownMenuContent>
 		</DropdownMenu>
 	);
