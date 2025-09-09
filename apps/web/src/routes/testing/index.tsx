@@ -5,19 +5,16 @@
 
 import { useStore } from "@tanstack/react-form";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
-import { Plus, Trash2 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { useCallback, useRef } from "react";
+import { useCallback } from "react";
 import { toast } from "sonner";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
-import { Separator } from "@/components/ui/separator";
 import { useAppForm, withForm } from "@/components/ui/tanstack-form";
 import { Textarea } from "@/components/ui/textarea";
-import type { FormStep } from "@/form-types";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useMultiStepForm } from "@/hooks/use-multi-step-form";
 export const Route = createFileRoute("/testing/")({
 	component: DraftForm,
@@ -31,43 +28,15 @@ export const Route = createFileRoute("/testing/")({
 
 export const formSchema = z.object({
 	name: z.string().min(1, "This field is required"),
-	email: z.email(),
-	message: z.string().min(1, "This field is required"),
-	agree: z.boolean(),
-	formArray_1757315992193: z.array(
-		z.object({
-			Checkbox_1757315993905: z.boolean(),
-			Checkbox_1757315995808: z.boolean(),
-		}),
-	),
-	formArray_1757316008481: z.array(
-		z.object({
-			Input_1757316012114: z.string().min(1, "This field is required"),
-			Input_1757316014721: z.string().min(1, "This field is required"),
-		}),
-	),
+	lastName: z.string().min(1, "This field is required").optional(),
+	yourEmail: z.email(),
+	phoneNumber: z.string().optional(),
+	preferences: z.array(z.string().min(1, "This field is required")).optional(),
+	comment: z.string().min(1, "This field is required").optional(),
 });
-
 export function DraftForm() {
 	const form = useAppForm({
-		defaultValues: {
-			name: "",
-			email: "",
-			message: "",
-			agree: false,
-			formArray_1757315992193: [
-				{
-					Checkbox_1757315993905: false,
-					Checkbox_1757315995808: false,
-				},
-			],
-			formArray_1757316008481: [
-				{
-					Input_1757316012114: "",
-					Input_1757316014721: "",
-				},
-			],
-		} as z.infer<typeof formSchema>,
+		defaultValues: {} as z.infer<typeof formSchema>,
 		validators: {
 			onChange: formSchema,
 		},
@@ -106,105 +75,29 @@ export function DraftForm() {
 //------------------------------
 // Define the form structure for type inference
 const multiStepFormOptions = {
-	defaultValues: {
-		name: "",
-		email: "",
-		message: "",
-		agree: false,
-		formArray_1757315992193: [
-			{
-				Checkbox_1757315993905: false,
-				Checkbox_1757315995808: false,
-			},
-		],
-		formArray_1757316008481: [
-			{
-				Input_1757316012114: "",
-				Input_1757316014721: "",
-			},
-		],
-	} as z.infer<typeof formSchema>,
+	defaultValues: {} as z.infer<typeof formSchema>,
 };
+//------------------------------
 const MultiStepViewer = withForm({
 	...multiStepFormOptions,
 	render: function MultiStepFormRender({ form }) {
-		const collectedFieldNamesRef = useRef<Set<string>>(new Set());
-		// Reset the collected field names at the start of each render
-		collectedFieldNamesRef.current = new Set();
-		type CollectingAppFieldProps = { name: string; children: unknown } & Record<
-			string,
-			unknown
-		>;
-		const CollectingAppField: React.FC<CollectingAppFieldProps> = (props) => {
-			if (typeof props?.name === "string") {
-				collectedFieldNamesRef.current.add(props.name);
-			}
-			// biome-ignore lint/suspicious/noExplicitAny: forwarding dynamic props for test harness
-			return <form.AppField {...(props as any)} />;
-		};
 		const stepFormElements: {
-			[key: number]: React.ReactElement;
+			[key: number]: React.ReactNode;
 		} = {
 			1: (
-				<div className="space-y-4">
-					<h2 className="text-2xl font-bold">Contact us</h2>
-					<p className="text-base">Please fill the form below to contact us</p>
-					<div className="flex items-center justify-between flex-wrap sm:flex-nowrap w-full gap-2">
-						<CollectingAppField
-							name={"name"}
-							/** biome-ignore lint/suspicious/noExplicitAny: form field generic is internal */
-							children={(field: any) => (
-								<field.FormItem className="w-full">
-									<field.FormLabel>Name *</field.FormLabel>
-									<field.FormControl>
-										<Input
-											name={"name"}
-											placeholder="Enter your name"
-											type="text"
-											value={field.state.value}
-											onBlur={field.handleBlur}
-											onChange={(e) => field.handleChange(e.target.value)}
-										/>
-									</field.FormControl>
-
-									<field.FormMessage />
-								</field.FormItem>
-							)}
-						/>
-						<CollectingAppField
-							name={"email"}
-							/** biome-ignore lint/suspicious/noExplicitAny: form field generic is internal */
-							children={(field: any) => (
-								<field.FormItem className="w-full">
-									<field.FormLabel>Email *</field.FormLabel>
-									<field.FormControl>
-										<Input
-											name={"email"}
-											placeholder="Enter your email"
-											type="email"
-											value={field.state.value}
-											onBlur={field.handleBlur}
-											onChange={(e) => field.handleChange(e.target.value)}
-										/>
-									</field.FormControl>
-
-									<field.FormMessage />
-								</field.FormItem>
-							)}
-						/>
-					</div>
-
-					<CollectingAppField
-						name={"message"}
-						/** biome-ignore lint/suspicious/noExplicitAny: form field generic is internal */
-						children={(field: any) => (
-							<field.FormItem>
-								<field.FormLabel>Message *</field.FormLabel>
+				<div className="space-x-4">
+					<h2 className="text-2xl font-bold">Personal Details</h2>
+					<p className="text-base">Please provide your personal details</p>
+					<form.AppField
+						name={"name"}
+						children={(field) => (
+							<field.FormItem className="w-full">
+								<field.FormLabel>First name *</field.FormLabel>
 								<field.FormControl>
-									<Textarea
-										placeholder="Enter your message"
-										className="resize-none"
-										name={"message"}
+									<Input
+										name={"name"}
+										placeholder="First name"
+										type="text"
 										value={field.state.value}
 										onBlur={field.handleBlur}
 										onChange={(e) => field.handleChange(e.target.value)}
@@ -215,224 +108,171 @@ const MultiStepViewer = withForm({
 							</field.FormItem>
 						)}
 					/>
-					<CollectingAppField
-						name={"agree"}
-						/** biome-ignore lint/suspicious/noExplicitAny: form field generic is internal */
-						children={(field: any) => (
-							<field.FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+
+					<form.AppField
+						name={"lastName"}
+						children={(field) => (
+							<field.FormItem className="w-full">
+								<field.FormLabel>Last name </field.FormLabel>
 								<field.FormControl>
-									<Checkbox
-										name={"agree"}
-										checked={field.state.value}
+									<Input
+										name={"lastName"}
+										placeholder="Last name"
+										type="text"
+										value={field.state.value}
 										onBlur={field.handleBlur}
-										onCheckedChange={(checked: boolean) => {
-											field.handleChange(checked);
-										}}
+										onChange={(e) => field.handleChange(e.target.value)}
 									/>
 								</field.FormControl>
-								<div className="space-y-1 leading-none">
-									<field.FormLabel>
-										I agree to the terms and conditions
-									</field.FormLabel>
 
-									<field.FormMessage />
-								</div>
+								<field.FormMessage />
 							</field.FormItem>
 						)}
 					/>
-					{form.Field({
-						name: "formArray_1757315992193",
-						mode: "array",
-						children: (field) => (
-							<div className="w-full space-y-4">
-								{field.state.value.map((_, i) => (
-									/** biome-ignore lint/suspicious/noArrayIndexKey: using index for demo array rows */
-									<div key={i} className="space-y-3 p-4 relative">
-										<Separator />
-
-										<div className="flex items-center justify-between flex-wrap sm:flex-nowrap w-full gap-2">
-											<CollectingAppField
-												name={`formArray_1757315992193[${i}].Checkbox_1757315993905`}
-												/** biome-ignore lint/suspicious/noExplicitAny: form field generic is internal */
-												children={(field: any) => (
-													<field.FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-														<field.FormControl>
-															<Checkbox
-																name={`formArray_1757315992193[${i}].Checkbox_1757315993905`}
-																checked={field.state.value}
-																onBlur={field.handleBlur}
-																onCheckedChange={(checked: boolean) => {
-																	field.handleChange(checked);
-																}}
-															/>
-														</field.FormControl>
-														<div className="space-y-1 leading-none">
-															<field.FormLabel>Checkbox Label</field.FormLabel>
-
-															<field.FormMessage />
-														</div>
-													</field.FormItem>
-												)}
-											/>
-											<CollectingAppField
-												name={`formArray_1757315992193[${i}].Checkbox_1757315995808`}
-												/** biome-ignore lint/suspicious/noExplicitAny: form field generic is internal */
-												children={(field: any) => (
-													<field.FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-														<field.FormControl>
-															<Checkbox
-																name={`formArray_1757315992193[${i}].Checkbox_1757315995808`}
-																checked={field.state.value}
-																onBlur={field.handleBlur}
-																onCheckedChange={(checked: boolean) => {
-																	field.handleChange(checked);
-																}}
-															/>
-														</field.FormControl>
-														<div className="space-y-1 leading-none">
-															<field.FormLabel>Checkbox Label</field.FormLabel>
-
-															<field.FormMessage />
-														</div>
-													</field.FormItem>
-												)}
-											/>
-										</div>
-									</div>
-								))}
-								<div className="flex justify-between pt-2">
-									<Button
-										variant="outline"
-										onClick={() =>
-											field.pushValue({
-												Checkbox_1757315993905: false,
-												Checkbox_1757315995808: false,
-											})
-										}
-									>
-										<Plus className="h-4 w-4 mr-2" /> Add
-									</Button>
-									<Button
-										variant="outline"
-										onClick={() =>
-											field.removeValue(field.state.value.length - 1)
-										}
-										disabled={field.state.value.length <= 1}
-									>
-										<Trash2 className="h-4 w-4 mr-2" /> Remove
-									</Button>
-								</div>
-							</div>
-						),
-					})}
 				</div>
 			),
 			2: (
-				<div>
-					{form.Field({
-						name: "formArray_1757316008481",
-						mode: "array",
-						children: (field) => (
-							<div className="w-full space-y-4">
-								{field.state.value.map((_, i) => (
-									/** biome-ignore lint/suspicious/noArrayIndexKey: using index for demo array rows */
-									<div key={i} className="space-y-3 p-4 relative">
-										<Separator />
+				<div className="space-x-4">
+					<h2 className="text-2xl font-bold">Contact Information</h2>
+					<p className="text-base">Please provide your contact information</p>
+					<form.AppField
+						name={"yourEmail"}
+						children={(field) => (
+							<field.FormItem className="w-full">
+								<field.FormLabel>Your Email *</field.FormLabel>
+								<field.FormControl>
+									<Input
+										name={"yourEmail"}
+										placeholder="Enter your email"
+										type="email"
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+									/>
+								</field.FormControl>
 
-										<div className="flex items-center justify-between flex-wrap sm:flex-nowrap w-full gap-2">
-											<CollectingAppField
-												name={`formArray_1757316008481[${i}].Input_1757316012114`}
-												/** biome-ignore lint/suspicious/noExplicitAny: form field generic is internal */
-												children={(field: any) => (
-													<field.FormItem className="w-full">
-														<field.FormLabel>Input Field *</field.FormLabel>
-														<field.FormControl>
-															<Input
-																name={`formArray_1757316008481[${i}].Input_1757316012114`}
-																placeholder="Enter your text"
-																type="text"
-																value={field.state.value}
-																onBlur={field.handleBlur}
-																onChange={(e) =>
-																	field.handleChange(e.target.value)
-																}
-															/>
-														</field.FormControl>
+								<field.FormMessage />
+							</field.FormItem>
+						)}
+					/>
 
-														<field.FormMessage />
-													</field.FormItem>
-												)}
-											/>
-											<CollectingAppField
-												name={`formArray_1757316008481[${i}].Input_1757316014721`}
-												/** biome-ignore lint/suspicious/noExplicitAny: form field generic is internal */
-												children={(field: any) => (
-													<field.FormItem className="w-full">
-														<field.FormLabel>Input Field *</field.FormLabel>
-														<field.FormControl>
-															<Input
-																name={`formArray_1757316008481[${i}].Input_1757316014721`}
-																placeholder="Enter your text"
-																type="text"
-																value={field.state.value}
-																onBlur={field.handleBlur}
-																onChange={(e) =>
-																	field.handleChange(e.target.value)
-																}
-															/>
-														</field.FormControl>
+					<form.AppField
+						name={"phoneNumber"}
+						children={(field) => (
+							<field.FormItem className="w-full">
+								<field.FormLabel>Phone Number </field.FormLabel>
+								<field.FormControl>
+									<Input
+										name={"phoneNumber"}
+										placeholder="Enter your phone number"
+										type="number"
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+									/>
+								</field.FormControl>
 
-														<field.FormMessage />
-													</field.FormItem>
-												)}
-											/>
-										</div>
-									</div>
-								))}
-								<div className="flex justify-between pt-2">
-									<Button
-										variant="outline"
-										onClick={() =>
-											field.pushValue({
-												Input_1757316012114: "",
-												Input_1757316014721: "",
-											})
-										}
-									>
-										<Plus className="h-4 w-4 mr-2" /> Add
-									</Button>
-									<Button
-										variant="outline"
-										onClick={() =>
-											field.removeValue(field.state.value.length - 1)
-										}
-										disabled={field.state.value.length <= 1}
-									>
-										<Trash2 className="h-4 w-4 mr-2" /> Remove
-									</Button>
-								</div>
-							</div>
-						),
-					})}
+								<field.FormMessage />
+							</field.FormItem>
+						)}
+					/>
+				</div>
+			),
+			3: (
+				<div className="space-x-4">
+					<h2 className="text-2xl font-bold">Your Preferences</h2>
+					<form.AppField
+						name={"preferences"}
+						children={(field) => {
+							const options = [
+								{ value: "monday", label: "Mon" },
+								{ value: "tuesday", label: "Tue" },
+								{ value: "wednesday", label: "Wed" },
+								{ value: "thursday", label: "Thu" },
+								{ value: "friday", label: "Fri" },
+								{ value: "saturday", label: "Sat" },
+								{ value: "sunday", label: "Sun" },
+							];
+							return (
+								<field.FormItem className="flex flex-col gap-2 w-full py-1">
+									<field.FormLabel>
+										Tell us about your interests and preferences.{" "}
+									</field.FormLabel>
+									<field.FormControl>
+										<ToggleGroup
+											variant="outline"
+											onValueChange={field.handleChange}
+											defaultValue={field.state.value || []}
+											type="multiple"
+											className="flex justify-start items-center gap-2 flex-wrap"
+										>
+											{options.map(({ label, value }) => (
+												<ToggleGroupItem
+													key={value}
+													value={value}
+													className="flex items-center gap-x-2"
+												>
+													{label}
+												</ToggleGroupItem>
+											))}
+										</ToggleGroup>
+									</field.FormControl>
+									<field.FormMessage />
+								</field.FormItem>
+							);
+						}}
+					/>
+
+					<form.AppField
+						name={"comment"}
+						children={(field) => (
+							<field.FormItem>
+								<field.FormLabel>Feedback Comment </field.FormLabel>
+								<field.FormControl>
+									<Textarea
+										placeholder="Share your feedback"
+										className="resize-none"
+										name={"comment"}
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+									/>
+								</field.FormControl>
+
+								<field.FormMessage />
+							</field.FormItem>
+						)}
+					/>
 				</div>
 			),
 		};
+
 		const steps = Object.keys(stepFormElements).map(Number);
 		const fields = Object.keys(formSchema.shape);
+		const stepFields: Record<number, string[]> = {
+			1: fields.slice(0, 2),
+			2: fields.slice(2, 4),
+			3: fields.slice(4, 6),
+		};
+		const stepObjects = steps.map((step) => ({
+			id: step.toString(),
+			stepFields: stepFields[step],
+		}));
 		const { currentStep, isLastStep, goToNext, goToPrevious } =
 			useMultiStepForm({
-				initialSteps: steps as unknown as FormStep[],
-				onStepValidation: async () => {
-					const fieldPaths = Array.from(collectedFieldNamesRef.current);
-					let isValid = true;
-					for (const fieldName of fieldPaths) {
-						const fieldValid = await form.validateField(
-							fieldName as never,
-							"change",
-						);
-						isValid = isValid && Boolean(fieldValid);
-					}
-					return isValid;
+				initialSteps: stepObjects as any,
+				onStepValidation: async (currentStepData) => {
+					const validationPromises = (currentStepData.stepFields as unknown as string[]).map(
+						(fieldName) =>
+							form.validateField(
+								fieldName as any,
+								"submit",
+							),
+					);
+
+					await Promise.all(validationPromises);
+					const hasErrors = form.getAllErrors();
+					return Object.keys(hasErrors.fields).length === 0;
 				},
 			});
 		const current = stepFormElements[currentStep];
