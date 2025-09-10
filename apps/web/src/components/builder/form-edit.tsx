@@ -10,7 +10,7 @@ import {
 	PlusCircle,
 } from "lucide-react";
 import { Reorder, useDragControls } from "motion/react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
 	FormElementsDropdown,
 
@@ -44,6 +44,12 @@ const animateVariants = {
 	exit: { opacity: 0, scale: 0.85 },
 	transition: { duration: 0.3, ease: "easeInOut" },
 };
+
+const getTransitionProps = (isLayoutTransitioning: boolean) => ({
+	transition: isLayoutTransitioning
+		? { duration: 0 } // Disable animations during layout transitions
+		: { duration: 0.3, ease: "easeInOut" }
+});
 
 type EditFormItemProps = {
 	element: FormElement;
@@ -603,6 +609,7 @@ const FormArrayFieldItem = ({
 	stepIndex,
 	nestedIndex,
 	formArrayElement,
+	isLayoutTransitioning = false,
 }: {
 	element: any;
 	fieldIndex: number;
@@ -611,6 +618,7 @@ const FormArrayFieldItem = ({
 	stepIndex?: number;
 	nestedIndex?: number;
 	formArrayElement?: any;
+	isLayoutTransitioning?: boolean;
 }) => {
 	const { actions } = useFormStore();
 	const isNested = typeof nestedIndex === "number";
@@ -696,10 +704,12 @@ const FormArrayItemContainer = ({
 	formArrayElement,
 	actions,
 	mainFieldIndex,
+	isLayoutTransitioning = false,
 }: {
 	formArrayElement: any;
 	actions: any;
 	mainFieldIndex?: number;
+	isLayoutTransitioning?: boolean;
 }) => {
 	const dragControls = useDragControls();
 
@@ -708,13 +718,10 @@ const FormArrayItemContainer = ({
 			key={formArrayElement.id}
 			value={formArrayElement}
 			className="rounded-xl border-2 border-dashed border-muted-foreground/30 py-3 w-full bg-muted/20"
-			variants={animateVariants}
-			initial="initial"
-			animate="animate"
-			exit="exit"
 			layout
 			dragListener={false}
 			dragControls={dragControls}
+			{...getTransitionProps(isLayoutTransitioning)}
 		>
 			<div className="px-3">
 				<div className="flex items-center justify-between mb-3">
@@ -749,7 +756,8 @@ const FormArrayItemContainer = ({
 					onReorder={(newOrder) =>
 						actions.reorderFormArrayFields(formArrayElement.id, newOrder)
 					}
-					className="space-y-2"
+					className="space-y-2 relative"
+					{...getTransitionProps(isLayoutTransitioning)}
 				>
 					{formArrayElement.arrayField.map((field: any, fieldIndex: number) => {
 						if (Array.isArray(field)) {
@@ -757,12 +765,9 @@ const FormArrayItemContainer = ({
 								<Reorder.Item
 									key={`nested-${fieldIndex}`}
 									value={field}
-									variants={animateVariants}
-									initial="initial"
-									animate="animate"
-									exit="exit"
 									className="flex items-center justify-start gap-2 pl-2"
 									layout
+									{...getTransitionProps(isLayoutTransitioning)}
 								>
 									<LucideGripVertical className="dark:text-muted-foreground text-muted-foreground" />
 									<Reorder.Group
@@ -775,17 +780,15 @@ const FormArrayItemContainer = ({
 										}}
 										className="flex items-center justify-start gap-2 w-full"
 										tabIndex={-1}
+										{...getTransitionProps(isLayoutTransitioning)}
 									>
 										{field.map((el, j) => (
 											<Reorder.Item
 												key={el.id}
 												value={el}
 												className="w-full rounded-xl border border-dashed py-1.5 bg-background"
-												variants={animateVariants}
-												initial="initial"
-												animate="animate"
-												exit="exit"
 												layout
+												{...getTransitionProps(isLayoutTransitioning)}
 											>
 												<FormArrayFieldItem
 													element={el}
@@ -794,6 +797,7 @@ const FormArrayItemContainer = ({
 													mainFieldIndex={mainFieldIndex}
 													nestedIndex={j}
 													formArrayElement={formArrayElement}
+													isLayoutTransitioning={isLayoutTransitioning}
 												/>
 											</Reorder.Item>
 										))}
@@ -806,6 +810,8 @@ const FormArrayItemContainer = ({
 									key={field.id}
 									value={field}
 									className="w-full rounded-xl border border-dashed py-1.5 bg-background"
+									layout
+									{...getTransitionProps(isLayoutTransitioning)}
 								>
 									<FormArrayFieldItem
 										element={field}
@@ -813,6 +819,7 @@ const FormArrayItemContainer = ({
 										arrayId={formArrayElement.id}
 										mainFieldIndex={mainFieldIndex}
 										formArrayElement={formArrayElement}
+										isLayoutTransitioning={isLayoutTransitioning}
 									/>
 								</Reorder.Item>
 							);
@@ -838,6 +845,35 @@ const NoStepsPlaceholder = () => {
 export function FormEdit() {
 	const isMultiStep = useIsMultiStep();
 	const { formElements, actions } = useFormStore();
+	const containerRef = useRef<HTMLDivElement>(null);
+	const [isLayoutTransitioning, setIsLayoutTransitioning] = useState(false);
+
+	useEffect(() => {
+		const container = containerRef.current;
+		if (!container) return;
+
+		let resizeTimeout: NodeJS.Timeout;
+
+		const resizeObserver = new ResizeObserver(() => {
+			// Set transitioning state when resize starts
+			setIsLayoutTransitioning(true);
+
+			// Clear existing timeout
+			if (resizeTimeout) clearTimeout(resizeTimeout);
+
+			// Reset transitioning state after transition completes
+			resizeTimeout = setTimeout(() => {
+				setIsLayoutTransitioning(false);
+			}, 350); // Slightly longer than our CSS transition duration
+		});
+
+		resizeObserver.observe(container);
+
+		return () => {
+			resizeObserver.disconnect();
+			if (resizeTimeout) clearTimeout(resizeTimeout);
+		};
+	}, []);
 
 	switch (isMultiStep) {
 		case true:
@@ -845,24 +881,23 @@ export function FormEdit() {
 				return <NoStepsPlaceholder />;
 			}
 			return (
-				<Reorder.Group
-					values={formElements as FormStep[]}
-					onReorder={(newOrder) => {
-						actions.reorderSteps(newOrder);
-					}}
-					className="flex flex-col gap-4"
-					layoutScroll
-				>
+				<div ref={containerRef} className="w-full">
+					<Reorder.Group
+						values={formElements as FormStep[]}
+						onReorder={(newOrder) => {
+							actions.reorderSteps(newOrder);
+						}}
+						className="flex flex-col gap-4 relative"
+						layoutScroll
+						{...getTransitionProps(isLayoutTransitioning)}
+					>
 					{(formElements as FormStep[]).map((step, stepIndex) => {
 						return (
 							<Reorder.Item
 								value={step}
 								key={step.id}
 								layout
-								variants={animateVariants}
-								initial="initial"
-								animate="animate"
-								exit="exit"
+								{...getTransitionProps(isLayoutTransitioning)}
 							>
 								<StepContainer stepIndex={stepIndex}>
 									<Reorder.Group
@@ -873,6 +908,7 @@ export function FormEdit() {
 										values={step.stepFields}
 										className="flex flex-col gap-3"
 										tabIndex={-1}
+										{...getTransitionProps(isLayoutTransitioning)}
 									>
 										{step.stepFields.map((element, fieldIndex) => {
 											// Check if element is a FormArray
@@ -886,12 +922,9 @@ export function FormEdit() {
 													<Reorder.Item
 														key={formArrayElement.id}
 														value={formArrayElement}
-														variants={animateVariants}
-														initial="initial"
-														animate="animate"
-														exit="exit"
 														className="rounded-xl border-2 border-dashed border-muted-foreground/30 py-3 w-full bg-muted/20"
 														layout
+														{...getTransitionProps(isLayoutTransitioning)}
 													>
 														<div className="px-3">
 															<div className="flex items-center justify-between mb-3">
@@ -925,12 +958,9 @@ export function FormEdit() {
 																				<Reorder.Item
 																					key={`nested-${arrayFieldIndex}`}
 																					value={field}
-																					variants={animateVariants}
-																					initial="initial"
-																					animate="animate"
-																					exit="exit"
 																					className="flex items-center justify-start gap-2 pl-2"
 																					layout
+																					{...getTransitionProps(isLayoutTransitioning)}
 																				>
 																					<LucideGripVertical className="dark:text-muted-foreground text-muted-foreground" />
 																					<Reorder.Group
@@ -941,29 +971,28 @@ export function FormEdit() {
 																							updatedArrayField[arrayFieldIndex] = newOrder;
 																							actions.updateFormArray(formArrayElement.id, updatedArrayField);
 																						}}
-																						className="flex items-center justify-start gap-2 w-full"
+																						className="flex items-center justify-start gap-2 w-full relative"
 																						tabIndex={-1}
+																						{...getTransitionProps(isLayoutTransitioning)}
 																					>
 																						{field.map((el, j) => (
 																							<Reorder.Item
 																								key={el.id}
 																								value={el}
 																								className="w-full rounded-xl border border-dashed py-1.5 bg-background"
-																								variants={animateVariants}
-																								initial="initial"
-																								animate="animate"
-																								exit="exit"
 																								layout
+																								{...getTransitionProps(isLayoutTransitioning)}
 																							>
-																								<FormArrayFieldItem
-																									element={el}
-																									fieldIndex={arrayFieldIndex}
-																									arrayId={formArrayElement.id}
-																									mainFieldIndex={fieldIndex}
-																									stepIndex={stepIndex}
-																									nestedIndex={j}
-																									formArrayElement={formArrayElement}
-																								/>
+												<FormArrayFieldItem
+													element={el}
+													fieldIndex={arrayFieldIndex}
+													arrayId={formArrayElement.id}
+													mainFieldIndex={fieldIndex}
+													stepIndex={stepIndex}
+													nestedIndex={j}
+													formArrayElement={formArrayElement}
+													isLayoutTransitioning={isLayoutTransitioning}
+												/>
 																							</Reorder.Item>
 																						))}
 																					</Reorder.Group>
@@ -982,6 +1011,7 @@ export function FormEdit() {
 																						mainFieldIndex={fieldIndex}
 																						stepIndex={stepIndex}
 																						formArrayElement={formArrayElement}
+																						isLayoutTransitioning={isLayoutTransitioning}
 																					/>
 																				</div>
 																			);
@@ -999,12 +1029,9 @@ export function FormEdit() {
 													<Reorder.Item
 														key={element[0].id}
 														value={element}
-														variants={animateVariants}
-														initial="initial"
-														animate="animate"
-														exit="exit"
 														className="flex items-center justify-start gap-2 pl-2"
 														layout
+														{...getTransitionProps(isLayoutTransitioning)}
 													>
 														<LucideGripVertical className="dark:text-muted-foreground text-muted-foreground" />
 														<Reorder.Group
@@ -1013,13 +1040,16 @@ export function FormEdit() {
 																actions.reorder({ newOrder, fieldIndex });
 															}}
 															values={element}
-															className="w-full flex items-center justify-start gap-2"
+															className="w-full flex items-center justify-start gap-2 relative"
+															{...getTransitionProps(isLayoutTransitioning)}
 														>
 															{element.map((el, j) => (
 																<Reorder.Item
 																	value={el}
 																	key={el.id}
 																	className="w-full rounded-xl border border-dashed py-1.5 bg-background"
+																	layout
+																	{...getTransitionProps(isLayoutTransitioning)}
 																>
 																	<EditFormItem
 																		fieldIndex={fieldIndex}
@@ -1038,11 +1068,8 @@ export function FormEdit() {
 													key={element.id}
 													value={element}
 													className="w-full rounded-xl border border-dashed py-1.5 bg-background"
-													variants={animateVariants}
-													initial="initial"
-													animate="animate"
-													exit="exit"
 													layout
+													{...getTransitionProps(isLayoutTransitioning)}
 												>
 													<EditFormItem
 														fieldIndex={fieldIndex}
@@ -1057,21 +1084,23 @@ export function FormEdit() {
 							</Reorder.Item>
 						);
 					})}
-				</Reorder.Group>
+					</Reorder.Group>
+				</div>
 			);
 		default:
 			return (
-				<Reorder.Group
-					axis="y"
-					onReorder={(newOrder) => {
-						actions.reorder({ newOrder, fieldIndex: null });
-					}}
-					values={formElements as FormElementOrList[]}
-					className="flex flex-col gap-3 rounded-lg px-3 md:px-4 md:py-5 py-4 border-dashed border bg-muted"
-					tabIndex={-1}
-				>
+				<div ref={containerRef} className="w-full">
+					<Reorder.Group
+						axis="y"
+						onReorder={(newOrder) => {
+							actions.reorder({ newOrder, fieldIndex: null });
+						}}
+						values={formElements as FormElementOrList[]}
+						className="flex flex-col gap-3 rounded-lg px-3 md:px-4 md:py-5 py-4 border-dashed border bg-muted relative"
+						tabIndex={-1}
+						{...getTransitionProps(isLayoutTransitioning)}
+					>
 					{(formElements as any[]).map((element, i) => {
-						// Check if element is a FormArray
 						if (
 							typeof element === "object" &&
 							element !== null &&
@@ -1084,6 +1113,7 @@ export function FormEdit() {
 									formArrayElement={formArrayElement}
 									actions={actions}
 									mainFieldIndex={i}
+									isLayoutTransitioning={isLayoutTransitioning}
 								/>
 							);
 						}
@@ -1093,12 +1123,9 @@ export function FormEdit() {
 								<Reorder.Item
 									value={element}
 									key={(element as any)[0].id}
-									variants={animateVariants}
-									initial="initial"
-									animate="animate"
-									exit="exit"
 									className="flex items-center justify-start gap-2 pl-2"
 									layout
+									{...getTransitionProps(isLayoutTransitioning)}
 								>
 									<LucideGripVertical className="dark:text-muted-foreground text-muted-foreground" />
 									<Reorder.Group
@@ -1107,19 +1134,17 @@ export function FormEdit() {
 											actions.reorder({ newOrder, fieldIndex: i });
 										}}
 										values={element}
-										className="flex items-center justify-start gap-2 w-full"
+										className="flex items-center justify-start gap-2 w-full relative"
 										tabIndex={-1}
+										{...getTransitionProps(isLayoutTransitioning)}
 									>
 										{element.map((el: any, j: number) => (
 											<Reorder.Item
 												key={el.id}
 												value={el}
 												className="w-full rounded-xl border border-dashed py-1.5 bg-background"
-												variants={animateVariants}
-												initial="initial"
-												animate="animate"
-												exit="exit"
 												layout
+												{...getTransitionProps(isLayoutTransitioning)}
 											>
 												<EditFormItem
 													key={el.id}
@@ -1138,11 +1163,8 @@ export function FormEdit() {
 								key={(element as any).id}
 								value={element}
 								className="rounded-xl border border-dashed py-1.5 w-full bg-background"
-								variants={animateVariants}
-								initial="initial"
-								animate="animate"
-								exit="exit"
 								layout
+								{...getTransitionProps(isLayoutTransitioning)}
 							>
 								<EditFormItem
 									key={(element as any).id}
@@ -1152,7 +1174,8 @@ export function FormEdit() {
 							</Reorder.Item>
 						);
 					})}
-				</Reorder.Group>
+					</Reorder.Group>
+				</div>
 			);
 	}
 }

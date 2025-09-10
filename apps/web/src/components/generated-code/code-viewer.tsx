@@ -5,6 +5,7 @@ import {
 	CodeBlockGroup,
 } from "@/components/ui/code-block";
 import { CopyButton } from "@/components/ui/copy-button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { type SettingsCollection, settingsCollection } from "@/db-collections";
 import type { FormElement, FormElementOrList, FormStep } from "@/form-types";
@@ -38,8 +39,7 @@ const Wrapper = ({
 				<CopyButton text={children} />
 			</CodeBlockGroup>
 			<div
-				style={{ height: "100%", maxHeight: "50vh" }}
-				className="*:mt-0 [&_pre]:p-3 w-full overflow-y-auto bg-background dark:bg-background/95"
+				className="*:mt-0 [&_pre]:p-3 w-full bg-background dark:bg-background/95"
 			>
 				<CodeBlockCode code={children} language={language} theme={codeTheme} />
 			</div>
@@ -289,12 +289,16 @@ export function GeneratedFormCodeViewer() {
 				{/* <GeneratedCodeInfoCard /> */}
 			</div>
 			<TabsContent value="tsx" tabIndex={-1}>
-				<CodeBlockPackagesInstallation />
-				<div className="border-t border-dashed w-full mt-6" />
-				<CodeBlockTSX />
+				<ScrollArea className="h-[60vh]">
+					<CodeBlockPackagesInstallation />
+					<div className="border-t border-dashed w-full mt-6" />
+					<CodeBlockTSX />
+				</ScrollArea>
 			</TabsContent>
 			<TabsContent value="schema" tabIndex={-1}>
-				<CodeBlockSchema />
+				<ScrollArea className="h-[60vh]">
+					<CodeBlockSchema />
+				</ScrollArea>
 			</TabsContent>
 		</Tabs>
 	);

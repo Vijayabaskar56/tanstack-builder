@@ -83,15 +83,14 @@ export function SettingsSidebar() {
 						void form.handleSubmit();
 					}}
 				>
-					<div className="flex-shrink-0 p-3 sm:p-4 border-b">
-						<div className="flex items-center justify-between">
-							<h2 className="text-base sm:text-lg font-semibold">Settings</h2>
-							{/* <Button size="sm" type="submit">
-								<Save className="w-4 h-4 mr-2" />
-								Save
-							</Button> */}
-						</div>
-					</div>
+					<div className="mb-4 pb-2 px-4 border-b">
+        <h3 className="text-lg font-semibold text-primary">
+         Settings
+        </h3>
+        <p className="text-sm text-muted-foreground">
+         Configure Your Form
+        </p>
+       </div>
 
 					<ScrollArea className="flex-1 overflow-auto max-h-[calc(35vh-8rem)] md:max-h-none">
 						<div className="p-3 sm:p-4 space-y-4 sm:space-y-6">

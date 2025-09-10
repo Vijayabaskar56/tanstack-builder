@@ -47,20 +47,14 @@ export function TemplateSidebar() {
 
 	return (
 		<div className="flex flex-col h-full md:h-full max-h-[35vh] md:max-h-none">
-			<div className="flex-shrink-0 p-3 sm:p-4 border-b">
-				<h2 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">
-					Templates
-				</h2>
-				<div className="relative">
-					<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-					<Input
-						placeholder="Search templates..."
-						value={searchQuery}
-						onChange={(e) => setSearchQuery(e.target.value)}
-						className="pl-9 text-sm sm:text-base"
-					/>
-				</div>
-			</div>
+						<div className="mb-4 pb-2 px-4 border-b">
+        <h3 className="text-lg font-semibold text-primary">
+         Template
+        </h3>
+        <p className="text-sm text-muted-foreground">
+         Predefined Template's
+        </p>
+       </div>
 			<ScrollArea className="flex-1 overflow-auto max-h-[calc(35vh-8rem)] md:max-h-none">
 				<div className="p-3 sm:p-4 space-y-4 sm:space-y-6">
 					{/* Built-in Templates */}

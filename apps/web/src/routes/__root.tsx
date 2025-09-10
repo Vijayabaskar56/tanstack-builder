@@ -67,7 +67,7 @@ function RootComponent() {
 		<>
 			{/* <HeadContent /> */}
 			<ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-				<div className="min-h-screen">
+				<div className="max-h-screen">
 					<NavBar />
 					{isFetching ? <Loader /> : <Outlet />}
 				</div>

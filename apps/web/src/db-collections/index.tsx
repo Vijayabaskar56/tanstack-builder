@@ -14,7 +14,8 @@ export const SettingsSchema = z.object({
  activeTab: z.enum(["builder","template","settings"]).default("builder"),
  preferredSchema: z.enum(["zod","valibot","arktype"]).default("zod"),
  preferredFramework: z.enum(["react","vue","angular","solid"]).default("react"),
- preferredPackageManager : z.enum(['pnpm','npm','yarn','bun']).default('pnpm')
+ preferredPackageManager : z.enum(['pnpm','npm','yarn','bun']).default('pnpm'),
+ isCodeSidebarOpen : z.boolean().default(false)
 });
 
 
