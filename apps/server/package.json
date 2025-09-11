@@ -1,0 +1,36 @@
+{
+  "name": "server",
+  "main": "src/index.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsdown",
+    "check-types": "tsc -b",
+    "compile": "bun build --compile --minify --sourcemap --bytecode ./src/index.ts --outfile server",
+    "db:push": "drizzle-kit push",
+    "db:generate": "drizzle-kit generate",
+    "dev": "alchemy dev",
+    "deploy": "alchemy deploy",
+    "destroy": "alchemy destroy"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.1",
+    "zod": "^4.0.2",
+    "@orpc/server": "^1.8.6",
+    "@orpc/client": "^1.8.6",
+    "@orpc/openapi": "^1.8.6",
+    "@orpc/zod": "^1.8.6",
+    "hono": "^4.8.2",
+    "drizzle-orm": "^0.44.2",
+    "@libsql/client": "^0.15.9"
+  },
+  "devDependencies": {
+    "tsdown": "^0.14.1",
+    "typescript": "^5.8.2",
+    "drizzle-kit": "^0.31.2",
+    "alchemy": "^0.65.1",
+    "wrangler": "^4.23.0",
+    "@types/node": "^22.13.11",
+    "dotenv": "^17.2.1",
+    "@cloudflare/workers-types": "^4.20250822.0"
+  }
+}

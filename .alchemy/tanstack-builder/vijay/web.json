@@ -1,0 +1,158 @@
+{
+  "kind": "cloudflare::Worker",
+  "id": "web",
+  "fqn": "tanstack-builder/vijay/web",
+  "seq": 2,
+  "data": {},
+  "status": "updated",
+  "output": {
+    "Symbol(alchemy::ResourceKind)": "cloudflare::Worker",
+    "Symbol(alchemy::ResourceID)": "web",
+    "Symbol(alchemy::ResourceFQN)": "tanstack-builder/vijay/web",
+    "Symbol(alchemy::ResourceScope)": {
+      "@scope": null
+    },
+    "Symbol(alchemy::ResourceSeq)": 2,
+    "cwd": "apps/web",
+    "bindings": {
+      "VITE_SERVER_URL": "http://localhost:3000",
+      "ASSETS": {
+        "Symbol(alchemy::ResourceKind)": "cloudflare::Asset",
+        "Symbol(alchemy::ResourceID)": "assets",
+        "Symbol(alchemy::ResourceFQN)": "tanstack-builder/vijay/assets",
+        "Symbol(alchemy::ResourceScope)": {
+          "@scope": null
+        },
+        "Symbol(alchemy::ResourceSeq)": 1,
+        "id": "assets",
+        "type": "assets",
+        "path": "apps/web/.output/public",
+        "files": [
+          {
+            "path": "robots.txt",
+            "filePath": "apps/web/.output/public/robots.txt",
+            "contentType": "text/plain"
+          },
+          {
+            "path": "_headers",
+            "filePath": "apps/web/.output/public/_headers",
+            "contentType": "application/null"
+          },
+          {
+            "path": ".vite/manifest.json",
+            "filePath": "apps/web/.output/public/.vite/manifest.json",
+            "contentType": "application/json"
+          },
+          {
+            "path": "assets/index-B84b-XiO.js",
+            "filePath": "apps/web/.output/public/assets/index-B84b-XiO.js",
+            "contentType": "text/javascript"
+          },
+          {
+            "path": "assets/index-DC1x7vsq.css",
+            "filePath": "apps/web/.output/public/assets/index-DC1x7vsq.css",
+            "contentType": "text/css"
+          },
+          {
+            "path": "assets/main-DxaJMtop.js",
+            "filePath": "apps/web/.output/public/assets/main-DxaJMtop.js",
+            "contentType": "text/javascript"
+          }
+        ],
+        "createdAt": 1757608949086,
+        "updatedAt": 1757609043629
+      }
+    },
+    "noBundle": true,
+    "entrypoint": ".output/server/index.mjs",
+    "compatibilityFlags": [
+      "nodejs_compat"
+    ],
+    "name": "tanstack-builder-web-vijay",
+    "compatibilityDate": "2025-09-06",
+    "assets": {
+      "html_handling": "auto-trailing-slash",
+      "not_found_handling": "single-page-application",
+      "run_worker_first": false,
+      "directory": ".output/public"
+    },
+    "dev": {
+      "hasRemote": true
+    },
+    "type": "service",
+    "id": "web",
+    "format": "esm",
+    "createdAt": {
+      "@date": "2025-09-11T16:42:58.244Z"
+    },
+    "updatedAt": {
+      "@date": "2025-09-11T16:44:17.268Z"
+    },
+    "url": "https://tanstack-builder-web-vijay.vj2k02.workers.dev"
+  },
+  "props": {
+    "cwd": "apps/web",
+    "bindings": {
+      "VITE_SERVER_URL": "http://localhost:3000",
+      "ASSETS": {
+        "Symbol(alchemy::ResourceKind)": "cloudflare::Asset",
+        "Symbol(alchemy::ResourceID)": "assets",
+        "Symbol(alchemy::ResourceFQN)": "tanstack-builder/vijay/assets",
+        "Symbol(alchemy::ResourceScope)": {
+          "@scope": null
+        },
+        "Symbol(alchemy::ResourceSeq)": 1,
+        "id": "assets",
+        "type": "assets",
+        "path": "apps/web/.output/public",
+        "files": [
+          {
+            "path": "robots.txt",
+            "filePath": "apps/web/.output/public/robots.txt",
+            "contentType": "text/plain"
+          },
+          {
+            "path": "_headers",
+            "filePath": "apps/web/.output/public/_headers",
+            "contentType": "application/null"
+          },
+          {
+            "path": ".vite/manifest.json",
+            "filePath": "apps/web/.output/public/.vite/manifest.json",
+            "contentType": "application/json"
+          },
+          {
+            "path": "assets/index-B84b-XiO.js",
+            "filePath": "apps/web/.output/public/assets/index-B84b-XiO.js",
+            "contentType": "text/javascript"
+          },
+          {
+            "path": "assets/index-DC1x7vsq.css",
+            "filePath": "apps/web/.output/public/assets/index-DC1x7vsq.css",
+            "contentType": "text/css"
+          },
+          {
+            "path": "assets/main-DxaJMtop.js",
+            "filePath": "apps/web/.output/public/assets/main-DxaJMtop.js",
+            "contentType": "text/javascript"
+          }
+        ],
+        "createdAt": 1757608949086,
+        "updatedAt": 1757609043629
+      }
+    },
+    "noBundle": true,
+    "entrypoint": ".output/server/index.mjs",
+    "compatibilityFlags": [
+      "nodejs_compat"
+    ],
+    "name": "tanstack-builder-web-vijay",
+    "compatibilityDate": "2025-09-06",
+    "assets": {
+      "html_handling": "auto-trailing-slash",
+      "not_found_handling": "single-page-application",
+      "run_worker_first": false,
+      "directory": ".output/public"
+    }
+  }
+}

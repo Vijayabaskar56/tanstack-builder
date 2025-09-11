@@ -1,22 +1,24 @@
-import path from "node:path";
-import { cloudflare } from "@cloudflare/vite-plugin";
-import tailwindcss from "@tailwindcss/vite";
-import { devtools } from "@tanstack/devtools-vite";
-import { tanstackRouter } from "@tanstack/router-plugin/vite";
-import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
+import tsconfigPaths from "vite-tsconfig-paths";
+import { tanstackStart } from "@tanstack/react-start/plugin/vite";
+import tailwindcss from "@tailwindcss/vite";
+import viteReact from "@vitejs/plugin-react";
+import alchemy from "alchemy/cloudflare/tanstack-start";
 
 export default defineConfig({
 	plugins: [
+		tsconfigPaths(),
 		tailwindcss(),
-		tanstackRouter({}),
-		react(),
-		cloudflare(),
-		devtools(),
-	],
-	resolve: {
-		alias: {
-			"@": path.resolve(__dirname, "./src"),
-		},
-	},
+		tanstackStart({ customViteReactPlugin: true,
+      target: "cloudflare-module"
+    }),
+		viteReact(),
+    alchemy()
+  ],
+  build: {
+        target: "esnext",
+        rollupOptions: {
+          external: ["node:async_hooks", "cloudflare:workers"],
+        },
+      }
 });

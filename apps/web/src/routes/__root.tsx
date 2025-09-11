@@ -1,86 +1,68 @@
-import { TanStackDevtools } from "@tanstack/react-devtools";
-import {
-	createRootRouteWithContext,
-	Outlet,
-	useRouterState,
-} from "@tanstack/react-router";
-import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
-import type { BuilderState } from "@/components/builder/types";
-import Loader from "@/components/loader";
-import NavBar from "@/components/nav-bar";
-import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
-import "../index.css";
-import { settingsCollection } from "@/db-collections";
 
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+
+import {
+	HeadContent,
+	Outlet,
+	Scripts,
+	createRootRouteWithContext,
+	useRouterState,
+	useRouteContext,
+} from "@tanstack/react-router";
+import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
+import Header from "../components/header";
+import appCss from "../index.css?url";
+import Loader from "@/components/loader";
+
+import type { orpc } from "@/utils/orpc";
 export interface RouterAppContext {
-	builder: BuilderState;
+	orpc: typeof orpc;
+	queryClient: QueryClient;
 }
 
 export const Route = createRootRouteWithContext<RouterAppContext>()({
-	component: RootComponent,
- 	beforeLoad: async () => {
-		if (localStorage.getItem("settings")) {
-			return;
-		} else {
-			settingsCollection.insert([
-				{
-					id: "user-settings",
-					activeTab: "builder",
-					defaultRequiredValidation: true,
-					numericInput: false,
-					focusOnError: true,
-					validationMethod: "onDynamic",
-					asyncValidation: 300,
-					preferredSchema: "zod",
-					preferredFramework: "react",
-     preferredPackageManager : 'pnpm'
-				},
-			]);
-		}
-	},
 	head: () => ({
 		meta: [
 			{
-				title: "My App",
+				charSet: "utf-8",
 			},
 			{
-				name: "description",
-				content: "My App is a web application",
+				name: "viewport",
+				content: "width=device-width, initial-scale=1",
+			},
+			{
+				title: "My App",
 			},
 		],
 		links: [
 			{
-				rel: "icon",
-				href: "/favicon.ico",
+				rel: "stylesheet",
+				href: appCss,
 			},
 		],
 	}),
+
+	component: RootDocument,
 });
 
-function RootComponent() {
-	const isFetching = useRouterState({
-		select: (s) => s.isLoading,
-	});
-
+function RootDocument() {
+	const isFetching = useRouterState({ select: (s) => s.isLoading });
 	return (
-		<>
-			{/* <HeadContent /> */}
-			<ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-				<div className="max-h-screen">
-					<NavBar />
+		<html lang="en" className="dark">
+			<head>
+				<HeadContent />
+			</head>
+			<body>
+				<div className="grid h-svh grid-rows-[auto_1fr]">
+					<Header />
 					{isFetching ? <Loader /> : <Outlet />}
 				</div>
 				<Toaster richColors />
-			</ThemeProvider>
-			<TanStackDevtools
-				plugins={[
-					{
-						name: "Tanstack Router",
-						render: <TanStackRouterDevtoolsPanel />,
-					},
-				]}
-			/>
-		</>
+				<TanStackRouterDevtools position="bottom-left" />
+				<ReactQueryDevtools position="bottom" buttonPosition="bottom-right" />
+				<Scripts />
+			</body>
+		</html>
 	);
 }

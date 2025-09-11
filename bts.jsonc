@@ -2,23 +2,26 @@
 // safe to delete
 
 {
-  "$schema": "https://better-t-stack.dev/schema.json",
-  "version": "2.26.0",
-  "createdAt": "2025-07-16T03:03:41.094Z",
-  "database": "none",
-  "orm": "none",
-  "backend": "none",
-  "runtime": "none",
+  "$schema": "https://r2.better-t-stack.dev/schema.json",
+  "version": "2.44.0",
+  "createdAt": "2025-09-11T16:32:35.368Z",
+  "database": "sqlite",
+  "orm": "drizzle",
+  "backend": "hono",
+  "runtime": "workers",
   "frontend": [
-    "tanstack-router"
+    "tanstack-start"
   ],
   "addons": [
-    "turborepo"
+    "husky",
+    "turborepo",
+    "ultracite"
   ],
   "examples": [],
-  "auth": false,
+  "auth": "none",
   "packageManager": "bun",
-  "dbSetup": "none",
-  "api": "none",
-  "webDeploy": "workers"
+  "dbSetup": "d1",
+  "api": "orpc",
+  "webDeploy": "alchemy",
+  "serverDeploy": "alchemy"
 }

@@ -1,23 +1,38 @@
 {
   "name": "my-better-t-app",
   "private": true,
+  "type": "module",
   "workspaces": [
     "apps/*",
     "packages/*"
   ],
   "scripts": {
-    "dev": "turbo dev",
+    "check": "biome check --write .",
+    "dev": "alchemy dev",
     "build": "turbo build",
     "check-types": "turbo check-types",
     "dev:native": "turbo -F native dev",
     "dev:web": "turbo -F web dev",
-    "dev:server": "turbo -F server dev"
+    "dev:server": "turbo -F server dev",
+    "db:push": "turbo -F server db:push",
+    "db:generate": "turbo -F server db:generate",
+    "deploy": "alchemy deploy",
+    "destroy": "alchemy destroy"
   },
-  "dependencies": {
-    "@tanstack/react-db": "^0.1.9"
-  },
+  "dependencies": {},
   "devDependencies": {
-    "turbo": "^2.5.4"
+    "turbo": "^2.5.4",
+    "@biomejs/biome": "2.2.2",
+    "ultracite": "5.3.3",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.2",
+    "alchemy": "^0.65.1",
+    "dotenv": "^17.2.1"
   },
-  "packageManager": "bun@1.2.18"
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,json,jsonc,css,scss,md,mdx}": [
+      "bun x ultracite fix"
+    ]
+  },
+  "packageManager": "bun@1.2.21"
 }
