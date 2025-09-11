@@ -9,22 +9,10 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as TableBuilderRouteImport } from './routes/table-builder'
-import { Route as FormBuilderRouteImport } from './routes/form-builder'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TestingIndexRouteImport } from './routes/testing/index'
 import { Route as FormBuilderIndexRouteImport } from './routes/form-builder/index'
 
-const TableBuilderRoute = TableBuilderRouteImport.update({
-  id: '/table-builder',
-  path: '/table-builder',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FormBuilderRoute = FormBuilderRouteImport.update({
-  id: '/form-builder',
-  path: '/form-builder',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -83,27 +71,10 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  FormBuilderRoute: typeof FormBuilderRouteWithChildren
-  TableBuilderRoute: typeof TableBuilderRoute
-  TestingIndexRoute: typeof TestingIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/table-builder': {
-      id: '/table-builder'
-      path: '/table-builder'
-      fullPath: '/table-builder'
-      preLoaderRoute: typeof TableBuilderRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/form-builder': {
-      id: '/form-builder'
-      path: '/form-builder'
-      fullPath: '/form-builder'
-      preLoaderRoute: typeof FormBuilderRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -142,9 +113,6 @@ const FormBuilderRouteWithChildren = FormBuilderRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  FormBuilderRoute: FormBuilderRouteWithChildren,
-  TableBuilderRoute: TableBuilderRoute,
-  TestingIndexRoute: TestingIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
