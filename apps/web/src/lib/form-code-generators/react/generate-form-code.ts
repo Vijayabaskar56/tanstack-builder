@@ -1,105 +1,119 @@
+// apps/web/src/lib/form-code-generators/react/generate-form-code.ts
 import type {
- FormArray,
- FormElement,
- FormElementOrList,
- FormStep,
+  FormArray,
+  FormElement,
+  FormElementOrList,
+  FormStep,
 } from "@/form-types";
-import useSettings from "@/hooks/use-settings";
 import {
- getDefaultValuesString,
- objectToLiteralString,
- processFormElements,
+  getDefaultValuesString,
+  objectToLiteralString,
+  processFormElements,
 } from "@/lib/form-code-generators/react/generate-default-value";
 import { getFormElementCode } from "@/lib/form-code-generators/react/generate-form-component";
 import { generateImports } from "@/lib/form-code-generators/react/generate-imports";
 import { flattenFormSteps, getStepFields } from "@/lib/form-elements-helpers";
 
 const modifyElement = (
- el: FormElementOrList,
- prefix: string,
+  el: FormElementOrList,
+  prefix: string,
 ): FormElementOrList => {
- if (Array.isArray(el)) {
-  return el.map((e) => modifyElement(e, prefix)) as FormElement[];
- } else {
-  return { ...el, name: prefix + el.name + "`" };
- }
+  if (Array.isArray(el)) {
+    return el.map((e) => modifyElement(e, prefix)) as FormElement[];
+  } else {
+    return { ...el, name: prefix + el.name + "`" };
+  }
 };
 
 const renderFields = (fields: (FormElementOrList | FormArray)[]): string => {
- return fields
-  .map((FormElement, i) => {
-   if (Array.isArray(FormElement)) {
-    return `
+  return fields
+    .map((FormElement, i) => {
+      if (Array.isArray(FormElement)) {
+        return `
           <div className="flex items-center justify-between flex-wrap sm:flex-nowrap w-full gap-2">
             ${FormElement.map((field) => getFormElementCode(field)).join("")}
           </div>`;
-   }
-   if (FormElement.fieldType === "FormArray") {
-    const formArray = FormElement as FormArray;
-    const defaultEntry = processFormElements(
-     formArray.arrayField as FormElementOrList[],
-    );
-    const pushValueStr = objectToLiteralString(defaultEntry);
-    return (
-     "{form.Field({\n" +
-     '  name: "' +
-     formArray.name +
-     '",\n' +
-     '  mode: "array",\n' +
-     "  children: (field) => (\n" +
-     '    <div className="w-full space-y-4">\n' +
-     "      {field.state.value.map((_, i) => (\n" +
-     '        <div key={i} className="space-y-3 p-4 relative">\n' +
-     "          <Separator />\n" +
-     "          " +
-     renderFields(
-      (formArray.arrayField as FormElementOrList[]).map((el) =>
-       modifyElement(el, "`" + formArray.name + "[${i}]."),
-      ),
-     ) +
-     "\n" +
-     "        </div>\n" +
-     "      ))}\n" +
-     '      <div className="flex justify-between pt-2">\n' +
-     '        <Button variant="outline" onClick={() => field.pushValue(' +
-     pushValueStr +
-     ")}>\n" +
-     '          <Plus className="h-4 w-4 mr-2" /> Add\n' +
-     "        </Button>\n" +
-     '        <Button variant="outline" onClick={() => field.removeValue(field.state.value.length - 1)} disabled={field.state.value.length <= 1}>\n' +
-     '          <Trash2 className="h-4 w-4 mr-2" /> Remove\n' +
-     "        </Button>\n" +
-     "      </div>\n" +
-     "    </div>\n" +
-     "  )\n" +
-     "})}"
-    );
-   }
-   return getFormElementCode(FormElement);
-  })
-  .join("\n");
+      }
+      if (FormElement.fieldType === "FormArray") {
+        const formArray = FormElement as FormArray;
+
+        // Use the first entry's fields (which contain edited properties) instead of the template
+        const actualFields =
+          formArray.entries && formArray.entries.length > 0
+            ? formArray.entries[0].fields
+            : formArray.arrayField;
+
+        const defaultEntry = processFormElements(
+          actualFields as FormElementOrList[],
+        );
+        const pushValueStr = objectToLiteralString(defaultEntry);
+        return (
+          "{form.Field({\n" +
+          '  name: "' +
+          formArray.name +
+          '",\n' +
+          '  mode: "array",\n' +
+          "  children: (field) => (\n" +
+          '    <div className="w-full space-y-4">\n' +
+          "      {field.state.value.map((_, i) => (\n" +
+          '        <div key={i} className="space-y-3 p-4 relative">\n' +
+          "          <Separator />\n" +
+          "          " +
+          renderFields(
+            (actualFields as FormElementOrList[]).map((el) =>
+              modifyElement(el, "`" + formArray.name + "[${i}]."),
+            ),
+          ) +
+          "\n" +
+          "        </div>\n" +
+          "      ))}\n" +
+          '      <div className="flex justify-between pt-2">\n' +
+          '        <Button variant="outline" onClick={() => field.pushValue(' +
+          pushValueStr +
+          ")}>\n" +
+          '          <Plus className="h-4 w-4 mr-2" /> Add\n' +
+          "        </Button>\n" +
+          '        <Button variant="outline" onClick={() => field.removeValue(field.state.value.length - 1)} disabled={field.state.value.length <= 1}>\n' +
+          '          <Trash2 className="h-4 w-4 mr-2" /> Remove\n' +
+          "        </Button>\n" +
+          "      </div>\n" +
+          "    </div>\n" +
+          "  )\n" +
+          "})}"
+        );
+      }
+      return getFormElementCode(FormElement);
+    })
+    .join("\n");
 };
 
 export const generateFormCode = ({
- formElements,
- isMS,
+  formElements,
+  isMS,
+  validationSchema,
+  settings,
 }: {
- formElements: FormElementOrList[] | FormStep[];
- isMS: boolean;
-}): { file: string; code: string; }[] => {
- const flattenedFormElements = isMS
-  ? flattenFormSteps(formElements as FormStep[]).flat()
-  : formElements.flat();
- const defaultValues = getDefaultValuesString();
- const imports = Array.from(
-  generateImports(flattenedFormElements as (FormElement | FormArray)[]),
- ).join("\n");
- const settings = useSettings();
+  formElements: FormElementOrList[] | FormStep[];
+  isMS: boolean;
+  validationSchema: any;
+  settings: any;
+}): { file: string; code: string }[] => {
+  const flattenedFormElements = isMS
+    ? flattenFormSteps(formElements as FormStep[]).flat()
+    : formElements.flat();
+  const defaultValues = getDefaultValuesString();
+  const imports = Array.from(
+    generateImports(
+      flattenedFormElements as (FormElement | FormArray)[],
+      validationSchema,
+      isMS,
+    ),
+  ).join("\n");
 
- const singleStepFormCode = [
-  {
-   file: "single-step-form.tsx",
-   code: `
+  const singleStepFormCode = [
+    {
+      file: "single-step-form.tsx",
+      code: `
 ${imports}
 
 export function DraftForm() {
@@ -111,8 +125,9 @@ const form = useAppForm({
   onSubmit : ({value}) => {
   console.log(value)
 			toast.success("success");
-  },${settings.focusOnError
-     ? `
+  },${
+    settings.focusOnError
+      ? `
   onSubmitInvalid({ formApi }) {
 				const errorMap = formApi.state.errorMap.onDynamic!;
 				const inputs = Array.from(
@@ -128,8 +143,8 @@ const form = useAppForm({
 				}
 				firstInput?.focus();
 		}`
-     : ""
-    }
+      : ""
+  }
 });
 
 
@@ -147,8 +162,9 @@ return (
     <form.AppForm>
       <form onSubmit={handleSubmit} className="flex flex-col p-2 md:p-5 w-full mx-auto rounded-md max-w-3xl gap-2 border"  noValidate>
          ${renderFields(formElements as (FormElementOrList | FormArray)[])}
-        ${!isMS
-     ? `
+        ${
+          !isMS
+            ? `
          <div className="flex justify-end items-center w-full pt-3">
          <form.Subscribe selector={(state) => state.isSubmitting}>
            {(isSubmitting) => (
@@ -158,42 +174,42 @@ return (
            )}
          </form.Subscribe>
         </div>`
-     : ""
-    }
+            : ""
+        }
       </form>
     </form.AppForm>
   </div>
 )
 }`,
-  },
- ];
- if (!isMS) return singleStepFormCode;
+    },
+  ];
+  if (!isMS) return singleStepFormCode;
 
- // Handle multi-step form
- function stringifyStepComponents(steps: any[]): string {
-  const componentEntries = steps.map((step, index) => {
-   const stepNumber = index + 1;
-   const renderedFields = renderFields(step.stepFields);
-   return `  ${stepNumber}: <div>${renderedFields}</div>`;
-  });
+  // Handle multi-step form
+  function stringifyStepComponents(steps: any[]): string {
+    const componentEntries = steps.map((step, index) => {
+      const stepNumber = index + 1;
+      const renderedFields = renderFields(step.stepFields);
+      return `  ${stepNumber}: <div>${renderedFields}</div>`;
+    });
 
-  return `{\n${componentEntries.join(",\n")}\n}`;
- }
+    return `{\n${componentEntries.join(",\n")}\n}`;
+  }
 
- function stringifyStepFields(stepFields: Record<number, string[]>): string {
-  const entries = Object.entries(stepFields).map(([stepNumber, fields]) => {
-   return `  ${stepNumber}: ${JSON.stringify(fields)}`;
-  });
-  return `{\n${entries.join(",\n")}\n}`;
- }
+  function stringifyStepFields(stepFields: Record<number, string[]>): string {
+    const entries = Object.entries(stepFields).map(([stepNumber, fields]) => {
+      return `  ${stepNumber}: ${JSON.stringify(fields)}`;
+    });
+    return `{\n${entries.join(",\n")}\n}`;
+  }
 
- const stringifiedStepComponents = stringifyStepComponents(
-  formElements as FormStep[],
- );
- const stringifiedStepFields = stringifyStepFields(
-  getStepFields(formElements as FormStep[]),
- );
- const MSF_Code = `
+  const stringifiedStepComponents = stringifyStepComponents(
+    formElements as FormStep[],
+  );
+  const stringifiedStepFields = stringifyStepFields(
+    getStepFields(formElements as FormStep[]),
+  );
+  const MSF_Code = `
   ${imports}
   import { useState } from 'react'
   import { Progress } from '@/components/ui/progress'
@@ -305,7 +321,7 @@ const MultiStepViewer = withForm({
     </div>
   )}
 });`;
- const useMultiStepFormCode = `
+  const useMultiStepFormCode = `
 //------------------------------use-multi-step-form.tsx
 type UseFormStepsProps = {
  initialSteps: Record<number, string[]>;
@@ -368,15 +384,15 @@ export function useMultiStepForm({
    goToPrevious,
  };
 }`;
- const multiStepFormCode = [
-  {
-   file: "multi-step-form.tsx",
-   code: MSF_Code,
-  },
-  {
-   file: "use-multi-step-form.tsx",
-   code: useMultiStepFormCode,
-  },
- ];
- return multiStepFormCode;
+  const multiStepFormCode = [
+    {
+      file: "multi-step-form.tsx",
+      code: MSF_Code,
+    },
+    {
+      file: "use-multi-step-form.tsx",
+      code: useMultiStepFormCode,
+    },
+  ];
+  return multiStepFormCode;
 };

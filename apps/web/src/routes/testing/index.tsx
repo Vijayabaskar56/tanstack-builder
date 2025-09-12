@@ -2,36 +2,43 @@
 /** biome-ignore-all lint/correctness/useUniqueElementIds: Form elements need unique IDs */
 // apps/web/src/routes/testing/index.tsx
 
-import { revalidateLogic, useStore } from "@tanstack/react-form";
-import { createFileRoute, Navigate } from "@tanstack/react-router";
-import { AnimatePresence, motion } from "motion/react";
-import { useCallback } from "react";
-import { toast } from "sonner";
-import * as z from "zod";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { useAppForm, withForm } from "@/components/ui/tanstack-form";
 import { Textarea } from "@/components/ui/textarea";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useMultiStepForm } from "@/hooks/use-multi-step-form";
+import { revalidateLogic, useStore } from "@tanstack/react-form";
+import { createFileRoute, Navigate } from "@tanstack/react-router";
+import { Plus, Trash2 } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
+import { useCallback } from "react";
+import { toast } from "sonner";
+import * as z from "zod";
 export const Route = createFileRoute("/testing/")({
-	component: DraftForm,
-	beforeLoad: () => {
-		const env = import.meta.env.MODE;
-		if (env !== "development") {
-			return <Navigate to="/" />;
-		}
-	},
+  component: DraftForm,
+  beforeLoad: () => {
+    const env = import.meta.env.MODE;
+    if (env !== "development") {
+      return <Navigate to="/" />;
+    }
+  },
 });
 export const formSchema = z.object({
   name: z.string().min(1, "This field is required"),
-  lastName: z.string().min(1, "This field is required").optional(),
-  yourEmail: z.email(),
-  phoneNumber: z.number().optional(),
-  preferences: z.array(z.string().min(1, "This field is required")).optional(),
-  comment: z.string().min(1, "This field is required").optional()
+  email: z.email(),
+  message: z.string().min(1, "This field is required"),
+  formArray_1757573667464: z.array(
+    z.object({
+      Input_1757573670555: z.string().min(1, "This field is required"),
+    }),
+  ),
+  formArray_1757573695722: z.array(
+    z.object({
+      Input_1757573699922: z.string().min(1, "This field is required"),
+      Input_1757573702722: z.string().min(1, "This field is required"),
+    }),
+  ),
 });
 
 
@@ -244,270 +251,408 @@ export const formSchema = z.object({
 // }
 
 export function DraftForm() {
-	const form = useAppForm({
-		defaultValues: {
-			name: "",
-			lastName: "",
-			yourEmail: "",
-			phoneNumber: 2,
-			preferences: [],
-			comment: "",
-		} as z.infer<typeof formSchema>,
-		validators: {
-			onChange: formSchema,
-		},
-		onSubmit: ({ value }) => {
-			console.log(value);
-			toast.success("Submitted Successfully");
-		},
-	});
-	return (
-		<div>
-			<form.AppForm>
-				<form.Form
-				>
-					<MultiStepViewer form={form} />
-					<div className="flex justify-end items-center w-full pt-3">
-       <form.SubmitButton label="Submit" />
-					</div>
-				</form.Form>
-			</form.AppForm>
-		</div>
-	);
+  const form = useAppForm({
+    defaultValues: {
+      name: "",
+      email: "",
+      message: "",
+      formArray_1757573667464: [
+        {
+          Input_1757573670555: "",
+        },
+      ],
+      formArray_1757573695722: [
+        {
+          Input_1757573699922: "",
+          Input_1757573702722: "",
+        },
+      ],
+    } as z.input<typeof formSchema>,
+    validationLogic: revalidateLogic(),
+    validators: {
+      // onChange: formSchema,
+      onDynamic: formSchema,
+    },
+    onSubmit: ({ value }) => {
+      console.log(value);
+      toast.success("Submitted Successfully");
+    },
+  });
+  const handleSubmit = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      form.handleSubmit();
+    },
+    [form],
+  );
+  const isSubmitting = useStore(form.store, (state) => state.isSubmitting);
+  return (
+    <div>
+      <form.AppForm>
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-col p-2 md:p-5 w-full mx-auto rounded-md max-w-3xl gap-2 border"
+        >
+          <MultiStepViewer form={form} />
+          <div className="flex justify-end items-center w-full pt-3">
+            <Button className="rounded-lg" size="sm">
+              {isSubmitting ? "Submitting..." : "Submit"}
+            </Button>
+          </div>
+        </form>
+      </form.AppForm>
+    </div>
+  );
 }
 //------------------------------
 // Define the form structure for type inference
 const multiStepFormOptions = {
-	defaultValues: {
-		name: "",
-		lastName: "",
-		yourEmail: "",
-		phoneNumber: 1,
-		preferences: [],
-		comment: "",
-	} as z.infer<typeof formSchema>,
+  defaultValues: {
+    name: "",
+    email: "",
+    message: "",
+    formArray_1757573667464: [
+      {
+        Input_1757573670555: "",
+      },
+    ],
+    formArray_1757573695722: [
+      {
+        Input_1757573699922: "",
+        Input_1757573702722: "",
+      },
+    ],
+  } as z.input<typeof formSchema>,
 };
 //------------------------------
 const MultiStepViewer = withForm({
-	...multiStepFormOptions,
-	render: function MultiStepFormRender({ form }) {
-		const stepFormElements: {
-			[key: number]: React.ReactNode;
-		} = {
-			1: (
-				<div>
-					<h2 className="text-2xl font-bold">Personal Details</h2>
-					<p className="text-base">Please provide your personal details</p>
-					<form.AppField
-						name={"name"}
-						children={(field) => (
-							<field.FormItem className="w-full">
-								<field.FormLabel>First name *</field.FormLabel>
-								<field.FormControl>
-									<Input
-										name={"name"}
-										placeholder="First name"
-										type="text"
-										value={field.state.value}
-										onBlur={field.handleBlur}
-										onChange={(e) => field.handleChange(e.target.value)}
-									/>
-								</field.FormControl>
+  ...multiStepFormOptions,
+  render: function MultiStepFormRender({ form }) {
+    const stepFormElements: {
+      [key: number]: React.ReactNode;
+    } = {
+      1: (
+        <div>
+          <h2 className="text-2xl font-bold">Contact us</h2>
+          <p className="text-base">Please fill the form below to contact us</p>
 
-								<field.FormMessage />
-							</field.FormItem>
-						)}
-					/>
+          <div className="flex items-center justify-between flex-wrap sm:flex-nowrap w-full gap-2">
+            <form.AppField
+              name={"name"}
+              children={(field) => (
+                <field.FormItem className="w-full">
+                  <field.FormLabel>Name *</field.FormLabel>
+                  <field.FormControl>
+                    <Input
+                      name={"name"}
+                      placeholder="Enter your name"
+                      type="text"
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                    />
+                  </field.FormControl>
 
-					<form.AppField
-						name={"lastName"}
-						children={(field) => (
-							<field.FormItem className="w-full">
-								<field.FormLabel>Last name </field.FormLabel>
-								<field.FormControl>
-									<Input
-										name={"lastName"}
-										placeholder="Last name"
-										type="text"
-										value={field.state.value}
-										onBlur={field.handleBlur}
-										onChange={(e) => field.handleChange(e.target.value)}
-									/>
-								</field.FormControl>
+                  <field.FormMessage />
+                </field.FormItem>
+              )}
+            />
+            <form.AppField
+              name={"email"}
+              children={(field) => (
+                <field.FormItem className="w-full">
+                  <field.FormLabel>Email *</field.FormLabel>
+                  <field.FormControl>
+                    <Input
+                      name={"email"}
+                      placeholder="Enter your email"
+                      type="email"
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                    />
+                  </field.FormControl>
 
-								<field.FormMessage />
-							</field.FormItem>
-						)}
-					/>
-				</div>
-			),
-			2: (
-				<div>
-					<h2 className="text-2xl font-bold">Contact Information</h2>
-					<p className="text-base">Please provide your contact information</p>
-					<form.AppField
-						name={"yourEmail"}
-						children={(field) => (
-							<field.FormItem className="w-full">
-								<field.FormLabel>Your Email *</field.FormLabel>
-								<field.FormControl>
-									<Input
-										name={"yourEmail"}
-										placeholder="Enter your email"
-										type="email"
-										value={field.state.value}
-										onBlur={field.handleBlur}
-										onChange={(e) => field.handleChange(e.target.value)}
-									/>
-								</field.FormControl>
+                  <field.FormMessage />
+                </field.FormItem>
+              )}
+            />
+          </div>
 
-								<field.FormMessage />
-							</field.FormItem>
-						)}
-					/>
+          <form.AppField
+            name={"message"}
+            children={(field) => (
+              <field.FormItem>
+                <field.FormLabel>Message *</field.FormLabel>
+                <field.FormControl>
+                  <Textarea
+                    placeholder="Enter your message"
+                    className="resize-none"
+                    name={"message"}
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                  />
+                </field.FormControl>
 
-					<form.AppField
-						name={"phoneNumber"}
-						children={(field) => (
-							<field.FormItem className="w-full">
-								<field.FormLabel>Phone Number </field.FormLabel>
-								<field.FormControl>
-									<Input
-										name={"phoneNumber"}
-										placeholder="Enter your phone number"
-										type="number"
-										value={field.state.value}
-										onBlur={field.handleBlur}
-										onChange={(e) => field.handleChange(Number(e.target.value))}
-									/>
-								</field.FormControl>
+                <field.FormMessage />
+              </field.FormItem>
+            )}
+          />
+          {form.Field({
+            name: "formArray_1757573667464",
+            mode: "array",
+            children: (field) => (
+              <div className="w-full space-y-4">
+                {field.state.value.map((_, i) => (
+                  <div key={i} className="space-y-3 p-4 relative">
+                    <Separator />
+                    <form.AppField
+                      name={`formArray_1757573667464[${i}].Input_1757573670555`}
+                      children={(field) => (
+                        <field.FormItem className="w-full">
+                          <field.FormLabel>Input Field *</field.FormLabel>
+                          <field.FormControl>
+                            <Input
+                              name={`formArray_1757573667464[${i}].Input_1757573670555`}
+                              placeholder="Enter your text"
+                              type="text"
+                              value={field.state.value}
+                              onBlur={field.handleBlur}
+                              onChange={(e) =>
+                                field.handleChange(e.target.value)
+                              }
+                            />
+                          </field.FormControl>
 
-								<field.FormMessage />
-							</field.FormItem>
-						)}
-					/>
-				</div>
-			),
-			3: (
-				<div>
-					<h2 className="text-2xl font-bold">Your Preferences</h2>
-					<form.AppField
-						name={"preferences"}
-						children={(field) => {
-							const options = [
-								{ value: "monday", label: "Mon" },
-								{ value: "tuesday", label: "Tue" },
-								{ value: "wednesday", label: "Wed" },
-								{ value: "thursday", label: "Thu" },
-								{ value: "friday", label: "Fri" },
-								{ value: "saturday", label: "Sat" },
-								{ value: "sunday", label: "Sun" },
-							];
-							return (
-								<field.FormItem className="flex flex-col gap-2 w-full py-1">
-									<field.FormLabel>
-										Tell us about your interests and preferences.{" "}
-									</field.FormLabel>
-									<field.FormControl>
-										<ToggleGroup
-											variant="outline"
-											onValueChange={field.handleChange}
-											defaultValue={field.state.value}
-											type="multiple"
-											className="flex justify-start items-center gap-2 flex-wrap"
-										>
-											{options.map(({ label, value }) => (
-												<ToggleGroupItem
-													key={value}
-													value={value}
-													className="flex items-center gap-x-2"
-												>
-													{label}
-												</ToggleGroupItem>
-											))}
-										</ToggleGroup>
-									</field.FormControl>
-									undefined
-									<field.FormMessage />
-								</field.FormItem>
-							);
-						}}
-					/>
+                          <field.FormMessage />
+                        </field.FormItem>
+                      )}
+                    />
+                  </div>
+                ))}
+                <div className="flex justify-between pt-2">
+                  <Button
+                    variant="outline"
+                    onClick={() =>
+                      field.pushValue({
+                        Input_1757573670555: "",
+                      })
+                    }
+                  >
+                    <Plus className="h-4 w-4 mr-2" /> Add
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() =>
+                      field.removeValue(field.state.value.length - 1)
+                    }
+                    disabled={field.state.value.length <= 1}
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" /> Remove
+                  </Button>
+                </div>
+              </div>
+            ),
+          })}
+        </div>
+      ),
+      2: (
+        <div>
+          {form.Field({
+            name: "formArray_1757573695722",
+            mode: "array",
+            children: (field) => (
+              <div className="w-full space-y-4">
+                {field.state.value.map((_, i) => (
+                  <div key={i} className="space-y-3 p-4 relative">
+                    <Separator />
 
-					<form.AppField
-						name={"comment"}
-						children={(field) => (
-							<field.FormItem>
-								<field.FormLabel>Feedback Comment </field.FormLabel>
-								<field.FormControl>
-									<Textarea
-										placeholder="Share your feedback"
-										className="resize-none"
-										name={"comment"}
-										value={field.state.value}
-										onBlur={field.handleBlur}
-										onChange={(e) => field.handleChange(e.target.value)}
-									/>
-								</field.FormControl>
+                    <div className="flex items-center justify-between flex-wrap sm:flex-nowrap w-full gap-2">
+                      <form.AppField
+                        name={`formArray_1757573695722[${i}].Input_1757573699922`}
+                        children={(field) => (
+                          <field.FormItem className="w-full">
+                            <field.FormLabel>Input Field *</field.FormLabel>
+                            <field.FormControl>
+                              <Input
+                                name={`formArray_1757573695722[${i}].Input_1757573699922`}
+                                placeholder="Enter your text"
+                                type="text"
+                                value={field.state.value}
+                                onBlur={field.handleBlur}
+                                onChange={(e) =>
+                                  field.handleChange(e.target.value)
+                                }
+                              />
+                            </field.FormControl>
 
-								<field.FormMessage />
-							</field.FormItem>
-						)}
-					/>
-				</div>
-			),
-		};
-		const stepFields: Record<number, string[]> = {
-			0: ["name", "lastName"],
-			1: ["yourEmail", "phoneNumber"],
-			2: ["preferences", "comment"],
-		};
-		const steps = Object.keys(stepFormElements).map(Number);
-		const { currentStep, isLastStep, goToNext, goToPrevious } =
-			useMultiStepForm({
-				initialSteps: stepFields,
-				onStepValidation: async (currentStepData) => {
-					const validationPromises = currentStepData.map((fieldName) =>
-						form.validateField(fieldName as any, "submit"),
-					);
-					await Promise.all(validationPromises);
-					const hasErrors = form.getAllErrors();
-					const hasErrorsFields = currentStepData.filter((fieldName) =>
-						Object.keys(hasErrors.fields).includes(fieldName),
-					);
-					return hasErrorsFields.length === 0;
-				},
-			});
-		const current = stepFormElements[currentStep];
-		return (
-			<div className="flex flex-col gap-2 pt-3">
-				<div className="flex flex-col items-center justify-start gap-1">
-					<span>
-						Step {currentStep} of {steps.length}
-					</span>
-					<Progress value={(currentStep / steps.length) * 100} />
-				</div>
-				<AnimatePresence mode="popLayout">
-					<motion.div
-						key={currentStep}
-						initial={{ opacity: 0, x: 15 }}
-						animate={{ opacity: 1, x: 0 }}
-						exit={{ opacity: 0, x: -15 }}
-						transition={{ duration: 0.4, type: "spring" }}
-						className="flex flex-col gap-2"
-					>
-						{current}
-					</motion.div>
-				</AnimatePresence>
-				<div className="flex items-center justify-between gap-3 w-full pt-3">
-     <form.StepButton label="Previous" handleMovement={goToPrevious} />
-					{isLastStep ? (
-						<form.SubmitButton label="Submit" />
-					) : (
-      <form.StepButton label="Next" handleMovement={goToNext} />
-					)}
-				</div>
-			</div>
-		);
-	},
+                            <field.FormMessage />
+                          </field.FormItem>
+                        )}
+                      />
+                      <form.AppField
+                        name={`formArray_1757573695722[${i}].Input_1757573702722`}
+                        children={(field) => (
+                          <field.FormItem className="w-full">
+                            <field.FormLabel>Input Field *</field.FormLabel>
+                            <field.FormControl>
+                              <Input
+                                name={`formArray_1757573695722[${i}].Input_1757573702722`}
+                                placeholder="Enter your text"
+                                type="text"
+                                value={field.state.value}
+                                onBlur={field.handleBlur}
+                                onChange={(e) =>
+                                  field.handleChange(e.target.value)
+                                }
+                              />
+                            </field.FormControl>
+
+                            <field.FormMessage />
+                          </field.FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
+                ))}
+                <div className="flex justify-between pt-2">
+                  <Button
+                    variant="outline"
+                    onClick={() =>
+                      field.pushValue({
+                        Input_1757573699922: "",
+                        Input_1757573702722: "",
+                      })
+                    }
+                  >
+                    <Plus className="h-4 w-4 mr-2" /> Add
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() =>
+                      field.removeValue(field.state.value.length - 1)
+                    }
+                    disabled={field.state.value.length <= 1}
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" /> Remove
+                  </Button>
+                </div>
+              </div>
+            ),
+          })}
+        </div>
+      ),
+    };
+    const stepFields: Record<number, Array<string | string[]>> = {
+      0: ["message", ["formArray_1757573667464"]],
+      1: [["formArray_1757573695722"]],
+    };
+    const steps = Object.keys(stepFormElements).map(Number);
+    const { currentStep, isLastStep, goToNext, goToPrevious } =
+      useMultiStepForm({
+        initialSteps: stepFields,
+        onStepValidation: async (currentStepData) => {
+          const validationPromises = currentStepData.map((fieldName) => {
+            return form.validateField(fieldName as any, "submit");
+          });
+          let validationArrayPromises: Promise<unknown[]>[] = [];
+          for (const fieldName of currentStepData) {
+            if (Array.isArray(fieldName)) {
+              validationArrayPromises.push(
+                form.validateArrayFieldsStartingFrom(
+                  fieldName[0] as any,
+                  form.getFieldInfo(fieldName[0] as any).instance?.state.value
+                    .length,
+                  "submit",
+                ),
+              );
+            }
+          }
+          await Promise.all(validationPromises);
+          await Promise.all(validationArrayPromises);
+          const hasErrors = form.getAllErrors();
+          // ? This is Necessary if , not when move previous and try to move next , will not work otherwise , cause other step fields have errors
+          const hasErrorsFields = currentStepData.filter((fieldName) => {
+            if (Array.isArray(fieldName)) {
+              // For array fields, check if any field starts with the base field name and array index pattern
+              const baseFieldName = fieldName[0] as string;
+              const arrayLength =
+                form.getFieldInfo(baseFieldName as any).instance?.state.value
+                  ?.length || 0;
+              // Check all array indices for this field using regex pattern
+              for (let i = 0; i < arrayLength; i++) {
+                const pattern = new RegExp(`^${baseFieldName}\\[${i}\\]`);
+                const hasErrorInIndex = Object.keys(hasErrors.fields).some(
+                  (errorField) => pattern.test(errorField),
+                );
+                if (hasErrorInIndex) {
+                  return true;
+                }
+              }
+              return false;
+            } else {
+              // For regular fields, check if the field name exists in errors
+              return Object.keys(hasErrors.fields).includes(
+                fieldName as string,
+              );
+            }
+          });
+          return hasErrorsFields.length === 0;
+        },
+      });
+    const current = stepFormElements[currentStep];
+    const {
+      baseStore: {
+        state: { isSubmitting },
+      },
+    } = form;
+    return (
+      <div className="flex flex-col gap-2 pt-3">
+        <div className="flex flex-col items-center justify-start gap-1">
+          <span>
+            Step {currentStep} of {steps.length}
+          </span>
+          <Progress value={(currentStep / steps.length) * 100} />
+        </div>
+        <AnimatePresence mode="popLayout">
+          <motion.div
+            key={currentStep}
+            initial={{ opacity: 0, x: 15 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -15 }}
+            transition={{ duration: 0.4, type: "spring" }}
+            className="flex flex-col gap-2"
+          >
+            {current}
+          </motion.div>
+        </AnimatePresence>
+        <div className="flex items-center justify-between gap-3 w-full pt-3">
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={goToPrevious}
+            type="button"
+          >
+            Previous
+          </Button>
+          {isLastStep ? (
+            <Button size="sm" type="submit">
+              {isSubmitting ? "Submitting..." : "Submit"}
+            </Button>
+          ) : (
+            <Button
+              size="sm"
+              type="button"
+              variant={"secondary"}
+              onClick={goToNext}
+            >
+              Next
+            </Button>
+          )}
+        </div>
+      </div>
+    );
+  },
 });

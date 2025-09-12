@@ -1,9 +1,8 @@
 // apps/web/src/lib/form-elements-helpers.ts
 import type {
-	FormElement,
-	FormElementList,
-	FormElementOrList,
-	FormStep
+  FormElementList,
+  FormElementOrList,
+  FormStep,
 } from "../form-types";
 
 /**
@@ -14,7 +13,7 @@ import type {
  * @returns A new array with the element removed.
  */
 export const dropAtIndex = <T>(array: T[], index: number): T[] => {
-	return array.filter((_, i) => i !== index);
+  return array.filter((_, i) => i !== index);
 };
 
 /**
@@ -26,12 +25,12 @@ export const dropAtIndex = <T>(array: T[], index: number): T[] => {
  * @returns {(element: T) => T[]} A function that takes an element and returns a new list with the element inserted at the specified index.
  */
 export const insertAtIndex = <T>(list: T[], element: T, index: number) => [
-	// shallow copy from start to index (exclusive)
-	...list.slice(0, index),
-	// append the new element
-	element,
-	// shallow copy from index to end
-	...list.slice(index),
+  // shallow copy from start to index (exclusive)
+  ...list.slice(0, index),
+  // append the new element
+  element,
+  // shallow copy from index to end
+  ...list.slice(index),
 ];
 
 // export const dropElementAtNestedIndex = (
@@ -49,16 +48,16 @@ export const insertAtIndex = <T>(list: T[], element: T, index: number) => [
  * convert FormStep[] to FormElementOrList[]
  */
 export const flattenFormSteps = (array: FormStep[]): FormElementOrList[] =>
-	array.flatMap((step) => step.stepFields);
+  array.flatMap((step) => step.stepFields);
 
 /**
  * Converts an array of FormElementList objects into an array of FormStep objects.
  *
  */
 export const transformToStepFormList = (
-	formElementList: FormElementList,
+  formElementList: FormElementList,
 ): FormStep[] => {
-	return [{ id: "1", stepFields: formElementList }];
+  return [{ id: "1", stepFields: formElementList }];
 };
 
 export const getStepFields = (step: FormStep[]) => {
