@@ -172,11 +172,8 @@ const processFormElements = (
     }
 
     if (isFormArray(element)) {
-      // Use actual entry fields (with edited properties) instead of template
-      const actualFields =
-        element.entries && element.entries.length > 0
-          ? element.entries[0].fields
-          : element.arrayField;
+      // Use the template arrayField for schema generation
+      const actualFields = element.arrayField;
       const arrayItemSchema = processArrayFields(actualFields);
       const arraySchema = z.array(z.object(arrayItemSchema));
       schemaObject[sanitizeFieldName(element.name)] = arraySchema;
@@ -203,18 +200,17 @@ const processArrayFields = (
     if (isFormArray(field)) {
       // Handle nested arrays - for simplicity, we'll create a basic object schema
       // This can be extended if more complex nested array support is needed
-      // Use actual entry fields (with edited properties) instead of template
-      const actualFields =
-        field.entries && field.entries.length > 0
-          ? field.entries[0].fields
-          : field.arrayField;
+      // Use the template arrayField for schema generation
+      const actualFields = field.arrayField;
       const nestedSchema = processArrayFields(actualFields);
       const arraySchema = z.array(z.object(nestedSchema));
-      schemaObject[sanitizeFieldName(field.name)] = arraySchema;
+      const fieldName = field.name.split('.').pop() || field.name;
+      schemaObject[sanitizeFieldName(fieldName)] = arraySchema;
     } else if (isFormElement(field)) {
       if (isStatic(field.fieldType)) continue;
       const fieldSchema = generateFieldSchema(field);
-      schemaObject[sanitizeFieldName(field.name)] = fieldSchema;
+      const fieldName = field.name.split('.').pop() || field.name;
+      schemaObject[sanitizeFieldName(fieldName)] = fieldSchema;
     }
   }
 

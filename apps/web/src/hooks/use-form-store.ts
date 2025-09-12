@@ -223,41 +223,144 @@ const syncEntriesForFormArray = (formArray: FormArray): FormArrayEntry[] => {
                 const existingNested = (entry.fields[index] as any)[
                   nestedIndex
                 ];
-                if (
-                  existingNested &&
-                  existingNested.fieldType === nestedTemplate.fieldType
-                ) {
-                  // Keep existing data but update structure
-                  return {
-                    ...nestedTemplate,
-                    id: existingNested.id,
-                    name: `${formArray.name.replace(/-/g, "_")}[${entryIndex}].${nestedTemplate.name.replace(/-/g, "_")}`,
-                    // Preserve user data where possible
-                    ...(existingNested &&
-                    typeof existingNested === "object" &&
-                    "value" in existingNested
-                      ? { value: existingNested.value }
-                      : {}),
-                  };
+                if (Array.isArray(nestedTemplate)) {
+                  // nestedTemplate is FormElement[]
+                  if (Array.isArray(existingNested)) {
+                    // Both are arrays, sync them
+                    return nestedTemplate.map(
+                      (deepTemplate: any, deepIndex: number) => {
+                        const existingDeep = existingNested[deepIndex];
+                        if (
+                          existingDeep &&
+                          existingDeep.fieldType === deepTemplate.fieldType
+                        ) {
+                          const { id, name, ...existingAttrs } = existingDeep;
+                          return {
+                            ...deepTemplate,
+                            ...existingAttrs,
+                            id: existingDeep.id,
+                            name: `${formArray.name.replace(/-/g, "_")}[${entryIndex}].${deepTemplate.name.replace(/-/g, "_")}`,
+                          };
+                        } else {
+                          return {
+                            ...deepTemplate,
+                            id: uuid(),
+                            name: `${formArray.name.replace(/-/g, "_")}[${entryIndex}].${deepTemplate.name.replace(/-/g, "_")}`,
+                          };
+                        }
+                      },
+                    );
+                  } else {
+                    // Template is array but existing is not, create new
+                    if (
+                      existingNested &&
+                      !Array.isArray(existingNested) &&
+                      nestedTemplate[0] &&
+                      nestedTemplate[0].fieldType === existingNested.fieldType
+                    ) {
+                      const { id, name, ...existingAttrs } = existingNested;
+                      const firstElement = {
+                        ...nestedTemplate[0],
+                        ...existingAttrs,
+                        id: existingNested.id,
+                        name: `${formArray.name.replace(/-/g, "_")}[${entryIndex}].${nestedTemplate[0].name.replace(/-/g, "_")}`,
+                      };
+                      return [
+                        firstElement,
+                        ...nestedTemplate.slice(1).map((deepTemplate: any) => ({
+                          ...deepTemplate,
+                          id: uuid(),
+                          name: `${formArray.name.replace(/-/g, "_")}[${entryIndex}].${deepTemplate.name.replace(/-/g, "_")}`,
+                        })),
+                      ];
+                    } else {
+                      return nestedTemplate.map((deepTemplate: any) => ({
+                        ...deepTemplate,
+                        id: uuid(),
+                        name: `${formArray.name.replace(/-/g, "_")}[${entryIndex}].${deepTemplate.name.replace(/-/g, "_")}`,
+                      }));
+                    }
+                  }
                 } else {
-                  // Create new nested field
-                  return {
-                    ...nestedTemplate,
-                    id: uuid(),
-                    name: `${formArray.name.replace(/-/g, "_")}[${entryIndex}].${nestedTemplate.name.replace(/-/g, "_")}`,
-                  };
+                  // nestedTemplate is FormElement
+                  if (
+                    existingNested &&
+                    !Array.isArray(existingNested) &&
+                    existingNested.fieldType === nestedTemplate.fieldType
+                  ) {
+                    const { id, name, ...existingAttrs } = existingNested;
+                    return {
+                      ...nestedTemplate,
+                      ...existingAttrs,
+                      id: existingNested.id,
+                      name: `${formArray.name.replace(/-/g, "_")}[${entryIndex}].${nestedTemplate.name.replace(/-/g, "_")}`,
+                    };
+                  } else {
+                    return {
+                      ...nestedTemplate,
+                      id: uuid(),
+                      name: `${formArray.name.replace(/-/g, "_")}[${entryIndex}].${nestedTemplate.name.replace(/-/g, "_")}`,
+                    };
+                  }
                 }
               },
             );
           } else {
             // Template is array but existing is not, create new nested array
-            return templateField.map(
-              (nestedTemplate: any, nestedIndex: number) => ({
-                ...nestedTemplate,
-                id: uuid(),
-                name: `${formArray.name.replace(/-/g, "_")}[${entryIndex}].${nestedTemplate.name.replace(/-/g, "_")}`,
-              }),
-            );
+            const existing = entry.fields[index];
+            if (
+              existing &&
+              !Array.isArray(existing) &&
+              templateField[0] &&
+              !Array.isArray(templateField[0]) &&
+              templateField[0].fieldType === existing.fieldType
+            ) {
+              const { id, name, ...existingAttrs } = existing;
+              const firstElement = {
+                ...templateField[0],
+                ...existingAttrs,
+                id: existing.id,
+                name: `${formArray.name.replace(/-/g, "_")}[${entryIndex}].${templateField[0].name.replace(/-/g, "_")}`,
+              };
+              return [
+                firstElement,
+                ...templateField
+                  .slice(1)
+                  .map((nestedTemplate: any, nestedIndex: number) => {
+                    if (Array.isArray(nestedTemplate)) {
+                      return nestedTemplate.map((deepTemplate: any) => ({
+                        ...deepTemplate,
+                        id: uuid(),
+                        name: `${formArray.name.replace(/-/g, "_")}[${entryIndex}].${deepTemplate.name.replace(/-/g, "_")}`,
+                      }));
+                    } else {
+                      return {
+                        ...nestedTemplate,
+                        id: uuid(),
+                        name: `${formArray.name.replace(/-/g, "_")}[${entryIndex}].${nestedTemplate.name.replace(/-/g, "_")}`,
+                      };
+                    }
+                  }),
+              ];
+            } else {
+              return templateField.map(
+                (nestedTemplate: any, nestedIndex: number) => {
+                  if (Array.isArray(nestedTemplate)) {
+                    return nestedTemplate.map((deepTemplate: any) => ({
+                      ...deepTemplate,
+                      id: uuid(),
+                      name: `${formArray.name.replace(/-/g, "_")}[${entryIndex}].${deepTemplate.name.replace(/-/g, "_")}`,
+                    }));
+                  } else {
+                    return {
+                      ...nestedTemplate,
+                      id: uuid(),
+                      name: `${formArray.name.replace(/-/g, "_")}[${entryIndex}].${nestedTemplate.name.replace(/-/g, "_")}`,
+                    };
+                  }
+                },
+              );
+            }
           }
         } else {
           // Handle single fields
@@ -267,16 +370,13 @@ const syncEntriesForFormArray = (formArray: FormArray): FormArrayEntry[] => {
             (entry.fields[index] as any).fieldType === templateField.fieldType
           ) {
             // Keep existing data but update structure
+            const existing = entry.fields[index] as any;
+            const { id, name, ...existingAttrs } = existing;
             return {
               ...templateField,
-              id: (entry.fields[index] as any).id,
+              ...existingAttrs,
+              id: existing.id,
               name: `${formArray.name.replace(/-/g, "_")}[${entryIndex}].${templateField.name.replace(/-/g, "_")}`,
-              // Preserve user data where possible
-              ...((entry.fields[index] as any) &&
-              typeof (entry.fields[index] as any) === "object" &&
-              "value" in (entry.fields[index] as any)
-                ? { value: (entry.fields[index] as any).value }
-                : {}),
             };
           } else {
             // Create new field based on template
@@ -1156,36 +1256,34 @@ const createActions = (
             ) {
               let updatedElement = { ...el };
 
-              // Update template if requested
-              if (updateTemplate) {
-                let updatedArrayField = [...el.arrayField];
-                if (nestedIndex !== undefined) {
-                  // Update nested field in template
-                  const currentField = updatedArrayField[fieldIndex];
-                  if (Array.isArray(currentField)) {
-                    const updatedNested = currentField.map(
-                      (nestedField: any, j: number) =>
-                        j === nestedIndex
-                          ? { ...nestedField, ...updatedField }
-                          : nestedField,
-                    );
-                    updatedArrayField[fieldIndex] = updatedNested;
-                  } else {
-                    // If not array, treat as single field update
-                    updatedArrayField[fieldIndex] = {
-                      ...currentField,
-                      ...updatedField,
-                    };
-                  }
+              // Always update template for property changes
+              let updatedArrayField = [...el.arrayField];
+              if (nestedIndex !== undefined) {
+                // Update nested field in template
+                const currentField = updatedArrayField[fieldIndex];
+                if (Array.isArray(currentField)) {
+                  const updatedNested = currentField.map(
+                    (nestedField: any, j: number) =>
+                      j === nestedIndex
+                        ? { ...nestedField, ...updatedField }
+                        : nestedField,
+                  );
+                  updatedArrayField[fieldIndex] = updatedNested;
                 } else {
-                  // Update top-level field in template
+                  // If not array, treat as single field update
                   updatedArrayField[fieldIndex] = {
-                    ...updatedArrayField[fieldIndex],
+                    ...currentField,
                     ...updatedField,
                   };
                 }
-                updatedElement.arrayField = updatedArrayField;
+              } else {
+                // Update top-level field in template
+                updatedArrayField[fieldIndex] = {
+                  ...updatedArrayField[fieldIndex],
+                  ...updatedField,
+                };
               }
+              updatedElement.arrayField = updatedArrayField;
 
               // Always update entries
               const updatedEntries = el.entries.map((entry: any) => {
@@ -1812,7 +1910,6 @@ export const useFormStepsShallow = () =>
     state.isMS ? (state.formElements as FormStep[]) : [],
   );
 // Example usage documentation
-
 /*Usage Examples:
   1. Basic usage:   const { isMS, formElements, actions, computed } = useFormBuilderStoreTanStack();
   2. Performance - optimized with selectors: const formElements = useFormElementsOnly(); const isMultiStep = useIsMultiStep();

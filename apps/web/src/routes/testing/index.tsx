@@ -5,6 +5,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
+import { Separator } from "@/components/ui/separator";
 import { useAppForm, withForm } from "@/components/ui/tanstack-form";
 import { Textarea } from "@/components/ui/textarea";
 import { useMultiStepForm } from "@/hooks/use-multi-step-form";
@@ -40,8 +41,6 @@ export const formSchema = z.object({
     }),
   ),
 });
-
-
 
 // export const formSchema = z.object({
 //  name: z.string().min(1, "This field is required"),

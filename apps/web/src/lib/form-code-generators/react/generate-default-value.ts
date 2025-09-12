@@ -59,12 +59,8 @@ const FORM_ELEMENT_DEFAULTS: Record<
 const FORM_ARRAY_DEFAULTS: Record<string, (field: FormArray) => DefaultValue> =
   {
     FormArray: (field: FormArray) => {
-      // Use actual entry fields (with edited properties) instead of template
-      const actualFields =
-        field.entries && field.entries.length > 0
-          ? field.entries[0].fields
-          : field.arrayField;
-      const defaultEntry = processFormElements(actualFields);
+      // Use the template arrayField for defaults, not runtime entries
+      const defaultEntry = processFormElements(field.arrayField as FormElementOrList[]);
       return [defaultEntry];
     },
   };
@@ -72,7 +68,7 @@ const FORM_ARRAY_DEFAULTS: Record<string, (field: FormArray) => DefaultValue> =
 /**
  * Gets the appropriate default value for a form field based on its type
  */
-const getFieldDefaultValue = (
+export const getFieldDefaultValue = (
   field: FormElement | FormArray,
 ): DefaultValue | undefined => {
   if ("static" in field && field.static) {
@@ -98,6 +94,13 @@ const isStaticElement = (element: FormElement): boolean => {
 };
 
 /**
+ * Type guard to check if an element is a FormElement (not an array)
+ */
+const isFormElement = (element: FormElementOrList): element is FormElement => {
+  return !Array.isArray(element);
+};
+
+/**
  * Sanitizes field names by replacing hyphens with underscores
  */
 const sanitizeFieldName = (name: string): string => {
@@ -116,10 +119,13 @@ export const processFormElements = (
     if (Array.isArray(element)) {
       // Handle nested array of elements
       element.forEach((nestedElement) => {
-        if (!isStaticElement(nestedElement) && nestedElement.name) {
-          const defaultValue = getFieldDefaultValue(nestedElement);
-          if (defaultValue !== undefined) {
-            defaults[sanitizeFieldName(nestedElement.name)] = defaultValue;
+        if (isFormElement(nestedElement)) {
+          if (!isStaticElement(nestedElement) && nestedElement.name) {
+            const defaultValue = getFieldDefaultValue(nestedElement);
+            if (defaultValue !== undefined) {
+              const fieldName = nestedElement.name.split('.').pop() || nestedElement.name;
+              defaults[sanitizeFieldName(fieldName)] = defaultValue;
+            }
           }
         }
       });
@@ -128,7 +134,8 @@ export const processFormElements = (
       if (!isStaticElement(element) && element.name) {
         const defaultValue = getFieldDefaultValue(element);
         if (defaultValue !== undefined) {
-          defaults[element.name] = defaultValue;
+          const fieldName = element.name.split('.').pop() || element.name;
+          defaults[fieldName] = defaultValue;
         }
       }
     }
@@ -252,11 +259,13 @@ export const getDefaultFormElement = (
           }
         } else {
           // Handle regular FormElement
-          const formElement = nestedElement as FormElement;
-          if (!isStaticElement(formElement) && formElement.name) {
-            const defaultValue = getFieldDefaultValue(formElement);
-            if (defaultValue !== undefined) {
-              defaults[sanitizeFieldName(formElement.name)] = defaultValue;
+          if (!Array.isArray(nestedElement)) {
+            const formElement = nestedElement as FormElement;
+            if (!isStaticElement(formElement) && formElement.name) {
+              const defaultValue = getFieldDefaultValue(formElement);
+              if (defaultValue !== undefined) {
+                defaults[sanitizeFieldName(formElement.name)] = defaultValue;
+              }
             }
           }
         }

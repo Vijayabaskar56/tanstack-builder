@@ -6,13 +6,18 @@ import type {
   FormStep,
 } from "@/form-types";
 import {
-  getDefaultValuesString,
-  objectToLiteralString,
-  processFormElements,
+	getDefaultValuesString,
+	objectToLiteralString,
+	processFormElements,
+	getFieldDefaultValue,
 } from "@/lib/form-code-generators/react/generate-default-value";
 import { getFormElementCode } from "@/lib/form-code-generators/react/generate-form-component";
 import { generateImports } from "@/lib/form-code-generators/react/generate-imports";
 import { flattenFormSteps, getStepFields } from "@/lib/form-elements-helpers";
+
+const isStaticElement = (element: FormElement): boolean => {
+	return "static" in element && element.static === true;
+};
 
 const modifyElement = (
   el: FormElementOrList,
@@ -37,15 +42,9 @@ const renderFields = (fields: (FormElementOrList | FormArray)[]): string => {
       if (FormElement.fieldType === "FormArray") {
         const formArray = FormElement as FormArray;
 
-        // Use the first entry's fields (which contain edited properties) instead of the template
-        const actualFields =
-          formArray.entries && formArray.entries.length > 0
-            ? formArray.entries[0].fields
-            : formArray.arrayField;
-
-        const defaultEntry = processFormElements(
-          actualFields as FormElementOrList[],
-        );
+        // Use the template arrayField for pushValue, not runtime entries
+        const actualFields = formArray.arrayField;
+        const defaultEntry = processFormElements(actualFields as FormElementOrList[]);
         const pushValueStr = objectToLiteralString(defaultEntry);
         return (
           "{form.Field({\n" +

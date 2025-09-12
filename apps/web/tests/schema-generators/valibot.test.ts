@@ -14,7 +14,7 @@ describe("Valibot Schema Generator - FormArray Support", () => {
 					{
 						fieldType: "Input" as const,
 						id: "name-field",
-						name: "name",
+						name: "users[0].name",
 						label: "Name",
 						required: true,
 						type: "text",
@@ -22,7 +22,7 @@ describe("Valibot Schema Generator - FormArray Support", () => {
 					{
 						fieldType: "Input" as const,
 						id: "email-field",
-						name: "email",
+						name: "users[0].email",
 						label: "Email",
 						required: true,
 						type: "email",
@@ -52,7 +52,7 @@ describe("Valibot Schema Generator - FormArray Support", () => {
 					{
 						fieldType: "Input" as const,
 						id: "name",
-						name: "name",
+						name: "items[0].name",
 						label: "Name",
 						required: true,
 						type: "text",
@@ -60,14 +60,14 @@ describe("Valibot Schema Generator - FormArray Support", () => {
 					{
 						fieldType: "Checkbox" as const,
 						id: "active",
-						name: "active",
+						name: "items[0].active",
 						label: "Active",
 						required: false,
 					},
 					{
 						fieldType: "Select" as const,
 						id: "role",
-						name: "role",
+						name: "items[0].role",
 						label: "Role",
 						required: true,
 						placeholder: "Select role",
@@ -108,7 +108,7 @@ describe("Valibot Schema Generator - FormArray Support", () => {
 					{
 						fieldType: "Input" as const,
 						id: "user-name",
-						name: "name",
+						name: "users[0].name",
 						label: "Name",
 						required: true,
 						type: "text",

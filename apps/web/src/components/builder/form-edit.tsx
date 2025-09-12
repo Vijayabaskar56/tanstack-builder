@@ -320,7 +320,9 @@ const FormElementEditor = ({
     listeners: {
       onChangeDebounceMs: 500,
       onChange: ({ formApi }) => {
+        console.log('Form element changed:', formApi.baseStore.state.values);
         if (isFormArrayField && arrayId) {
+          console.log('Updating FormArray field:', arrayId, fieldIndex, formApi.baseStore.state.values);
           // Use updateTemplate: false for property-only updates
           actions.updateFormArrayField(
             arrayId,
@@ -330,6 +332,7 @@ const FormElementEditor = ({
             false,
           );
         } else {
+          console.log('Updating form element:', fieldIndex, formApi.baseStore.state.values);
           actions.editElement({
             fieldIndex: fieldIndex,
             modifiedFormElement: formApi.baseStore.state.values,

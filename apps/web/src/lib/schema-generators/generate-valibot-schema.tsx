@@ -27,11 +27,8 @@ export const generateValiSchemaObject = (
   const addType = (element: FormElement | FormArray): void => {
     if (isFormArray(element)) {
       // Handle FormArray
-      // Use actual entry fields (with edited properties) instead of template
-      const actualFields =
-        element.entries && element.entries.length > 0
-          ? element.entries[0].fields
-          : element.arrayField;
+      // Use the template arrayField for schema generation
+      const actualFields = element.arrayField;
       const arraySchema = generateValiSchemaObject(
         actualFields as FormElement[],
       );
@@ -140,7 +137,8 @@ export const generateValiSchemaObject = (
     if (!("required" in element) || element.required !== true) {
       elementSchema = v.optional(elementSchema);
     }
-    schemaObject[element.name] = elementSchema;
+    const fieldName = element.name.split('.').pop() || element.name;
+    schemaObject[fieldName] = elementSchema;
   };
 
   // Process all elements, handling both arrays and single elements
@@ -290,11 +288,8 @@ export const getValiSchemaStringDirect = (
       .map((element) => {
         if (isFormArray(element)) {
           // Handle FormArray
-          // Use actual entry fields (with edited properties) instead of template
-          const actualFields =
-            element.entries && element.entries.length > 0
-              ? element.entries[0].fields
-              : element.arrayField;
+          // Use the template arrayField for schema generation
+          const actualFields = element.arrayField;
           const arrayFieldSchemas = processElements(
             actualFields as FormElement[],
           );
@@ -398,9 +393,12 @@ export const getValiSchemaStringDirect = (
           typeDefinition = `v.optional(${typeDefinition})`;
         }
 
+        // Strip prefix from field name
+        const fieldName = element.name.split('.').pop() || element.name;
+
         // Quote keys that need it (contain spaces or start with number)
-        const needsQuotes = /\s/.test(element.name) || /^\d/.test(element.name);
-        const quotedKey = needsQuotes ? `"${element.name}"` : element.name;
+        const needsQuotes = /\s/.test(fieldName) || /^\d/.test(fieldName);
+        const quotedKey = needsQuotes ? `"${fieldName}"` : fieldName;
         return `  ${quotedKey}: ${typeDefinition}`;
       });
   };
