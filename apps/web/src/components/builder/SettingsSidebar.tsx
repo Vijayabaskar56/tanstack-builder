@@ -1,6 +1,3 @@
-import { Eye, Hash, Shield } from "lucide-react";
-import { useId } from "react";
-import * as z from "zod";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -9,6 +6,9 @@ import { Switch } from "@/components/ui/switch";
 import { useAppForm } from "@/components/ui/tanstack-form";
 import { settingsCollection } from "@/db-collections";
 import useSettings from "@/hooks/use-settings";
+import { Eye, Shield } from "lucide-react";
+import { useId } from "react";
+import * as z from "zod";
 import { Separator } from "../ui/separator";
 
 // Zod schema for settings validation
