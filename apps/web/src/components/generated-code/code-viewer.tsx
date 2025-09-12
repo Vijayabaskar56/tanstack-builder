@@ -18,6 +18,7 @@ import { getArkTypeSchemaString } from "@/lib/schema-generators/generate-arktype
 import { getValiSchemaString } from "@/lib/schema-generators/generate-valibot-schema";
 import { getZodSchemaString } from "@/lib/schema-generators/generate-zod-schema";
 import { formatCode } from "@/lib/utils";
+import { useEffect } from "react";
 
 const Wrapper = ({
   children,
@@ -235,6 +236,11 @@ const CodeBlockTSX = () => {
   const { formElements, validationSchema } = useFormStore();
   const isMS = useIsMultiStep();
   const settings = useSettings();
+
+  useEffect(() => {
+    console.log('Form elements changed, regenerating TSX code:', formElements);
+  }, [formElements]);
+
   const generatedCode = generateFormCode({
     formElements: formElements as FormElementOrList[],
     isMS,
@@ -248,7 +254,7 @@ const CodeBlockTSX = () => {
   return (
     <div className="relative max-w-full flex flex-col gap-y-5">
       {formattedCode.map((item) => (
-        <Wrapper key={item.file} title={item.file} language="tsx">
+        <Wrapper key={item.code} title={item.file} language="tsx">
           {item.code}
         </Wrapper>
       ))}
@@ -258,6 +264,10 @@ const CodeBlockTSX = () => {
 const CodeBlockSchema = () => {
   const { formElements, validationSchema } = useFormStore();
   const isMS = useIsMultiStep();
+
+  useEffect(() => {
+    console.log('Form elements changed, regenerating schema code:', formElements);
+  }, [formElements]);
   const parsedFormElements = isMS
     ? flattenFormSteps(formElements as FormStep[])
     : formElements.flat();
