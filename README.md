@@ -71,9 +71,3 @@ This project was started as a fork of [formcn.dev](https://formcn.dev) and is in
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-
-TODO
-- [] Update the Settings
-- [] Fix the Default Value bug
-- [] Create a new Registery for Forms

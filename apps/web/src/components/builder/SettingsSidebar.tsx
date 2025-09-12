@@ -84,12 +84,12 @@ export function SettingsSidebar() {
           </div>
 
           <ScrollArea className="h-[calc(35vh-8rem)]  md:h-[45rem]">
-            <div className="p-3 sm:p-4 space-y-4 sm:space-y-6">
+            <div className=" space-y-4 sm:space-y-6">
               <div>
                 <div className="space-y-3">
                   <form.AppField name="defaultRequiredValidation" mode="value">
                     {(field) => (
-                      <div className="flex items-center justify-between p-3 border rounded-lg">
+                      <div className="flex items-center justify-between p-3 border-b mx-2">
                         <div className="flex items-center gap-2">
                           <Shield className="w-4 h-4 text-muted-foreground" />
                           <Label
@@ -111,26 +111,41 @@ export function SettingsSidebar() {
 
                   <form.AppField name="focusOnError" mode="value">
                     {(field) => (
-                      <div className="flex items-center justify-between p-3 border rounded-lg">
-                        <div className="flex items-center gap-2">
-                          <Eye className="w-4 h-4 text-muted-foreground" />
-                          <Label htmlFor={focusOnErrorId} className="text-sm">
-                            Focus on Error Fields
-                          </Label>
+                      <div className=" border-b mx-2">
+                        <div className="flex items-center justify-between p-3">
+                          <div className="flex items-center gap-2">
+                            <Eye className="w-4 h-4 text-muted-foreground" />
+                            <Label htmlFor={focusOnErrorId} className="text-sm">
+                              Focus on Error Fields
+                            </Label>
+                          </div>
+                          <Switch
+                            id={focusOnErrorId}
+                            checked={field.state.value}
+                            onCheckedChange={field.handleChange}
+                            className="data-[state=unchecked]:border-input data-[state=unchecked]:[&_span]:bg-input data-[state=unchecked]:bg-transparent [&_span]:transition-all data-[state=unchecked]:[&_span]:size-4 data-[state=unchecked]:[&_span]:translate-x-0.5 data-[state=unchecked]:[&_span]:shadow-none data-[state=unchecked]:[&_span]:rtl:-translate-x-0.5"
+                          />
                         </div>
-                        <Switch
-                          id={focusOnErrorId}
-                          checked={field.state.value}
-                          onCheckedChange={field.handleChange}
-                          className="data-[state=unchecked]:border-input data-[state=unchecked]:[&_span]:bg-input data-[state=unchecked]:bg-transparent [&_span]:transition-all data-[state=unchecked]:[&_span]:size-4 data-[state=unchecked]:[&_span]:translate-x-0.5 data-[state=unchecked]:[&_span]:shadow-none data-[state=unchecked]:[&_span]:rtl:-translate-x-0.5"
-                        />
+                        <Separator className="my-2" />
+                        <field.FormDescription className="pb-2">
+                          Focus The First Input on Error,For More Info Check The
+                          Docs:{" "}
+                          <a
+                            className="text-primary"
+                            href="https://tanstack.com/form/latest/docs/framework/react/guides/focus-management"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            Focus Management
+                          </a>
+                        </field.FormDescription>
                       </div>
                     )}
                   </form.AppField>
 
-                  <form.AppField name="numericInput" mode="value">
+                  {/*<form.AppField name="numericInput" mode="value">
                     {(field) => (
-                      <div className="flex items-center justify-between p-3 border rounded-lg">
+                      <div className="flex items-center justify-between p-3 border-b mx-2">
                         <div className="flex items-center gap-2">
                           <Hash className="w-4 h-4 text-muted-foreground" />
                           <Label htmlFor={numericInputId} className="text-sm">
@@ -145,11 +160,11 @@ export function SettingsSidebar() {
                         />
                       </div>
                     )}
-                  </form.AppField>
+                  </form.AppField>*/}
 
                   <form.AppField name="validationMethod" mode="value">
                     {(field) => (
-                      <div className="p-3 border rounded-lg">
+                      <div className="p-3 border-b mx-2">
                         <Label
                           htmlFor={validationMethodId}
                           className="text-sm font-medium mb-3 block"
@@ -205,11 +220,11 @@ export function SettingsSidebar() {
                           Check The Docs:{" "}
                           <a
                             className="text-primary"
-                            href="https://tanstack.com/form/latest/docs/framework/react/api/use-form#preferredframework"
+                            href="https://tanstack.com/form/latest/docs/framework/react/guides/dynamic-validation"
                             target="_blank"
                             rel="noopener noreferrer"
                           >
-                            Tanstack Form
+                            Dynamic Validation
                           </a>
                         </field.FormDescription>
                         <field.FormMessage />
@@ -219,7 +234,7 @@ export function SettingsSidebar() {
 
                   <form.AppField name="asyncValidation" mode="value">
                     {(field) => (
-                      <div className="p-3 border rounded-lg">
+                      <div className="p-3 border-b mx-2">
                         <Label
                           htmlFor={asyncValidationId}
                           className="text-sm font-medium mb-3 block"
@@ -245,25 +260,24 @@ export function SettingsSidebar() {
                         </div>
                         <Separator className="my-2" />
                         <field.FormDescription>
-                          Debounce Delay for Validation, For More Info Check The
-                          Docs:{" "}
+                          Validation Method For Form Generation, For More Info
+                          Check The Docs:{" "}
                           <a
                             className="text-primary"
-                            href="https://tanstack.com/form/latest/docs/framework/react/api/use-form#onchange"
+                            href="https://tanstack.com/form/latest/docs/framework/react/guides/validation#asynchronous-functional-validation"
                             target="_blank"
                             rel="noopener noreferrer"
                           >
-                            Tanstack Form
+                            Form Validation
                           </a>
                         </field.FormDescription>
-                        <field.FormMessage />
                       </div>
                     )}
                   </form.AppField>
 
                   <form.AppField name="preferredSchema" mode="value">
                     {(field) => (
-                      <div className="p-3 border rounded-lg">
+                      <div className="p-3 border-b mx-2">
                         <Label
                           htmlFor={preferredSchemaId}
                           className="text-sm font-medium mb-3 block"
@@ -313,19 +327,6 @@ export function SettingsSidebar() {
                             </Badge>
                           ))}
                         </div>
-                        <Separator className="my-2" />
-                        <field.FormDescription>
-                          Preferred Schema for Form Generation, For More Info
-                          Check The Docs:{" "}
-                          <a
-                            className="text-primary"
-                            href="https://tanstack.com/form/latest/docs/framework/react/api/use-form#preferredschema"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            Tanstack Form
-                          </a>
-                        </field.FormDescription>
                         <field.FormMessage />
                       </div>
                     )}
@@ -333,7 +334,7 @@ export function SettingsSidebar() {
 
                   <form.AppField name="preferredFramework" mode="value">
                     {(field) => (
-                      <div className="p-3 border rounded-lg">
+                      <div className="p-3 border-b mx-2">
                         <Label
                           htmlFor={preferredFrameworkId}
                           className="text-sm font-medium mb-3 block"
@@ -384,6 +385,20 @@ export function SettingsSidebar() {
                             </Badge>
                           ))}
                         </div>
+                        <Separator className="my-2" />
+                        <field.FormDescription>
+                          Although Form Builder Helps You Build Forms Quickly,
+                          It's Important to understand the basic concepts of Tan
+                          Stack Form. So Check Out The Docs:{" "}
+                          <a
+                            className="text-primary"
+                            href="https://tanstack.com/form/latest/docs/overview"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            Tan Stack Form
+                          </a>
+                        </field.FormDescription>
                         <field.FormMessage />
                       </div>
                     )}
