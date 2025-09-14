@@ -11,7 +11,7 @@ import {
 } from '@tanstack/react-table'
 import { compareItems, rankItem } from '@tanstack/match-sorter-utils'
 
-import { makeData } from '../data/demo-table-data'
+import { makeData } from '@/constants/demo-table-data'
 
 import type {
   Column,
@@ -22,7 +22,7 @@ import type {
 } from '@tanstack/react-table'
 import type { RankingInfo } from '@tanstack/match-sorter-utils'
 
-import type { Person } from '../data/demo-table-data'
+import type { Person } from '@/constants/demo-table-data'
 
 export const Route = createFileRoute('/orpc/demo/table')({
   component: TableDemo,
