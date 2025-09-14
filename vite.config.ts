@@ -16,7 +16,21 @@ const config = defineConfig({
       customViteReactPlugin: true,
     }),
     viteReact(),
-    devtools(),
+    devtools({
+     enhancedLogs : {
+      enabled : true,
+     },
+     editor : {
+      name: 'VSCode',
+       open: async (path, lineNumber, columnNumber) => {
+         const { exec } = await import('node:child_process')
+         exec(
+           // or windsurf/cursor/webstorm
+           `code -g "${(path).replaceAll('$', '\\$')}${lineNumber ? `:${lineNumber}` : ''}${columnNumber ? `:${columnNumber}` : ''}"`,
+         )
+       },
+     }
+    }),
   ],
 });
 
