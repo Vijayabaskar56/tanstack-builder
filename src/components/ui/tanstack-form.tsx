@@ -1,4 +1,4 @@
-import { Slot } from "@radix-ui/react-slot";
+
 import {
 	createFormHook,
 	createFormHookContexts,
@@ -9,6 +9,7 @@ import * as React from "react";
 import { Button, type buttonVariants } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { Slot } from "@radix-ui/react-slot";
 
 const {
 	fieldContext,
@@ -187,7 +188,7 @@ function StepButton({
 }: React.ComponentProps<"button"> &
 	VariantProps<typeof buttonVariants> & {
 		label: string;
-		handleMovement: () => Promise<boolean> | void;
+		handleMovement: () => Promise<boolean>;
 	}) {
 	return (
 		<Button size="sm" variant="ghost" type="button" onClick={handleMovement}>
