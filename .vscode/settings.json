@@ -1,6 +1,6 @@
 {
- "biome.lsp.bin": "/home/vijay/.local/share/mise/installs/biome/2.2.0/biome",
- "debug.javascript.defaultRuntimeExecutable": {
-  "pwa-node": "/home/vijay/.local/share/mise/shims/node"
- }
+  "biome.lsp.bin": "/home/vijay/.local/share/mise/installs/biome/2.2.0/biome",
+  "debug.javascript.defaultRuntimeExecutable": {
+    "pwa-node": "/home/vijay/.local/share/mise/shims/node"
+  }
 }
