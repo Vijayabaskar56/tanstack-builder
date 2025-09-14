@@ -16,6 +16,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { useCallback } from "react";
 import { toast } from "sonner";
 import * as z from "zod";
+import { validateField, hasFieldErrors } from "@/lib/form-validation-helpers";
 export const Route = createFileRoute("/testing/")({
   component: DraftForm,
   beforeLoad: () => {
@@ -544,61 +545,35 @@ const MultiStepViewer = withForm({
         </div>
       ),
     };
-    const stepFields: Record<number, Array<string | string[]>> = {
-      0: ["message", ["formArray_1757573667464"]],
+    const stepFields: StepFields = {
+      0: ["name", "email", "message", ["formArray_1757573667464"]],
       1: [["formArray_1757573695722"]],
     };
     const steps = Object.keys(stepFormElements).map(Number);
+    // Type definitions for step fields
+    type StepFields = Record<number, (string | string[])[]>;
+
+    // Use shared validation helpers
+
     const { currentStep, isLastStep, goToNext, goToPrevious } =
       useMultiStepForm({
-        initialSteps: stepFields,
+        initialSteps: stepFields as Record<number, string[]>,
         onStepValidation: async (currentStepData) => {
-          const validationPromises = currentStepData.map((fieldName) => {
-            return form.validateField(fieldName as any, "submit");
-          });
-          let validationArrayPromises: Promise<unknown[]>[] = [];
-          for (const fieldName of currentStepData) {
-            if (Array.isArray(fieldName)) {
-              validationArrayPromises.push(
-                form.validateArrayFieldsStartingFrom(
-                  fieldName[0] as any,
-                  form.getFieldInfo(fieldName[0] as any).instance?.state.value
-                    .length,
-                  "submit",
-                ),
-              );
-            }
-          }
+          // Validate all fields in the current step
+          const validationPromises = currentStepData.map((fieldName) =>
+            validateField(form, fieldName),
+          );
           await Promise.all(validationPromises);
-          await Promise.all(validationArrayPromises);
-          const hasErrors = form.getAllErrors();
-          // ? This is Necessary if , not when move previous and try to move next , will not work otherwise , cause other step fields have errors
-          const hasErrorsFields = currentStepData.filter((fieldName) => {
-            if (Array.isArray(fieldName)) {
-              // For array fields, check if any field starts with the base field name and array index pattern
-              const baseFieldName = fieldName[0] as string;
-              const arrayLength =
-                form.getFieldInfo(baseFieldName as any).instance?.state.value
-                  ?.length || 0;
-              // Check all array indices for this field using regex pattern
-              for (let i = 0; i < arrayLength; i++) {
-                const pattern = new RegExp(`^${baseFieldName}\\[${i}\\]`);
-                const hasErrorInIndex = Object.keys(hasErrors.fields).some(
-                  (errorField) => pattern.test(errorField),
-                );
-                if (hasErrorInIndex) {
-                  return true;
-                }
-              }
-              return false;
-            } else {
-              // For regular fields, check if the field name exists in errors
-              return Object.keys(hasErrors.fields).includes(
-                fieldName as string,
-              );
-            }
-          });
-          return hasErrorsFields.length === 0;
+
+          // Check if any fields have errors (necessary for step navigation)
+          const allErrors = form.getAllErrors();
+          const fieldsWithErrors = currentStepData.filter((fieldName) =>
+            hasFieldErrors(form, fieldName, allErrors),
+          );
+          console.log("🚀 ~ fieldsWithErrors:", fieldsWithErrors);
+          console.log("🚀 ~ allErrors:", allErrors);
+
+          return fieldsWithErrors.length === 0;
         },
       });
     const current = stepFormElements[currentStep];

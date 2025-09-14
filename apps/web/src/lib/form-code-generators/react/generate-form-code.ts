@@ -6,18 +6,13 @@ import type {
   FormStep,
 } from "@/form-types";
 import {
-	getDefaultValuesString,
-	objectToLiteralString,
-	processFormElements,
-	getFieldDefaultValue,
+  getDefaultValuesString,
+  objectToLiteralString,
+  processFormElements,
 } from "@/lib/form-code-generators/react/generate-default-value";
 import { getFormElementCode } from "@/lib/form-code-generators/react/generate-form-component";
 import { generateImports } from "@/lib/form-code-generators/react/generate-imports";
 import { flattenFormSteps, getStepFields } from "@/lib/form-elements-helpers";
-
-const isStaticElement = (element: FormElement): boolean => {
-	return "static" in element && element.static === true;
-};
 
 const modifyElement = (
   el: FormElementOrList,
@@ -32,7 +27,7 @@ const modifyElement = (
 
 const renderFields = (fields: (FormElementOrList | FormArray)[]): string => {
   return fields
-    .map((FormElement, i) => {
+    .map((FormElement) => {
       if (Array.isArray(FormElement)) {
         return `
           <div className="flex items-center justify-between flex-wrap sm:flex-nowrap w-full gap-2">
@@ -44,7 +39,9 @@ const renderFields = (fields: (FormElementOrList | FormArray)[]): string => {
 
         // Use the template arrayField for pushValue, not runtime entries
         const actualFields = formArray.arrayField;
-        const defaultEntry = processFormElements(actualFields as FormElementOrList[]);
+        const defaultEntry = processFormElements(
+          actualFields as FormElementOrList[],
+        );
         const pushValueStr = objectToLiteralString(defaultEntry);
         return (
           "{form.Field({\n" +
@@ -109,11 +106,73 @@ export const generateFormCode = ({
     ),
   ).join("\n");
 
+  // Generate form validation helpers code (conditionally includes multi-step helpers)
+  const formValidationHelpersCode = `
+//------------------------------form-validation-helpers.ts
+// Type definitions for better type safety
+type FieldName = string | string[];
+type ValidationErrors = {
+  fields: Record<string, unknown>;
+  form: unknown;
+};
+
+// Generic form type that has the methods we need
+type FormWithValidation = {
+  validateField: (...args: any[]) => any;
+  validateArrayFieldsStartingFrom: (...args: any[]) => any;
+  getFieldInfo: (...args: any[]) => any;
+  getAllErrors: () => ValidationErrors;
+};
+
+// Helper function for validating fields (handles both regular and array fields)
+export const validateField = (form: FormWithValidation, fieldName: FieldName) => {
+  if (Array.isArray(fieldName)) {
+    // For array fields, validate the entire array
+    const baseFieldName = fieldName[0];
+    const fieldInfo = form.getFieldInfo(baseFieldName);
+    const arrayLength = (fieldInfo.instance?.state.value as unknown[])?.length || 0;
+    return form.validateArrayFieldsStartingFrom(baseFieldName, arrayLength, "submit");
+  }
+
+  // For regular string fields, validate as normal field
+  return form.validateField(fieldName, "submit");
+};
+
+${
+  isMS
+    ? `
+// Helper function to check if a field has errors
+export const hasFieldErrors = (form: FormWithValidation, fieldName: FieldName, allErrors: ValidationErrors) => {
+  if (Array.isArray(fieldName)) {
+    return hasArrayFieldErrors(form, fieldName[0], allErrors);
+  }
+  return Object.keys(allErrors.fields).includes(fieldName);
+};
+
+// Helper function to check if an array field has errors in any index
+export const hasArrayFieldErrors = (form: FormWithValidation, baseFieldName: string, allErrors: ValidationErrors) => {
+  const fieldInfo = form.getFieldInfo(baseFieldName);
+  const arrayLength = (fieldInfo.instance?.state.value as unknown[])?.length || 0;
+
+  for (let i = 0; i < arrayLength; i++) {
+    const pattern = new RegExp(\`^\${baseFieldName}\\\\[\${i}\\\\]\`);
+    const hasErrorInIndex = Object.keys(allErrors.fields).some(
+      (errorField) => pattern.test(errorField)
+    );
+    if (hasErrorInIndex) return true;
+  }
+  return false;
+};
+`
+    : ""
+}`;
+
   const singleStepFormCode = [
     {
       file: "single-step-form.tsx",
       code: `
 ${imports}
+import { validateField } from './form-validation-helpers'
 
 export function DraftForm() {
 
@@ -165,7 +224,7 @@ return (
           !isMS
             ? `
          <div className="flex justify-end items-center w-full pt-3">
-         <form.Subscribe selector={(state) => state.isSubmitting}>
+         <form.Subscribe selector={(state) => state.isSubmitting">
            {(isSubmitting) => (
             <Button className="rounded-lg" size="sm" disable={isSubmitting} type="submit">
               {isSubmitting ? "Submitting..." : "Submit"}
@@ -180,6 +239,10 @@ return (
   </div>
 )
 }`,
+    },
+    {
+      file: "form-validation-helpers.ts",
+      code: formValidationHelpersCode,
     },
   ];
   if (!isMS) return singleStepFormCode;
@@ -214,6 +277,7 @@ return (
   import { Progress } from '@/components/ui/progress'
   import { motion, AnimatePresence } from 'motion/react'
   import { useMultiStepForm } from './use-multi-step-form'
+  import { validateField, hasFieldErrors } from './form-validation-helpers'
   export function DraftForm() {
 
   const form = useAppForm({
@@ -266,11 +330,17 @@ const MultiStepViewer = withForm({
     const { currentStep, isLastStep, goToNext, goToPrevious } = useMultiStepForm({
       initialSteps: stepFields,
       onStepValidation: async (currentStepData) => {
-        const validationPromises = currentStepData.map((fieldName) => form.validateField(fieldName as any, 'submit'));
+        // Validate all fields in the current step using shared helpers
+        const validationPromises = currentStepData.map(fieldName => validateField(form, fieldName));
         await Promise.all(validationPromises);
-        const hasErrors = form.getAllErrors();
-        const hasErrorsFields = currentStepData.filter((fieldName) => Object.keys(hasErrors.fields).includes(fieldName));
-        return hasErrorsFields.length === 0
+
+        // Check if any fields have errors (necessary for step navigation)
+        const allErrors = form.getAllErrors();
+        const fieldsWithErrors = currentStepData.filter(fieldName =>
+          hasFieldErrors(form, fieldName, allErrors)
+        );
+
+        return fieldsWithErrors.length === 0;
       },
     });
   const current = stepFormElements[currentStep]
@@ -320,8 +390,11 @@ const MultiStepViewer = withForm({
     </div>
   )}
 });`;
+
   const useMultiStepFormCode = `
 //------------------------------use-multi-step-form.tsx
+import { validateField, hasFieldErrors } from './form-validation-helpers';
+
 type UseFormStepsProps = {
  initialSteps: Record<number, string[]>;
  onStepValidation?: (step: any) => Promise<boolean> | boolean;
@@ -391,6 +464,10 @@ export function useMultiStepForm({
     {
       file: "use-multi-step-form.tsx",
       code: useMultiStepFormCode,
+    },
+    {
+      file: "form-validation-helpers.ts",
+      code: formValidationHelpersCode,
     },
   ];
   return multiStepFormCode;
