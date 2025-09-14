@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { formElementsList } from "@/constants/form-elements-list";
-import type { FormElement } from "@/form-types";
+import type { FormElement } from "@/types/form-types";
 import { useFormStore } from "@/hooks/use-form-store";
 
 type DropdownContext = "nested" | "multistep" | "formarray";

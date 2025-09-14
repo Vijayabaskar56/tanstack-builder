@@ -1,6 +1,6 @@
 // generate-valibot-schema.tsx
 import * as v from "valibot";
-import type { FormArray, FormElement } from "@/form-types";
+import type { FormArray, FormElement } from "@/types/form-types";
 import { isStatic } from "@/lib/utils";
 
 // Type definitions for Valibot schemas
@@ -137,7 +137,7 @@ export const generateValiSchemaObject = (
     if (!("required" in element) || element.required !== true) {
       elementSchema = v.optional(elementSchema);
     }
-    const fieldName = element.name.split('.').pop() || element.name;
+    const fieldName = element.name.split(".").pop() || element.name;
     schemaObject[fieldName] = elementSchema;
   };
 
@@ -394,7 +394,7 @@ export const getValiSchemaStringDirect = (
         }
 
         // Strip prefix from field name
-        const fieldName = element.name.split('.').pop() || element.name;
+        const fieldName = element.name.split(".").pop() || element.name;
 
         // Quote keys that need it (contain spaces or start with number)
         const needsQuotes = /\s/.test(fieldName) || /^\d/.test(fieldName);

@@ -5,7 +5,7 @@ import type {
   FormElement,
   FormElementOrList,
   FormStep,
-} from "@/form-types";
+} from "@/types/form-types";
 import { useFormStore } from "@/hooks/use-form-store";
 import { flattenFormSteps } from "@/lib/form-elements-helpers";
 
@@ -60,7 +60,9 @@ const FORM_ARRAY_DEFAULTS: Record<string, (field: FormArray) => DefaultValue> =
   {
     FormArray: (field: FormArray) => {
       // Use the template arrayField for defaults, not runtime entries
-      const defaultEntry = processFormElements(field.arrayField as FormElementOrList[]);
+      const defaultEntry = processFormElements(
+        field.arrayField as FormElementOrList[],
+      );
       return [defaultEntry];
     },
   };
@@ -123,7 +125,8 @@ export const processFormElements = (
           if (!isStaticElement(nestedElement) && nestedElement.name) {
             const defaultValue = getFieldDefaultValue(nestedElement);
             if (defaultValue !== undefined) {
-              const fieldName = nestedElement.name.split('.').pop() || nestedElement.name;
+              const fieldName =
+                nestedElement.name.split(".").pop() || nestedElement.name;
               defaults[sanitizeFieldName(fieldName)] = defaultValue;
             }
           }
@@ -134,7 +137,7 @@ export const processFormElements = (
       if (!isStaticElement(element) && element.name) {
         const defaultValue = getFieldDefaultValue(element);
         if (defaultValue !== undefined) {
-          const fieldName = element.name.split('.').pop() || element.name;
+          const fieldName = element.name.split(".").pop() || element.name;
           defaults[fieldName] = defaultValue;
         }
       }

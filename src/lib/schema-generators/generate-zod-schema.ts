@@ -1,6 +1,6 @@
 // generate-zod-schema.tsx
 import { type ZodType, z } from "zod";
-import type { FormArray, FormElement } from "@/form-types";
+import type { FormArray, FormElement } from "@/types/form-types";
 import { isStatic } from "@/lib/utils";
 
 // Type guard to check if an element is a FormArray
@@ -204,12 +204,12 @@ const processArrayFields = (
       const actualFields = field.arrayField;
       const nestedSchema = processArrayFields(actualFields);
       const arraySchema = z.array(z.object(nestedSchema));
-      const fieldName = field.name.split('.').pop() || field.name;
+      const fieldName = field.name.split(".").pop() || field.name;
       schemaObject[sanitizeFieldName(fieldName)] = arraySchema;
     } else if (isFormElement(field)) {
       if (isStatic(field.fieldType)) continue;
       const fieldSchema = generateFieldSchema(field);
-      const fieldName = field.name.split('.').pop() || field.name;
+      const fieldName = field.name.split(".").pop() || field.name;
       schemaObject[sanitizeFieldName(fieldName)] = fieldSchema;
     }
   }

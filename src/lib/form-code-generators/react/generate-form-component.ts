@@ -1,8 +1,8 @@
-import type { FormElement } from '@/form-types';
+import type { FormElement } from "@/types/form-types";
 
 const formatFieldName = (name: string) => {
   // If name starts with backtick, it's an array field - return as template literal
-  if (name.startsWith('`')) {
+  if (name.startsWith("`")) {
     return name;
   }
   // Otherwise, wrap in quotes as string literal
@@ -11,35 +11,35 @@ const formatFieldName = (name: string) => {
 
 export const getFormElementCode = (field: FormElement) => {
   switch (field.fieldType) {
-    case 'Input':
+    case "Input":
       return `<form.AppField
                 name={${formatFieldName(field.name)}}
                 children={(field) => (
                     <field.FormItem className="w-full">
-                     ${field.label && `<field.FormLabel>${field.label} ${field.required ? '*' : ''}</field.FormLabel>`}
+                     ${field.label && `<field.FormLabel>${field.label} ${field.required ? "*" : ""}</field.FormLabel>`}
                       <field.FormControl>
                         <Input
                           name={${formatFieldName(field.name)}}
-                          placeholder="${field.placeholder ?? ''}"
-                          type="${field.type ?? 'text'}"
+                          placeholder="${field.placeholder ?? ""}"
+                          type="${field.type ?? "text"}"
                           value={field.state.value}
                           onBlur={field.handleBlur}
                           onChange={(e) => field.handleChange(e.target.value)}
                         />
                       </field.FormControl>
-                      ${field.description ? `<field.FormDescription>${field.description}</field.FormDescription>` : ''}
+                      ${field.description ? `<field.FormDescription>${field.description}</field.FormDescription>` : ""}
                       <field.FormMessage />
                   </field.FormItem>
                   )}
               />
               `;
-    case 'OTP':
+    case "OTP":
       return `
        <form.AppField
           name={${formatFieldName(field.name)}}
           children={(field) => (
            <field.FormItem className="w-full">
-          ${field.label && `<field.FormLabel>${field.label} ${field.required ? '*' : ''}</field.FormLabel>`}
+          ${field.label && `<field.FormLabel>${field.label} ${field.required ? "*" : ""}</field.FormLabel>`}
           <field.FormControl>
             <InputOTP
               maxLength={6}
@@ -61,21 +61,21 @@ export const getFormElementCode = (field: FormElement) => {
               </InputOTPGroup>
             </InputOTP>
           </field.FormControl>
-          ${field.description ? `<field.FormDescription>${field.description}</field.FormDescription>` : ''}
+          ${field.description ? `<field.FormDescription>${field.description}</field.FormDescription>` : ""}
           <field.FormMessage />
         </field.FormItem>
           )}
         />`;
-    case 'Textarea':
+    case "Textarea":
       return `
         <form.AppField
           name={${formatFieldName(field.name)}}
           children={(field) => (
             <field.FormItem>
-           ${field.label && `<field.FormLabel>${field.label} ${field.required ? '*' : ''}</field.FormLabel>`}
+           ${field.label && `<field.FormLabel>${field.label} ${field.required ? "*" : ""}</field.FormLabel>`}
               <field.FormControl>
                 <Textarea
-                  placeholder="${field.placeholder ?? ''}"
+                  placeholder="${field.placeholder ?? ""}"
                   className="resize-none"
                   name={${formatFieldName(field.name)}}
                   value={field.state.value}
@@ -83,35 +83,35 @@ export const getFormElementCode = (field: FormElement) => {
                   onChange={(e) => field.handleChange(e.target.value)}
                 />
               </field.FormControl>
-              ${field.description ? `<field.FormDescription>${field.description}</field.FormDescription>` : ''}
+              ${field.description ? `<field.FormDescription>${field.description}</field.FormDescription>` : ""}
               <field.FormMessage />
             </field.FormItem>
           )}
         />`;
-    case 'Password':
+    case "Password":
       return `
        <form.AppField
           name={${formatFieldName(field.name)}}
           children={(field) => (
             <field.FormItem className="w-full">
-            ${field.label && `<field.FormLabel>${field.label} ${field.required ? '*' : ''}</field.FormLabel>`}
+            ${field.label && `<field.FormLabel>${field.label} ${field.required ? "*" : ""}</field.FormLabel>`}
               <field.FormControl>
                 <Input
                   name={${formatFieldName(field.name)}}
-                  placeholder="${field.placeholder ?? ''}"
+                  placeholder="${field.placeholder ?? ""}"
                   type="password"
                   value={field.state.value}
                   onBlur={field.handleBlur}
                   onChange={(e) => field.handleChange(e.target.value)}
                 />
               </field.FormControl>
-              ${field.description ? `<field.FormDescription>${field.description}</field.FormDescription>` : ''}
+              ${field.description ? `<field.FormDescription>${field.description}</field.FormDescription>` : ""}
               <field.FormMessage />
             </field.FormItem>
           )}
         />
         `;
-    case 'Checkbox':
+    case "Checkbox":
       return `<form.AppField
           name={${formatFieldName(field.name)}}
           children={(field) => (
@@ -122,24 +122,24 @@ export const getFormElementCode = (field: FormElement) => {
                   checked={field.state.value}
                   onBlur={field.handleBlur}
                   onCheckedChange={(checked : boolean) => {field.handleChange(checked)}}
-                  ${field.disabled ? 'disabled' : ''}
+                  ${field.disabled ? "disabled" : ""}
                 />
               </field.FormControl>
               <div className="space-y-1 leading-none">
-                <field.FormLabel>${field.label ?? ''}</field.FormLabel>
-                ${field.description ? `<field.FormDescription>${field.description}</field.FormDescription>` : ''}
+                <field.FormLabel>${field.label ?? ""}</field.FormLabel>
+                ${field.description ? `<field.FormDescription>${field.description}</field.FormDescription>` : ""}
                 <field.FormMessage />
               </div>
             </field.FormItem>
           )}
         />`;
-    case 'DatePicker':
+    case "DatePicker":
       return `
       <form.AppField
       name={${formatFieldName(field.name)}}
       children={(field) => (
         <field.FormItem className="flex flex-col">
-            ${field.label && `<field.FormLabel>${field.label} ${field.required ? '*' : ''}</field.FormLabel>`}
+            ${field.label && `<field.FormLabel>${field.label} ${field.required ? "*" : ""}</field.FormLabel>`}
           <Popover>
             <PopoverTrigger asChild>
               <field.FormControl>
@@ -168,12 +168,12 @@ export const getFormElementCode = (field: FormElement) => {
               />
             </PopoverContent>
           </Popover>
-            ${field.description ? `<field.FormDescription>${field.description}</field.FormDescription>` : ''}
+            ${field.description ? `<field.FormDescription>${field.description}</field.FormDescription>` : ""}
           <field.FormMessage />
         </field.FormItem>
       )}
     />`;
-    case 'MultiSelect':
+    case "MultiSelect":
       return `
            <form.AppField
               name={${formatFieldName(field.name)}}
@@ -185,7 +185,7 @@ export const getFormElementCode = (field: FormElement) => {
                     ]
               return (
                 <field.FormItem className="w-full">
-                 ${field.label && `<field.FormLabel>${field.label} ${field.required ? '*' : ''}</field.FormLabel>`}
+                 ${field.label && `<field.FormLabel>${field.label} ${field.required ? "*" : ""}</field.FormLabel>`}
                   <MultiSelect value={field.state.value} onValueChange={field.handleChange}>
                     <field.FormControl>
                       <MultiSelectTrigger>
@@ -204,12 +204,12 @@ export const getFormElementCode = (field: FormElement) => {
                       </MultiSelectList>
                     </MultiSelectContent>
                   </MultiSelect>
-                  ${field.description ? `<field.FormDescription>${field.description}</field.FormDescription>` : ''}
+                  ${field.description ? `<field.FormDescription>${field.description}</field.FormDescription>` : ""}
                   <field.FormMessage />
                 </field.FormItem>
               )}}
             />`;
-    case 'Select':
+    case "Select":
       return `
         <form.AppField
           name={${formatFieldName(field.name)}}
@@ -221,11 +221,11 @@ export const getFormElementCode = (field: FormElement) => {
           ]
           return (
             <field.FormItem className="w-full">
-            ${field.label && `<field.FormLabel>${field.label} ${field.required ? '*' : ''}</field.FormLabel>`}
+            ${field.label && `<field.FormLabel>${field.label} ${field.required ? "*" : ""}</field.FormLabel>`}
               <Select name={${formatFieldName(field.name)}} onValueChange={field.handleChange} defaultValue={field.state.value} value={field.state.value as string}>
                 <field.FormControl>
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="${field.placeholder ?? 'Select an option'}" />
+                    <SelectValue placeholder="${field.placeholder ?? "Select an option"}" />
                   </SelectTrigger>
                 </field.FormControl>
                 <SelectContent>
@@ -236,18 +236,18 @@ export const getFormElementCode = (field: FormElement) => {
                   ))}
                 </SelectContent>
               </Select>
-                ${field.description ? `<field.FormDescription>${field.description}</field.FormDescription>` : ''}
+                ${field.description ? `<field.FormDescription>${field.description}</field.FormDescription>` : ""}
               <field.FormMessage />
             </field.FormItem>
           )}}
         />`;
-    case 'Slider':
+    case "Slider":
       return `
             <form.AppField
               name={${formatFieldName(field.name)}}
               children={(field) => (
               <field.FormItem>
-                <field.FormLabel className="flex justify-between items-center">${field.label ?? ''}<span>{field.state.value}/${field?.max ?? 100}</span>
+                <field.FormLabel className="flex justify-between items-center">${field.label ?? ""}<span>{field.state.value}/${field?.max ?? 100}</span>
                 </field.FormLabel>
                 <field.FormControl>
                   <Slider
@@ -261,19 +261,19 @@ export const getFormElementCode = (field: FormElement) => {
                     }}
                   />
                 </field.FormControl>
-                ${field.description ? `<field.FormDescription>${field.description}</field.FormDescription>` : ''}
+                ${field.description ? `<field.FormDescription>${field.description}</field.FormDescription>` : ""}
                 <field.FormMessage />
               </field.FormItem>
               )}
             />`;
-    case 'Switch':
+    case "Switch":
       return `
             <form.AppField
               name={${formatFieldName(field.name)}}
               children={(field) => (
                 <field.FormItem className="flex flex-col p-3 justify-center w-full border rounded">
                     <div className="flex items-center justify-between h-full">
-                      ${field.label && `<field.FormLabel>${field.label} ${field.required ? '*' : ''}</field.FormLabel>`}
+                      ${field.label && `<field.FormLabel>${field.label} ${field.required ? "*" : ""}</field.FormLabel>`}
                       <field.FormControl>
                         <Switch
                           checked={field.state.value}
@@ -281,11 +281,11 @@ export const getFormElementCode = (field: FormElement) => {
                         />
                       </field.FormControl>
                     </div>
-                    ${field.description ? `<field.FormDescription>${field.description}</field.FormDescription>` : ''}
+                    ${field.description ? `<field.FormDescription>${field.description}</field.FormDescription>` : ""}
                 </field.FormItem>
               )}
             />`;
-    case 'RadioGroup':
+    case "RadioGroup":
       return `<form.AppField
               name={${formatFieldName(field.name)}}
               children={(field) => {
@@ -296,7 +296,7 @@ export const getFormElementCode = (field: FormElement) => {
                 ]
               return (
                 <field.FormItem className="flex flex-col gap-2 w-full py-1">
-                   ${field.label && `<field.FormLabel>${field.label} ${field.required ? '*' : ''}</field.FormLabel>`}
+                   ${field.label && `<field.FormLabel>${field.label} ${field.required ? "*" : ""}</field.FormLabel>`}
                     <field.FormControl>
                       <RadioGroup
                         name={${formatFieldName(field.name)}}
@@ -314,12 +314,12 @@ export const getFormElementCode = (field: FormElement) => {
                         ))}
                       </RadioGroup>
                     </field.FormControl>
-                    ${field.description ? `<field.FormDescription>${field.description}</field.FormDescription>` : ''}
+                    ${field.description ? `<field.FormDescription>${field.description}</field.FormDescription>` : ""}
                     <field.FormMessage />
                 </field.FormItem>
               )}}
             />`;
-    case 'ToggleGroup':
+    case "ToggleGroup":
       return `<form.AppField
               name={${formatFieldName(field.name)}}
               children={(field) => {
@@ -334,13 +334,13 @@ export const getFormElementCode = (field: FormElement) => {
                   ]
             return (
               <field.FormItem className="flex flex-col gap-2 w-full py-1">
-               ${field.label && `<field.FormLabel>${field.label} ${field.required ? '*' : ''}</field.FormLabel>`}
+               ${field.label && `<field.FormLabel>${field.label} ${field.required ? "*" : ""}</field.FormLabel>`}
                 <field.FormControl>
                   <ToggleGroup
                       variant="outline"
                       onValueChange={field.handleChange}
                       defaultValue={field.state.value}
-                      type='${field.type ?? 'single'}'
+                      type='${field.type ?? "single"}'
                       className="flex justify-start items-center gap-2 flex-wrap"
                     >
                      {options.map(({ label, value }) => (
@@ -360,15 +360,15 @@ export const getFormElementCode = (field: FormElement) => {
             )
               }}
             />`;
-    case 'H1':
-      return `<h1 className="text-3xl font-bold">${field.content ?? ''}</h1>`;
-    case 'H2':
-      return `<h2 className="text-2xl font-bold">${field.content ?? ''}</h2>`;
-    case 'H3':
-      return `<h3 className="text-xl font-bold">${field.content ?? ''}</h3>`;
-    case 'P':
-      return `<p className="text-base">${field.content ?? ''}</p>`;
-    case 'Separator':
+    case "H1":
+      return `<h1 className="text-3xl font-bold">${field.content ?? ""}</h1>`;
+    case "H2":
+      return `<h2 className="text-2xl font-bold">${field.content ?? ""}</h2>`;
+    case "H3":
+      return `<h3 className="text-xl font-bold">${field.content ?? ""}</h3>`;
+    case "P":
+      return `<p className="text-base">${field.content ?? ""}</p>`;
+    case "Separator":
       return `<div className="py-3 w-full">
                 <Separator />
               </div>`;

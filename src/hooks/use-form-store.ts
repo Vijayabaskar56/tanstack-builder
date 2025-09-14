@@ -17,7 +17,7 @@ import type {
   FormStep,
   ReorderElements,
   SetTemplate,
-} from "../form-types";
+} from "@/types/form-types";
 import {
   dropAtIndex,
   flattenFormSteps,

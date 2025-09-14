@@ -4,19 +4,19 @@ import type {
   FormElement,
   FormElementOrList,
   FormStep,
-} from "@/form-types";
+} from "@/types/form-types";
 import {
-	getDefaultValuesString,
-	objectToLiteralString,
-	processFormElements,
-	getFieldDefaultValue,
+  getDefaultValuesString,
+  objectToLiteralString,
+  processFormElements,
+  getFieldDefaultValue,
 } from "@/lib/form-code-generators/react/generate-default-value";
 import { getFormElementCode } from "@/lib/form-code-generators/react/generate-form-component";
 import { generateImports } from "@/lib/form-code-generators/react/generate-imports";
 import { flattenFormSteps, getStepFields } from "@/lib/form-elements-helpers";
 
 const isStaticElement = (element: FormElement): boolean => {
-	return "static" in element && element.static === true;
+  return "static" in element && element.static === true;
 };
 
 const modifyElement = (
@@ -44,7 +44,9 @@ const renderFields = (fields: (FormElementOrList | FormArray)[]): string => {
 
         // Use the template arrayField for pushValue, not runtime entries
         const actualFields = formArray.arrayField;
-        const defaultEntry = processFormElements(actualFields as FormElementOrList[]);
+        const defaultEntry = processFormElements(
+          actualFields as FormElementOrList[],
+        );
         const pushValueStr = objectToLiteralString(defaultEntry);
         return (
           "{form.Field({\n" +

@@ -1,5 +1,5 @@
 // generat-imports.ts
-import type { FormArray, FormElement } from "@/form-types";
+import type { FormArray, FormElement } from "@/types/form-types";
 
 export const generateImports = (
   formElements: (FormElement | FormArray)[],
@@ -90,7 +90,7 @@ export const generateImports = (
     }
 
     if (isMS) {
-      importSet.add('import type { FormStep } from "@/form-types"');
+      importSet.add('import type { FormStep } from "@/types/form-types"');
     }
   };
 

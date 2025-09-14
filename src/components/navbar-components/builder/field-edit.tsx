@@ -40,7 +40,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import type { FormElement, Option } from "@/form-types";
+import type { FormElement, Option } from "@/types/form-types";
 import type { AppForm } from "@/hooks/use-form-builder";
 import { useFormStore } from "@/hooks/use-form-store";
 import { useIsMobile } from "@/hooks/use-mobile";

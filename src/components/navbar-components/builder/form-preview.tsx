@@ -5,7 +5,7 @@ import { MultiStepFormPreview } from "@/components/builder/multi-step-preview";
 import { RenderFormElement } from "@/components/builder/render-form-element";
 import { Button } from "@/components/ui/button";
 
-import type { FormArray, FormStep } from "@/form-types";
+import type { FormArray, FormStep } from "@/types/form-types";
 import type { AppForm } from "@/hooks/use-form-builder";
 import { useFormBuilder } from "@/hooks/use-form-builder";
 import { useFormStore, useIsMultiStep } from "@/hooks/use-form-store";

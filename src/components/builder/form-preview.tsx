@@ -1,11 +1,10 @@
 //form-preview.tsx
-/** biome-ignore-all lint/correctness/useUniqueElementIds: <explanation> */
 import { FormArrayPreview } from "@/components/builder/form-array-preview";
 import { MultiStepFormPreview } from "@/components/builder/multi-step-preview";
 import { RenderFormElement } from "@/components/builder/render-form-element";
 import { Button } from "@/components/ui/button";
 
-import type { FormArray, FormStep } from "@/form-types";
+import type { FormArray, FormStep } from "@/types/form-types";
 import type { AppForm } from "@/hooks/use-form-builder";
 import { useFormBuilder } from "@/hooks/use-form-builder";
 import { useFormStore, useIsMultiStep } from "@/hooks/use-form-store";
@@ -56,7 +55,7 @@ export function SingleStepFormPreview({ form }: FormPreviewProps) {
                 "arrayField" in element
               ) {
                 return (
-                  <div key={(element as any).id + i} className="w-full">
+                  <div key={element.id} className="w-full">
                     <FormArrayPreview
                       formArray={element as FormArray}
                       form={form}

@@ -1,6 +1,6 @@
 // generate-arktype-schema.tsx
 import { type } from "arktype";
-import type { FormArray, FormElement } from "@/form-types";
+import type { FormArray, FormElement } from "@/types/form-types";
 import { isStatic } from "@/lib/utils";
 
 // Type definitions for ArkType schemas
@@ -174,7 +174,7 @@ const processFormElements = (
     } else if (isFormElement(element)) {
       if (isStatic(element.fieldType)) continue;
       const fieldSchema = generateFieldSchema(element);
-      const fieldName = element.name.split('.').pop() || element.name;
+      const fieldName = element.name.split(".").pop() || element.name;
       schemaObject[fieldName] = fieldSchema;
     }
   }
@@ -265,7 +265,7 @@ export const generateArkTypeSchemaObject = (
       elementSchema = type([elementSchema, "undefined"]);
     }
 
-    const fieldName = element.name.split('.').pop() || element.name;
+    const fieldName = element.name.split(".").pop() || element.name;
     schemaObject[fieldName] = elementSchema;
   };
 
@@ -580,21 +580,17 @@ export const getArkTypeSchemaString = (
         }
 
         // Strip prefix from field name
-        const fieldName = element.name.split('.').pop() || element.name;
+        const fieldName = element.name.split(".").pop() || element.name;
 
         // Handle optional fields - ArkType uses the ? syntax or union with undefined
         if (!("required" in element) || element.required !== true) {
           // Quote keys that need it (contain spaces or start with number)
-          const needsQuotes =
-            /\s/.test(fieldName) || /^\d/.test(fieldName);
-          const quotedKey = needsQuotes
-            ? `"${fieldName}?"`
-            : `${fieldName}?`;
+          const needsQuotes = /\s/.test(fieldName) || /^\d/.test(fieldName);
+          const quotedKey = needsQuotes ? `"${fieldName}?"` : `${fieldName}?`;
           return `  ${quotedKey}: ${typeDefinition}`;
         } else {
           // Quote keys that need it (contain spaces or start with number)
-          const needsQuotes =
-            /\s/.test(fieldName) || /^\d/.test(fieldName);
+          const needsQuotes = /\s/.test(fieldName) || /^\d/.test(fieldName);
           const quotedKey = needsQuotes ? `"${fieldName}"` : fieldName;
           return `  ${quotedKey}: ${typeDefinition}`;
         }
