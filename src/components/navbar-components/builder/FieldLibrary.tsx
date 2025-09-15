@@ -2,12 +2,12 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { formElementsList } from "@/constants/form-elements-list";
 import type { FormElement } from "@/types/form-types";
-import { useFormStore } from "@/hooks/use-form-store";
+import { useSearchStore } from "@/hooks/use-search-store";
 import { ScrollArea } from "../ui/scroll-area";
 
 export function FieldTab() {
   const [searchQuery] = useState("");
-  const { actions, isMS, formElements } = useFormStore();
+  const { actions, isMS, formElements } = useSearchStore();
   // Group elements by their group property
   const groupedElements = formElementsList.reduce(
     (acc, element) => {

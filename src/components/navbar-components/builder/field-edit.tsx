@@ -42,7 +42,7 @@ import {
 } from "@/components/ui/tooltip";
 import type { FormElement, Option } from "@/types/form-types";
 import type { AppForm } from "@/hooks/use-form-builder";
-import { useFormStore } from "@/hooks/use-form-store";
+import { useSearchStore } from "@/hooks/use-search-store";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { isStatic } from "@/lib/utils";
 
@@ -307,7 +307,7 @@ function FormElementAttributes({
       close();
     },
   });
-  const { actions } = useFormStore();
+  const { actions } = useSearchStore();
   const { fieldType } = formElement;
   const isFieldWithOptions =
     fieldType === "Select" ||

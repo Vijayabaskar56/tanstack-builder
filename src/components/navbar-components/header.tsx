@@ -39,7 +39,7 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { settingsCollection } from "@/db-collections/settings.collections";
 import { useFormBuilder } from "@/hooks/use-form-builder";
-import { useFormStore } from "@/hooks/use-form-store";
+import { useSearchStore } from "@/hooks/use-search-store";
 import useSettings from "@/hooks/use-settings";
 import type { Framework, ValidationSchema } from "./builder/types";
 export default function FormHeader() {
@@ -64,7 +64,7 @@ export default function FormHeader() {
   };
 
   const id = useId();
-  const { actions, isMS, framework, validationSchema } = useFormStore();
+  const { actions, isMS, framework, validationSchema } = useSearchStore();
   const { resetForm } = useFormBuilder();
 
   // Save dialog state

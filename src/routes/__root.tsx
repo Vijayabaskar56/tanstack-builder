@@ -18,6 +18,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import type { QueryClient } from "@tanstack/react-query";
 import { settingsCollection } from "@/db-collections/settings.collections";
+import { pacerDevtoolsPlugin } from "@tanstack/react-pacer-devtools";
 
 interface MyRouterContext {
 	queryClient: QueryClient;
@@ -98,10 +99,14 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 					<Toaster richColors />
 				</ThemeProvider>
 				<TanstackDevtools
+     eventBusConfig={{
+       debug: false,
+     }}
 					config={{
 						position: "bottom-left",
 					}}
 					plugins={[
+      // pacerDevtoolsPlugin(),
 						{
 							name: "Tanstack Router",
 							render: <TanStackRouterDevtoolsPanel />,

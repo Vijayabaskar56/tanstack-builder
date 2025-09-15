@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import type { FormArray, FormStep } from "@/types/form-types";
 import type { AppForm } from "@/hooks/use-form-builder";
 import { useFormBuilder } from "@/hooks/use-form-builder";
-import { useFormStore, useIsMultiStep } from "@/hooks/use-form-store";
+import { useSearchStore } from "@/hooks/use-search-store";
 
 interface FormPreviewProps {
   form: AppForm;
@@ -15,8 +15,7 @@ interface FormPreviewProps {
 
 export function SingleStepFormPreview({ form }: FormPreviewProps) {
   const { onSubmit } = useFormBuilder();
-  const { formElements } = useFormStore();
-  const isMS = useIsMultiStep();
+  const { formElements , isMS } = useSearchStore();
   if (formElements.length < 1)
     return (
       <div className="h-full py-10 px-3">

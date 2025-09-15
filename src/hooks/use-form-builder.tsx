@@ -1,16 +1,16 @@
 // use-form-builder.tsx
 
-import { revalidateLogic } from "@tanstack/react-form";
-import { useMemo } from "react";
-import { toast } from "sonner";
-import type z from "zod";
 import { useAppForm } from "@/components/ui/tanstack-form";
-import type { FormElement, FormStep } from "@/types/form-types";
-import { useFormStore, useIsMultiStep } from "@/hooks/use-form-store";
+import { useSearchStore } from "@/hooks/use-search-store";
 import useSettings from "@/hooks/use-settings";
 import { getDefaultFormElement } from "@/lib/form-code-generators/react/generate-default-value";
 import { flattenFormSteps } from "@/lib/form-elements-helpers";
 import { generateZodSchemaObject } from "@/lib/schema-generators/generate-zod-schema";
+import type { FormElement, FormStep } from "@/types/form-types";
+import { revalidateLogic } from "@tanstack/react-form";
+import { useMemo } from "react";
+import { toast } from "sonner";
+import type z from "zod";
 
 interface DefaultValues {
   [key: string]: any;
@@ -20,6 +20,7 @@ export type AppForm = ReturnType<typeof useAppForm> & {
     state: {
       values: DefaultValues;
       isSubmitting: boolean;
+
       isSubmitted: boolean;
     };
   };
@@ -46,8 +47,7 @@ export const useFormBuilder = (): {
   onSubmit: (data: any) => Promise<void>;
   resetForm: () => void;
 } => {
-  const isMS = useIsMultiStep();
-  const { actions, formElements } = useFormStore();
+  const { actions, formElements , isMS } = useSearchStore();
   const flattenFormElements = isMS
     ? flattenFormSteps(formElements as FormStep[]).flat()
     : (formElements.flat() as FormElement[]);

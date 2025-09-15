@@ -6,7 +6,7 @@ import type {
   FormElementOrList,
   FormStep,
 } from "@/types/form-types";
-import { useFormStore } from "@/hooks/use-form-store";
+import { useSearchStore } from "@/hooks/use-search-store";
 import { flattenFormSteps } from "@/lib/form-elements-helpers";
 
 type DefaultValue =
@@ -289,7 +289,7 @@ export const getDefaultFormElement = (
 };
 
 export const getDefaultValuesString = () => {
-  const { validationSchema, schemaName, formElements } = useFormStore();
+  const { validationSchema, schemaName, formElements } = useSearchStore();
   const schema = schemaName ? schemaName : "formSchema";
 
   // Handle multi-step forms by flattening them to a single list of elements

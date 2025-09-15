@@ -1,23 +1,18 @@
 // apps/web/src/components/generated-code/code-viewer.tsx
 import { useTheme } from "@/components/theme-provider";
 import {
-  CodeBlock,
-  CodeBlockCode,
-  CodeBlockGroup,
+ CodeBlock,
+ CodeBlockCode,
+ CodeBlockGroup,
 } from "@/components/ui/code-block";
 import { CopyButton } from "@/components/ui/copy-button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  type SettingsCollection,
-  settingsCollection,
+ type SettingsCollection,
+ settingsCollection,
 } from "@/db-collections/settings.collections";
-import type {
-  FormElement,
-  FormElementOrList,
-  FormStep,
-} from "@/types/form-types";
-import { useFormStore, useIsMultiStep } from "@/hooks/use-form-store";
+import { useSearchStore } from "@/hooks/use-search-store";
 import useSettings from "@/hooks/use-settings";
 import { generateFormCode } from "@/lib/form-code-generators/react/generate-form-code";
 import { flattenFormSteps } from "@/lib/form-elements-helpers";
@@ -25,6 +20,11 @@ import { getArkTypeSchemaString } from "@/lib/schema-generators/generate-arktype
 import { getValiSchemaString } from "@/lib/schema-generators/generate-valibot-schema";
 import { getZodSchemaString } from "@/lib/schema-generators/generate-zod-schema";
 import { formatCode } from "@/lib/utils";
+import type {
+ FormElement,
+ FormElementOrList,
+ FormStep,
+} from "@/types/form-types";
 import { useEffect } from "react";
 
 const Wrapper = ({
@@ -93,8 +93,7 @@ const installableShadcnComponents: Partial<
 //======================================
 export function CodeBlockPackagesInstallation() {
   const { theme } = useTheme();
-  const { formElements } = useFormStore();
-  const isMS = useIsMultiStep();
+  const { formElements , isMS } = useSearchStore();
   const codeTheme = theme === "dark" ? "github-dark" : "github-light";
   const processedFormElements = isMS
     ? flattenFormSteps(formElements as FormStep[])
@@ -240,8 +239,7 @@ export function CodeBlockPackagesInstallation() {
   );
 }
 const CodeBlockTSX = () => {
-  const { formElements, validationSchema } = useFormStore();
-  const isMS = useIsMultiStep();
+  const { formElements, validationSchema , isMS } = useSearchStore();
   const settings = useSettings();
 
   useEffect(() => {
@@ -269,8 +267,7 @@ const CodeBlockTSX = () => {
   );
 };
 const CodeBlockSchema = () => {
-  const { formElements, validationSchema } = useFormStore();
-  const isMS = useIsMultiStep();
+  const { formElements, validationSchema , isMS } = useSearchStore();
 
   useEffect(() => {
     console.log(

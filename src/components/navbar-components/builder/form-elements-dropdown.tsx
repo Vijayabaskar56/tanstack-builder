@@ -10,7 +10,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { formElementsList } from "@/constants/form-elements-list";
 import type { FormElement } from "@/types/form-types";
-import { useFormStore } from "@/hooks/use-form-store";
+import { useSearchStore } from "@/hooks/use-search-store";
 
 type DropdownContext = "nested" | "multistep" | "formarray";
 
@@ -43,7 +43,7 @@ export function FormElementsDropdown({
   j?: number;
   isFormArrayField?: boolean;
 }) {
-  const { actions } = useFormStore();
+  const { actions } = useSearchStore();
   const handleAddingElement = (fieldType: string) => {
     if (type === "MS" || isFormArrayField) {
       actions.appendElement({
@@ -100,7 +100,7 @@ export function UnifiedFormElementsDropdown({
   stepIndex,
   formArrayId,
 }: BaseDropdownProps) {
-  const { actions, formElements } = useFormStore();
+  const { actions, formElements } = useSearchStore();
 
   const handleElementSelect = (fieldType: FormElement["fieldType"]) => {
     switch (context) {
@@ -307,7 +307,7 @@ export function FormElementsStepDropdown({
 }: {
   stepIndex?: number;
 }) {
-  const { actions } = useFormStore();
+  const { actions } = useSearchStore();
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>

@@ -5,10 +5,10 @@ import { MultiStepFormPreview } from "@/components/builder/multi-step-preview";
 import { RenderFormElement } from "@/components/builder/render-form-element";
 import { Button } from "@/components/ui/button";
 
-import type { FormArray, FormStep } from "@/types/form-types";
 import type { AppForm } from "@/hooks/use-form-builder";
 import { useFormBuilder } from "@/hooks/use-form-builder";
-import { useFormStore, useIsMultiStep } from "@/hooks/use-form-store";
+import { useSearchStore } from "@/hooks/use-search-store";
+import type { FormArray, FormStep } from "@/types/form-types";
 
 interface FormPreviewProps {
   form: AppForm;
@@ -16,8 +16,7 @@ interface FormPreviewProps {
 
 export function SingleStepFormPreview({ form }: FormPreviewProps) {
   const { onSubmit } = useFormBuilder();
-  const { formElements } = useFormStore();
-  const isMS = useIsMultiStep();
+  const { formElements , isMS } = useSearchStore();
   if (formElements.length < 1)
     return (
       <div className="h-full py-10 px-3">
@@ -48,7 +47,7 @@ export function SingleStepFormPreview({ form }: FormPreviewProps) {
               form={form}
             />
           ) : (
-            (formElements as any[]).map((element, i) => {
+            (formElements).map((element, i) => {
               // Check if element is a FormArray
               if (
                 typeof element === "object" &&
@@ -81,7 +80,7 @@ export function SingleStepFormPreview({ form }: FormPreviewProps) {
                 );
               }
               return (
-                <div key={(element as any).name + i} className="w-full">
+                <div key={(element).id} className="w-full">
                   <RenderFormElement formElement={element} form={form} />
                 </div>
               );

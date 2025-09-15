@@ -10,7 +10,7 @@ import type {
   FormElementOrList,
 } from "@/types/form-types";
 import type { AppForm } from "@/hooks/use-form-builder";
-import { useFormStore } from "@/hooks/use-form-store";
+import { useSearchStore } from "@/hooks/use-search-store";
 import { getDefaultFormElement } from "@/lib/form-code-generators/react/generate-default-value";
 
 interface FormArrayPreviewProps {
@@ -20,7 +20,7 @@ interface FormArrayPreviewProps {
 }
 
 export function FormArrayPreview({ formArray, form }: FormArrayPreviewProps) {
-  const { formElements, actions } = useFormStore();
+  const { formElements, actions } = useSearchStore();
 
   // Get the latest FormArray from the store to ensure reactivity
   const currentFormArray = formElements.find(

@@ -1,7 +1,7 @@
 import { Delete, Plus } from "lucide-react";
 import { UnifiedFormElementsDropdown } from "@/components/builder/form-elements-dropdown";
 import { Button } from "@/components/ui/button";
-import { useFormStore } from "@/hooks/use-form-store";
+import { useSearchStore } from "@/hooks/use-search-store";
 //======================================
 export function StepContainer({
 	children,
@@ -10,7 +10,7 @@ export function StepContainer({
 	children: React.ReactNode;
 	stepIndex: number;
 }) {
-	const { actions } = useFormStore();
+	const { actions } = useSearchStore();
 	return (
 		<div className="rounded-lg px-3 md:px-4 md:py-5 py-4 border-dashed border bg-muted">
 			<div className="flex items-center justify-between mb-3">
