@@ -1,7 +1,7 @@
-import type { FormElementOrList, FormStep } from "../form-types";
-
+import type { FormElementOrList, FormStep } from "@/types/form-types";
+export type Templatekeys = 'signup' | 'login' | 'feedbackForm' | 'waitlist' | 'contactUs' | 'multiStepForm' | 'jobApplication' | 'eventRegistration' | 'productOrder' | 'customerSupport'
 type TemplateList = Record<
-  string,
+  Templatekeys,
   { template: FormElementOrList[] | FormStep[]; name: string }
 >;
 

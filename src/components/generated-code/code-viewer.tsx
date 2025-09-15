@@ -17,7 +17,7 @@ import type {
   FormElementOrList,
   FormStep,
 } from "@/types/form-types";
-import { useFormStore, useIsMultiStep } from "@/hooks/use-form-store";
+import { useSearchStore } from "@/hooks/use-search-store";
 import useSettings from "@/hooks/use-settings";
 import { generateFormCode } from "@/lib/form-code-generators/react/generate-form-code";
 import { flattenFormSteps } from "@/lib/form-elements-helpers";
@@ -93,8 +93,7 @@ const installableShadcnComponents: Partial<
 //======================================
 export function CodeBlockPackagesInstallation() {
   const { theme } = useTheme();
-  const { formElements } = useFormStore();
-  const isMS = useIsMultiStep();
+  const { formElements , isMS } = useSearchStore();
   const codeTheme = theme === "dark" ? "github-dark" : "github-light";
   const processedFormElements = isMS
     ? flattenFormSteps(formElements as FormStep[])
@@ -240,8 +239,7 @@ export function CodeBlockPackagesInstallation() {
   );
 }
 const CodeBlockTSX = () => {
-  const { formElements, validationSchema } = useFormStore();
-  const isMS = useIsMultiStep();
+  const { formElements, validationSchema, isMS } = useSearchStore();
   const settings = useSettings();
 
   useEffect(() => {
@@ -269,8 +267,7 @@ const CodeBlockTSX = () => {
   );
 };
 const CodeBlockSchema = () => {
-  const { formElements, validationSchema } = useFormStore();
-  const isMS = useIsMultiStep();
+  const { formElements, validationSchema ,isMS } = useSearchStore();
 
   useEffect(() => {
     console.log(

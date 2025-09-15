@@ -7,15 +7,15 @@ import {
   objectToLiteralString,
 } from "@/lib/form-code-generators/react/generate-default-value";
 
-// Mock the useFormStore hook
-vi.mock("@/hooks/use-form-store", () => ({
-  useFormStore: vi.fn(),
+// Mock the useSearchStore hook
+vi.mock("@/hooks/use-search-store", () => ({
+  useSearchStore: vi.fn(),
 }));
 
 // Import the mocked function
-import { useFormStore } from "@/hooks/use-form-store";
+import { useSearchStore } from "@/hooks/use-search-store";
 
-const mockedUseFormStore = vi.mocked(useFormStore);
+const mockedUseFormStore = vi.mocked(useSearchStore);
 
 describe("Default Value Generator - FormArray Support", () => {
   it("should generate default values for FormArray with proper key quoting", () => {
@@ -150,7 +150,7 @@ describe("Default Value Generator - Multi-Step Form Support", () => {
       },
     ];
 
-    // Mock the useFormStore hook
+    // Mock the useSearchStore hook
     mockedUseFormStore.mockReturnValue({
       isMS: true,
       formElements: multiStepFormElements,
@@ -222,7 +222,7 @@ describe("Default Value Generator - Multi-Step Form Support", () => {
       },
     ];
 
-    // Mock the useFormStore hook
+    // Mock the useSearchStore hook
     mockedUseFormStore.mockReturnValue({
       isMS: true,
       formElements: multiStepFormWithArrays,
@@ -262,7 +262,7 @@ describe("Default Value Generator - Multi-Step Form Support", () => {
       },
     ];
 
-    // Mock the useFormStore hook
+    // Mock the useSearchStore hook
     mockedUseFormStore.mockReturnValue({
       isMS: true,
       formElements: emptyMultiStepForm,

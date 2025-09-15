@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { templates } from "@/constants/templates";
 
 export const Route = createFileRoute("/")({
   component: HomePage,
@@ -123,7 +124,9 @@ function HomePage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Link to="/form-builder">
+              <Link to="/form-builder" search={{
+               formElements : templates['contactUs'].template
+              }}>
                 <Button className="w-full">Explore Form Builder</Button>
               </Link>
             </CardContent>

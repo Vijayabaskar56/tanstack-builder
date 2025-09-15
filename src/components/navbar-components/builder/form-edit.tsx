@@ -5,19 +5,19 @@ import { FormElementsDropdown } from "@/components/builder/form-elements-dropdow
 import { RenderFormElement } from "@/components/builder/render-form-element";
 import { StepContainer } from "@/components/builder/step-container";
 import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
+ Accordion,
+ AccordionContent,
+ AccordionItem,
+ AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import {
-  Check,
-  CircleX,
-  Delete,
-  Edit,
-  LucideGripVertical,
-  PlusCircle,
+ Check,
+ CircleX,
+ Delete,
+ Edit,
+ LucideGripVertical,
+ PlusCircle,
 } from "lucide-react";
 import { Reorder, useDragControls } from "motion/react";
 import { useEffect, useRef, useState } from "react";
@@ -26,14 +26,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAppForm } from "@/components/ui/tanstack-form";
 import type { AppForm } from "@/hooks/use-form-builder";
-import { useFormStore, useIsMultiStep } from "@/hooks/use-form-store";
+import { useSearchStore } from "@/hooks/use-search-store";
 import { isStatic } from "@/lib/utils";
 import type {
-  FormElement,
-  FormElementOrList,
-  FormStep,
-  Option,
-} from "../../form-types";
+ FormElement,
+ FormElementOrList,
+ FormStep,
+ Option,
+} from "@/types/form-types";
 
 const animateVariants = {
   initial: { opacity: 0, y: -15 },
@@ -299,7 +299,7 @@ const FormElementEditor = ({
   arrayId,
   isFormArrayField,
 }: FormElementEditorProps) => {
-  const { actions } = useFormStore();
+  const { actions } = useSearchStore();
   const { fieldType } = formElement;
 
   const form = useAppForm({
@@ -549,7 +549,7 @@ const FormElementEditor = ({
 
 const EditFormItem = (props: EditFormItemProps) => {
   const { element, fieldIndex } = props;
-  const { actions } = useFormStore();
+  const { actions } = useSearchStore();
   const isNested = typeof props?.j === "number";
   const DisplayName =
     "label" in element
@@ -633,7 +633,7 @@ const FormArrayFieldItem = ({
   formArrayElement?: any;
   isLayoutTransitioning?: boolean;
 }) => {
-  const { actions } = useFormStore();
+  const { actions } = useSearchStore();
   const isNested = typeof nestedIndex === "number";
   const DisplayName =
     "label" in element
@@ -877,7 +877,7 @@ const FormArrayItemContainer = ({
 };
 
 const NoStepsPlaceholder = () => {
-  const { actions } = useFormStore();
+  const { actions } = useSearchStore();
   return (
     <div className="flex flex-col items-center justify-center gap-4 text-muted-foreground">
       <Button size="sm" onClick={() => actions.addFormStep(0)}>
@@ -888,8 +888,7 @@ const NoStepsPlaceholder = () => {
 };
 //======================================
 export function FormEdit() {
-  const isMultiStep = useIsMultiStep();
-  const { formElements, actions } = useFormStore();
+  const { formElements, actions , isMS } = useSearchStore();
   const containerRef = useRef<HTMLDivElement>(null);
   const [isLayoutTransitioning, setIsLayoutTransitioning] = useState(false);
 

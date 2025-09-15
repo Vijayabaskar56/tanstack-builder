@@ -26,14 +26,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAppForm } from "@/components/ui/tanstack-form";
 import type { AppForm } from "@/hooks/use-form-builder";
-import { useFormStore, useIsMultiStep } from "@/hooks/use-form-store";
+import { useSearchStore } from "@/hooks/use-search-store";
 import { isStatic } from "@/lib/utils";
 import type {
   FormElement,
   FormElementOrList,
   FormStep,
   Option,
-} from "../../form-types";
+} from "@/types/form-types";
 
 const animateVariants = {
   initial: { opacity: 0, y: -15 },
@@ -299,7 +299,7 @@ const FormElementEditor = ({
   arrayId,
   isFormArrayField,
 }: FormElementEditorProps) => {
-  const { actions } = useFormStore();
+  const { actions } = useSearchStore();
   const { fieldType } = formElement;
 
   const form = useAppForm({
@@ -549,7 +549,7 @@ const FormElementEditor = ({
 
 const EditFormItem = (props: EditFormItemProps) => {
   const { element, fieldIndex } = props;
-  const { actions } = useFormStore();
+  const { actions } = useSearchStore();
   const isNested = typeof props?.j === "number";
   const DisplayName =
     "label" in element
@@ -633,7 +633,7 @@ const FormArrayFieldItem = ({
   formArrayElement?: any;
   isLayoutTransitioning?: boolean;
 }) => {
-  const { actions } = useFormStore();
+  const { actions } = useSearchStore();
   const isNested = typeof nestedIndex === "number";
   const DisplayName =
     "label" in element
@@ -877,7 +877,7 @@ const FormArrayItemContainer = ({
 };
 
 const NoStepsPlaceholder = () => {
-  const { actions } = useFormStore();
+  const { actions } = useSearchStore();
   return (
     <div className="flex flex-col items-center justify-center gap-4 text-muted-foreground">
       <Button size="sm" onClick={() => actions.addFormStep(0)}>
@@ -888,8 +888,7 @@ const NoStepsPlaceholder = () => {
 };
 //======================================
 export function FormEdit() {
-  const isMultiStep = useIsMultiStep();
-  const { formElements, actions } = useFormStore();
+  const { formElements , isMS , actions} = useSearchStore();
   const containerRef = useRef<HTMLDivElement>(null);
   const [isLayoutTransitioning, setIsLayoutTransitioning] = useState(false);
 
@@ -920,7 +919,7 @@ export function FormEdit() {
     };
   }, []);
 
-  switch (isMultiStep) {
+  switch (isMS) {
     case true:
       if (formElements.length === 0) {
         return <NoStepsPlaceholder />;

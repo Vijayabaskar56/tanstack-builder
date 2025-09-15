@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { templates } from "@/constants/templates";
-import { useFormStore } from "@/hooks/use-form-store";
+import { useSearchStore } from "@/hooks/use-search-store";
 
 const formTemplates = Object.entries(templates).map((template) => ({
 	label: template[1].name,
@@ -17,12 +17,13 @@ export function TemplateSidebar() {
 	const [savedForms, setSavedForms] = useState<
 		Array<{ name: string; data: Record<string, unknown>; createdAt: string }>
 	>([]);
-	const { actions } = useFormStore();
+	const { actions } = useSearchStore();
 
+ //TODO: Use DB for Saving the Form
 	// Load saved forms on component mount
 	useEffect(() => {
 		setSavedForms(actions.getSavedForms());
-	}, [actions]);
+	}, []);
 
 	const handleLoadSavedForm = (formName: string) => {
 		actions.loadForm(formName);
