@@ -1,10 +1,10 @@
-import { TanstackDevtools } from "@tanstack/react-devtools";
+import { TanStackDevtools } from "@tanstack/react-devtools";
 import {
-	HeadContent,
-	Outlet,
-	Scripts,
-	createRootRouteWithContext,
-	useRouterState,
+ HeadContent,
+ Outlet,
+ Scripts,
+ createRootRouteWithContext,
+ useRouterState,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 
@@ -16,8 +16,9 @@ import Loader from "@/components/loader";
 import NavBar from "@/components/nav-bar";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
-import type { QueryClient } from "@tanstack/react-query";
 import { settingsCollection } from "@/db-collections/settings.collections";
+import type { QueryClient } from "@tanstack/react-query";
+import { FormDevtoolsPlugin } from "@tanstack/react-form-devtools";
 
 interface MyRouterContext {
 	queryClient: QueryClient;
@@ -53,7 +54,6 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 			},
 		],
 	}),
-
 	shellComponent: RootDocument,
 	beforeLoad: async () => {
 		if (
@@ -95,20 +95,21 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 						<NavBar />
 						{isFetching ? <Loader /> : <Outlet />}
 					</div>
-					<Toaster richColors />
-				</ThemeProvider>
-				<TanstackDevtools
+     	 <TanStackDevtools
 					config={{
 						position: "bottom-left",
 					}}
 					plugins={[
-						{
+      // FormDevtoolsPlugin(),
+   			{
 							name: "Tanstack Router",
 							render: <TanStackRouterDevtoolsPanel />,
 						},
 						TanStackQueryDevtools,
 					]}
 				/>
+					<Toaster richColors />
+				</ThemeProvider>
 				<Scripts />
 			</body>
 		</html>

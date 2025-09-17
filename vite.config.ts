@@ -14,6 +14,9 @@ const config = defineConfig({
     tailwindcss(),
     tanstackStart({
       customViteReactPlugin: true,
+      spa : {
+       enabled : true,
+      }
     }),
     viteReact(),
     devtools({
@@ -32,6 +35,9 @@ const config = defineConfig({
      }
     }),
   ],
+  optimizeDeps: {
+    include: ['dayjs/plugin/relativeTime.js']
+  }
 });
 
 export default config;

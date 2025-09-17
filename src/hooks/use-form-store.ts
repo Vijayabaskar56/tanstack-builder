@@ -1240,7 +1240,7 @@ const createActions = (
     fieldIndex: number,
     updatedField: FormElement,
     nestedIndex?: number,
-    updateTemplate: boolean = true,
+    updateTemplate = true,
   ) => {
     const updateFunction = updateTemplate ? batch : (fn: () => void) => fn();
 
@@ -1254,10 +1254,10 @@ const createActions = (
               "arrayField" in el &&
               el.id === arrayId
             ) {
-              let updatedElement = { ...el };
+              const updatedElement = { ...el };
 
               // Always update template for property changes
-              let updatedArrayField = [...el.arrayField];
+              const updatedArrayField = [...el.arrayField];
               if (nestedIndex !== undefined) {
                 // Update nested field in template
                 const currentField = updatedArrayField[fieldIndex];

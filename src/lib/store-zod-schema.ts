@@ -301,7 +301,7 @@ const FormStateSearchParamsSchema = z.object({
   schemaName: z.string().optional().default('formSchema'),
   validationSchema: ValidationSchemaEnum.optional().default('zod'),
   framework: FrameworkEnum.optional().default('react'),
-  lastAddedStepIndex: z.string().transform((val) => val ? parseInt(val) : undefined).optional(),
+  lastAddedStepIndex: z.string().transform((val) => val ? Number.parseInt(val) : undefined).optional(),
 
   // Form elements as JSON string (since URL params can't handle complex nested structures)
   formElements: z.string().optional().default('[]').transform((val) => {

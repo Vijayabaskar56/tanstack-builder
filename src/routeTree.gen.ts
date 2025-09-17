@@ -11,6 +11,7 @@
 import { createServerRootRoute } from '@tanstack/react-start/server'
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TestingRouteImport } from './routes/testing'
 import { Route as FormBuilderRouteImport } from './routes/form-builder'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as FormBuilderIndexRouteImport } from './routes/form-builder/index'
@@ -21,6 +22,11 @@ import { ServerRoute as OrpcApiRpcSplatServerRouteImport } from './routes/orpc/a
 
 const rootServerRouteImport = createServerRootRoute()
 
+const TestingRoute = TestingRouteImport.update({
+  id: '/testing',
+  path: '/testing',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FormBuilderRoute = FormBuilderRouteImport.update({
   id: '/form-builder',
   path: '/form-builder',
@@ -60,12 +66,14 @@ const OrpcApiRpcSplatServerRoute = OrpcApiRpcSplatServerRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/form-builder': typeof FormBuilderRouteWithChildren
+  '/testing': typeof TestingRoute
   '/form-builder/': typeof FormBuilderIndexRoute
   '/orpc/demo/orpc-todo': typeof OrpcDemoOrpcTodoRoute
   '/orpc/demo/table': typeof OrpcDemoTableRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/testing': typeof TestingRoute
   '/form-builder': typeof FormBuilderIndexRoute
   '/orpc/demo/orpc-todo': typeof OrpcDemoOrpcTodoRoute
   '/orpc/demo/table': typeof OrpcDemoTableRoute
@@ -74,6 +82,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/form-builder': typeof FormBuilderRouteWithChildren
+  '/testing': typeof TestingRoute
   '/form-builder/': typeof FormBuilderIndexRoute
   '/orpc/demo/orpc-todo': typeof OrpcDemoOrpcTodoRoute
   '/orpc/demo/table': typeof OrpcDemoTableRoute
@@ -83,15 +92,22 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/form-builder'
+    | '/testing'
     | '/form-builder/'
     | '/orpc/demo/orpc-todo'
     | '/orpc/demo/table'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/form-builder' | '/orpc/demo/orpc-todo' | '/orpc/demo/table'
+  to:
+    | '/'
+    | '/testing'
+    | '/form-builder'
+    | '/orpc/demo/orpc-todo'
+    | '/orpc/demo/table'
   id:
     | '__root__'
     | '/'
     | '/form-builder'
+    | '/testing'
     | '/form-builder/'
     | '/orpc/demo/orpc-todo'
     | '/orpc/demo/table'
@@ -100,6 +116,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   FormBuilderRoute: typeof FormBuilderRouteWithChildren
+  TestingRoute: typeof TestingRoute
   OrpcDemoOrpcTodoRoute: typeof OrpcDemoOrpcTodoRoute
   OrpcDemoTableRoute: typeof OrpcDemoTableRoute
 }
@@ -131,6 +148,13 @@ export interface RootServerRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/testing': {
+      id: '/testing'
+      path: '/testing'
+      fullPath: '/testing'
+      preLoaderRoute: typeof TestingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/form-builder': {
       id: '/form-builder'
       path: '/form-builder'
@@ -202,6 +226,7 @@ const FormBuilderRouteWithChildren = FormBuilderRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   FormBuilderRoute: FormBuilderRouteWithChildren,
+  TestingRoute: TestingRoute,
   OrpcDemoOrpcTodoRoute: OrpcDemoOrpcTodoRoute,
   OrpcDemoTableRoute: OrpcDemoTableRoute,
 }

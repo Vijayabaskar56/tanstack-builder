@@ -18,7 +18,7 @@ const {
 	useFormContext,
 } = createFormHookContexts();
 
-const { useAppForm, withForm } = createFormHook({
+const { useAppForm, withForm  , withFieldGroup} = createFormHook({
 	fieldContext,
 	formContext,
 	fieldComponents: {
@@ -166,12 +166,15 @@ function Form({ children }: { children?: React.ReactNode }) {
 	);
 }
 
-function SubmitButton({ label }: { label: string }) {
+function SubmitButton({ label , className , size}:  React.ComponentProps<"button"> &
+  VariantProps<typeof buttonVariants> & {
+    label: string
+  }) {
 	const form = useFormContext();
 	return (
 		<form.Subscribe selector={(state) => state.isSubmitting}>
 			{(isSubmitting) => (
-				<Button type="submit" disabled={isSubmitting}>
+				<Button className={className} size={size} type="submit" disabled={isSubmitting}>
 					{isSubmitting && (
 						<div className="w-4 h-4 border-2 border-secondary border-t-transparent rounded-full animate-spin" />
 					)}
@@ -197,4 +200,4 @@ function StepButton({
 	);
 }
 
-export { useAppForm, useFormContext, useFieldContext, withForm };
+export { useAppForm, useFormContext, useFieldContext, withForm , withFieldGroup };

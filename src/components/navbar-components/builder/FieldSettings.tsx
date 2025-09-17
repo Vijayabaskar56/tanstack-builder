@@ -218,7 +218,7 @@ export function FieldSettings({ field, onUpdateField }: FieldSettingsProps) {
 															validation: {
 																...field.validation,
 																minLength: e.target.value
-																	? parseInt(e.target.value)
+																	? Number.parseInt(e.target.value)
 																	: undefined,
 															},
 														})
@@ -238,7 +238,7 @@ export function FieldSettings({ field, onUpdateField }: FieldSettingsProps) {
 															validation: {
 																...field.validation,
 																maxLength: e.target.value
-																	? parseInt(e.target.value)
+																	? Number.parseInt(e.target.value)
 																	: undefined,
 															},
 														})
@@ -262,7 +262,7 @@ export function FieldSettings({ field, onUpdateField }: FieldSettingsProps) {
 															validation: {
 																...field.validation,
 																min: e.target.value
-																	? parseInt(e.target.value)
+																	? Number.parseInt(e.target.value)
 																	: undefined,
 															},
 														})
@@ -282,7 +282,7 @@ export function FieldSettings({ field, onUpdateField }: FieldSettingsProps) {
 															validation: {
 																...field.validation,
 																max: e.target.value
-																	? parseInt(e.target.value)
+																	? Number.parseInt(e.target.value)
 																	: undefined,
 															},
 														})
