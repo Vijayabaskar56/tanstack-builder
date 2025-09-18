@@ -94,7 +94,7 @@ export const generateValiSchemaObject = (
           element.type === "single"
             ? v.pipe(v.string(), v.minLength(1, "Please select an item"))
             : v.pipe(
-                v.array(v.string()),
+                v.array(v.unknown()),
                 v.minLength(1, "Please select at least one item"),
               );
         break;
@@ -235,6 +235,10 @@ export const generateValiSchemaString = (schema: ValiSchema): string => {
   // Handle arrays
   if (schema?.type === "array") {
     const elementType = generateValiSchemaString(schema.element);
+    // For arrays with unknown elements, generate v.array() without element type
+    if (elementType === "v.unknown()") {
+      return `v.array().nonempty("Please select at least one item")`;
+    }
     return `v.array(${elementType})`;
   }
 
@@ -365,7 +369,7 @@ export const getValiSchemaStringDirect = (
                 'v.pipe(v.string(), v.minLength(1, "Please select an item"))';
             } else {
               typeDefinition =
-                'v.pipe(v.array(v.string()), v.minLength(1, "Please select at least one item"))';
+                'v.pipe(v.array(v.unknown()), v.minLength(1, "Please select at least one item"))';
             }
             break;
 
