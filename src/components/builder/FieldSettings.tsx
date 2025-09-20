@@ -1,6 +1,3 @@
-/** biome-ignore-all lint/correctness/useUniqueElementIds: <explanation> */
-//FieldSettings.tsx
-
 import { Plus, Settings, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "../ui/button";

@@ -1,4 +1,4 @@
-import type { FormElementOrList, FormStep } from "../form-types";
+import type { FormElementOrList, FormStep } from "@/types/form-types";
 
 type TemplateList = Record<
   string,

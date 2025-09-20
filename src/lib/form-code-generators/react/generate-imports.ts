@@ -3,11 +3,11 @@ import type { FormArray, FormElement } from "@/types/form-types";
 
 export const generateImports = (
 	formElements: (FormElement | FormArray)[],
-	validationSchema: any,
+	validationSchema: unknown,
 	isMS: boolean,
 ): Set<string> => {
 	const importSet = new Set([
-		"import { formSchema } from '../form-schema'",
+		"import { formSchema } from './form-schema'",
 		'import { Button } from "@/components/ui/button"',
 		'import { useAppForm } from "@/components/ui/tanstack-form"',
 		'import { useStore , revalidateLogic } from "@tanstack/react-form"',

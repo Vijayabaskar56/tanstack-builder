@@ -142,13 +142,13 @@ export const generateValiSchemaObject = (
   };
 
   // Process all elements, handling both arrays and single elements
-  formElements.forEach((element) => {
+  for (const element of formElements) {
     if (Array.isArray(element)) {
       element.forEach(addType);
     } else {
       addType(element);
     }
-  });
+  }
 
   return { schemaObject, objectSchema: v.object(schemaObject) };
 };

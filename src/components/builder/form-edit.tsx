@@ -1,4 +1,3 @@
-// form-edit
 import { useListState } from "@/hooks/use-list-state";
 
 import { FormElementsDropdown } from "@/components/builder/form-elements-dropdown";
@@ -958,7 +957,7 @@ export function FormEdit() {
 													element !== null &&
 													"arrayField" in element
 												) {
-													const formArrayElement = element as any;
+													const formArrayElement = element as unknown as FormArray;
 													return (
 														<Reorder.Item
 															key={formArrayElement.id}
@@ -996,7 +995,7 @@ export function FormEdit() {
 																</div>
 																<div className="space-y-2">
 																	{formArrayElement.arrayField.map(
-																		(field: any, arrayFieldIndex: number) => {
+																		(field, arrayFieldIndex: number) => {
 																			if (Array.isArray(field)) {
 																				return (
 																					<Reorder.Item

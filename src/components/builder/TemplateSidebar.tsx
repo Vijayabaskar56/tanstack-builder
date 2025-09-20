@@ -1,10 +1,9 @@
-import { Clock, FileStack, Search, SquareStack, Trash2 } from "lucide-react";
-import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { templates } from "@/constants/templates";
 import { useFormStore } from "@/hooks/use-form-store";
+import { Clock, FileStack, SquareStack, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
 
 const formTemplates = Object.entries(templates).map((template) => ({
 	label: template[1].name,
@@ -13,7 +12,7 @@ const formTemplates = Object.entries(templates).map((template) => ({
 }));
 
 export function TemplateSidebar() {
-	const [searchQuery, setSearchQuery] = useState("");
+	const [searchQuery, _setSearchQuery] = useState("");
 	const [savedForms, setSavedForms] = useState<
 		Array<{ name: string; data: Record<string, unknown>; createdAt: string }>
 	>([]);

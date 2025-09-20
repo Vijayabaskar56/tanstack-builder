@@ -1,4 +1,4 @@
-import type { FormElement } from '../form-types';
+import type { FormElement } from '@/types/form-types';
 
 export const defaultFormElements: Record<
   FormElement['fieldType'],

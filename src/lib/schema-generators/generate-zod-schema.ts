@@ -60,7 +60,7 @@ const FIELD_SCHEMA_MAP = new Map<
 			if (hasTypeProperty(element)) {
 				if (element.type === "email") {
 					return z.email();
-				} else if (element.type === "number") {
+				} if (element.type === "number") {
 					return z.coerce.number();
 				}
 			}
@@ -73,7 +73,7 @@ const FIELD_SCHEMA_MAP = new Map<
 			if (hasTypeProperty(element)) {
 				if (element.type === "email") {
 					return z.email();
-				} else if (element.type === "number") {
+				} if (element.type === "number") {
 					return z.coerce.number();
 				}
 			}
@@ -248,7 +248,7 @@ export const generateZodSchemaString = (schema: ZodType): string => {
 			numberSchema.def.checks &&
 			Array.isArray(numberSchema.def.checks)
 		) {
-			numberSchema.def.checks.forEach((check: unknown) => {
+			for (const check of numberSchema.def.checks) {
 				// Check if the check object has the _zod property (Zod v4 structure)
 				if (
 					typeof check === "object" &&
@@ -285,7 +285,7 @@ export const generateZodSchemaString = (schema: ZodType): string => {
 						result += `.max(${check.value}, "Must be at most ${check.value}")`;
 					}
 				}
-			});
+			}
 		}
 
 		return result;
@@ -301,7 +301,7 @@ export const generateZodSchemaString = (schema: ZodType): string => {
 			stringSchema.def.checks &&
 			Array.isArray(stringSchema.def.checks)
 		) {
-			stringSchema.def.checks.forEach((check: unknown) => {
+			for (const check of stringSchema.def.checks) {
 				// Handle different check structures
 				if (typeof check === "object" && check !== null && "kind" in check) {
 					if (check.kind === "min" && "value" in check && "message" in check) {
@@ -342,7 +342,7 @@ export const generateZodSchemaString = (schema: ZodType): string => {
 						}
 					}
 				}
-			});
+			}
 		}
 
 		// If this is not an optional string and doesn't have min constraint, add default min(1)

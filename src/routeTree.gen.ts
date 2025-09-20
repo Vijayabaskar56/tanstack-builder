@@ -8,20 +8,12 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { createServerRootRoute } from '@tanstack/react-start/server'
-
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TestingRouteImport } from './routes/testing'
 import { Route as TableBuilderRouteImport } from './routes/table-builder'
 import { Route as FormBuilderRouteImport } from './routes/form-builder'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as FormBuilderIndexRouteImport } from './routes/form-builder/index'
-import { Route as OrpcDemoTableRouteImport } from './routes/orpc/demo.table'
-import { Route as OrpcDemoOrpcTodoRouteImport } from './routes/orpc/demo.orpc-todo'
-import { ServerRoute as OrpcApiSplatServerRouteImport } from './routes/orpc/api.$'
-import { ServerRoute as OrpcApiRpcSplatServerRouteImport } from './routes/orpc/api.rpc.$'
-
-const rootServerRouteImport = createServerRootRoute()
 
 const TestingRoute = TestingRouteImport.update({
   id: '/testing',
@@ -48,26 +40,6 @@ const FormBuilderIndexRoute = FormBuilderIndexRouteImport.update({
   path: '/',
   getParentRoute: () => FormBuilderRoute,
 } as any)
-const OrpcDemoTableRoute = OrpcDemoTableRouteImport.update({
-  id: '/orpc/demo/table',
-  path: '/orpc/demo/table',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const OrpcDemoOrpcTodoRoute = OrpcDemoOrpcTodoRouteImport.update({
-  id: '/orpc/demo/orpc-todo',
-  path: '/orpc/demo/orpc-todo',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const OrpcApiSplatServerRoute = OrpcApiSplatServerRouteImport.update({
-  id: '/orpc/api/$',
-  path: '/orpc/api/$',
-  getParentRoute: () => rootServerRouteImport,
-} as any)
-const OrpcApiRpcSplatServerRoute = OrpcApiRpcSplatServerRouteImport.update({
-  id: '/orpc/api/rpc/$',
-  path: '/orpc/api/rpc/$',
-  getParentRoute: () => rootServerRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -75,16 +47,12 @@ export interface FileRoutesByFullPath {
   '/table-builder': typeof TableBuilderRoute
   '/testing': typeof TestingRoute
   '/form-builder/': typeof FormBuilderIndexRoute
-  '/orpc/demo/orpc-todo': typeof OrpcDemoOrpcTodoRoute
-  '/orpc/demo/table': typeof OrpcDemoTableRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/table-builder': typeof TableBuilderRoute
   '/testing': typeof TestingRoute
   '/form-builder': typeof FormBuilderIndexRoute
-  '/orpc/demo/orpc-todo': typeof OrpcDemoOrpcTodoRoute
-  '/orpc/demo/table': typeof OrpcDemoTableRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -93,8 +61,6 @@ export interface FileRoutesById {
   '/table-builder': typeof TableBuilderRoute
   '/testing': typeof TestingRoute
   '/form-builder/': typeof FormBuilderIndexRoute
-  '/orpc/demo/orpc-todo': typeof OrpcDemoOrpcTodoRoute
-  '/orpc/demo/table': typeof OrpcDemoTableRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -104,16 +70,8 @@ export interface FileRouteTypes {
     | '/table-builder'
     | '/testing'
     | '/form-builder/'
-    | '/orpc/demo/orpc-todo'
-    | '/orpc/demo/table'
   fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/table-builder'
-    | '/testing'
-    | '/form-builder'
-    | '/orpc/demo/orpc-todo'
-    | '/orpc/demo/table'
+  to: '/' | '/table-builder' | '/testing' | '/form-builder'
   id:
     | '__root__'
     | '/'
@@ -121,8 +79,6 @@ export interface FileRouteTypes {
     | '/table-builder'
     | '/testing'
     | '/form-builder/'
-    | '/orpc/demo/orpc-todo'
-    | '/orpc/demo/table'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -130,33 +86,6 @@ export interface RootRouteChildren {
   FormBuilderRoute: typeof FormBuilderRouteWithChildren
   TableBuilderRoute: typeof TableBuilderRoute
   TestingRoute: typeof TestingRoute
-  OrpcDemoOrpcTodoRoute: typeof OrpcDemoOrpcTodoRoute
-  OrpcDemoTableRoute: typeof OrpcDemoTableRoute
-}
-export interface FileServerRoutesByFullPath {
-  '/orpc/api/$': typeof OrpcApiSplatServerRoute
-  '/orpc/api/rpc/$': typeof OrpcApiRpcSplatServerRoute
-}
-export interface FileServerRoutesByTo {
-  '/orpc/api/$': typeof OrpcApiSplatServerRoute
-  '/orpc/api/rpc/$': typeof OrpcApiRpcSplatServerRoute
-}
-export interface FileServerRoutesById {
-  __root__: typeof rootServerRouteImport
-  '/orpc/api/$': typeof OrpcApiSplatServerRoute
-  '/orpc/api/rpc/$': typeof OrpcApiRpcSplatServerRoute
-}
-export interface FileServerRouteTypes {
-  fileServerRoutesByFullPath: FileServerRoutesByFullPath
-  fullPaths: '/orpc/api/$' | '/orpc/api/rpc/$'
-  fileServerRoutesByTo: FileServerRoutesByTo
-  to: '/orpc/api/$' | '/orpc/api/rpc/$'
-  id: '__root__' | '/orpc/api/$' | '/orpc/api/rpc/$'
-  fileServerRoutesById: FileServerRoutesById
-}
-export interface RootServerRouteChildren {
-  OrpcApiSplatServerRoute: typeof OrpcApiSplatServerRoute
-  OrpcApiRpcSplatServerRoute: typeof OrpcApiRpcSplatServerRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -196,38 +125,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FormBuilderIndexRouteImport
       parentRoute: typeof FormBuilderRoute
     }
-    '/orpc/demo/table': {
-      id: '/orpc/demo/table'
-      path: '/orpc/demo/table'
-      fullPath: '/orpc/demo/table'
-      preLoaderRoute: typeof OrpcDemoTableRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/orpc/demo/orpc-todo': {
-      id: '/orpc/demo/orpc-todo'
-      path: '/orpc/demo/orpc-todo'
-      fullPath: '/orpc/demo/orpc-todo'
-      preLoaderRoute: typeof OrpcDemoOrpcTodoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-  }
-}
-declare module '@tanstack/react-start/server' {
-  interface ServerFileRoutesByPath {
-    '/orpc/api/$': {
-      id: '/orpc/api/$'
-      path: '/orpc/api/$'
-      fullPath: '/orpc/api/$'
-      preLoaderRoute: typeof OrpcApiSplatServerRouteImport
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/orpc/api/rpc/$': {
-      id: '/orpc/api/rpc/$'
-      path: '/orpc/api/rpc/$'
-      fullPath: '/orpc/api/rpc/$'
-      preLoaderRoute: typeof OrpcApiRpcSplatServerRouteImport
-      parentRoute: typeof rootServerRouteImport
-    }
   }
 }
 
@@ -248,16 +145,7 @@ const rootRouteChildren: RootRouteChildren = {
   FormBuilderRoute: FormBuilderRouteWithChildren,
   TableBuilderRoute: TableBuilderRoute,
   TestingRoute: TestingRoute,
-  OrpcDemoOrpcTodoRoute: OrpcDemoOrpcTodoRoute,
-  OrpcDemoTableRoute: OrpcDemoTableRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-const rootServerRouteChildren: RootServerRouteChildren = {
-  OrpcApiSplatServerRoute: OrpcApiSplatServerRoute,
-  OrpcApiRpcSplatServerRoute: OrpcApiRpcSplatServerRoute,
-}
-export const serverRouteTree = rootServerRouteImport
-  ._addFileChildren(rootServerRouteChildren)
-  ._addFileTypes<FileServerRouteTypes>()

@@ -1,4 +1,3 @@
-// Export Pannel
 import { Check, Code, Copy, Download, Upload } from "lucide-react";
 import { useState } from "react";
 import { Button } from "../ui/button";

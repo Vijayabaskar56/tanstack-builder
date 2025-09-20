@@ -1,5 +1,3 @@
-// form-array-preview.tsx
-
 import { Plus, Trash2 } from "lucide-react";
 import { RenderFormElement } from "@/components/builder/render-form-element";
 import { Button } from "@/components/ui/button";
