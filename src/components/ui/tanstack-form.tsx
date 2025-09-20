@@ -2,6 +2,7 @@ import {
   createFormHook,
   createFormHookContexts,
   useStore,
+  revalidateLogic,
 } from "@tanstack/react-form";
 import type { VariantProps } from "class-variance-authority";
 import * as React from "react";
@@ -9,8 +10,6 @@ import { Button, type buttonVariants } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { Slot } from "@radix-ui/react-slot";
-import { Input } from "./input";
-
 const {
   fieldContext,
   formContext,
@@ -145,10 +144,13 @@ function FormMessage({ className, ...props }: React.ComponentProps<"p">) {
   );
 }
 
-function Form({ children }: { children?: React.ReactNode }) {
+function Form({
+  children,
+  ...props
+}: Omit<React.ComponentPropsWithoutRef<"form">, "onSubmit" & "noValidate"> & { children?: React.ReactNode }) {
   const form = useFormContext();
   const handleSubmit = React.useCallback(
-    (e: React.FormEvent) => {
+    (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
       e.stopPropagation();
       form.handleSubmit();
@@ -158,8 +160,9 @@ function Form({ children }: { children?: React.ReactNode }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex flex-col p-2 md:p-5 w-full mx-auto rounded-md max-w-3xl gap-2 border"
+      className={cn("flex flex-col p-2 md:p-5 w-full mx-auto gap-2", props.className)}
       noValidate
+      {...props}
     >
       {children}
     </form>
@@ -218,4 +221,5 @@ export {
   useFieldContext,
   withForm,
   withFieldGroup,
+  revalidateLogic,
 };

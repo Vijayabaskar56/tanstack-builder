@@ -1,19 +1,15 @@
-// use-form-builder.tsx
-
-import { revalidateLogic } from "@tanstack/react-form";
 import { useMemo } from "react";
 import { toast } from "sonner";
-import type z from "zod";
-import { useAppForm } from "@/components/ui/tanstack-form";
+import { revalidateLogic, useAppForm } from "@/components/ui/tanstack-form";
 import type { FormElement, FormStep } from "@/types/form-types";
 import { useFormStore, useIsMultiStep } from "@/hooks/use-form-store";
 import useSettings from "@/hooks/use-settings";
 import { getDefaultFormElement } from "@/lib/form-code-generators/react/generate-default-value";
 import { flattenFormSteps } from "@/lib/form-elements-helpers";
-import { generateZodSchemaObject } from "@/lib/schema-generators/generate-zod-schema";
-
+import type * as v from "valibot";
+import { generateValiSchemaObject } from "@/lib/schema-generators/generate-valibot-schema";
 interface DefaultValues {
-  [key: string]: any;
+  [key: string]: unknown;
 }
 export type AppForm = ReturnType<typeof useAppForm> & {
   baseStore: {
@@ -33,8 +29,8 @@ export type AppForm = ReturnType<typeof useAppForm> & {
       FormControl: React.ComponentType<React.PropsWithChildren>;
       FormDescription: React.ComponentType<React.PropsWithChildren>;
       FormMessage: React.ComponentType<React.PropsWithChildren>;
-      state: { value: any };
-      handleChange: (value: any) => void;
+      state: { value: unknown };
+      handleChange: (value: unknown) => void;
       handleBlur: () => void;
     }) => React.ReactElement;
   }>;
@@ -43,7 +39,6 @@ export type AppForm = ReturnType<typeof useAppForm> & {
 
 export const useFormBuilder = (): {
   form: AppForm;
-  onSubmit: (data: any) => Promise<void>;
   resetForm: () => void;
 } => {
   const isMS = useIsMultiStep();
@@ -54,8 +49,8 @@ export const useFormBuilder = (): {
   const filteredFormFields = flattenFormElements.filter((o) => !o.static);
   const settings = useSettings();
 
-  const zodSchema = useMemo(
-    () => generateZodSchemaObject(filteredFormFields),
+  const valiSchema = useMemo(
+    () => generateValiSchemaObject(filteredFormFields),
     [filteredFormFields],
   );
   const defaultValue = useMemo(
@@ -63,22 +58,22 @@ export const useFormBuilder = (): {
     [filteredFormFields],
   );
   const form = useAppForm({
-    defaultValues: defaultValue as z.input<typeof zodSchema>,
+    defaultValues: defaultValue as v.InferInput<typeof valiSchema.objectSchema>,
     validationLogic: revalidateLogic(),
-    validators: { onDynamic: zodSchema },
+    validators: { onDynamic: valiSchema.objectSchema },
     onSubmit: () => {
       toast.success("Submitted Successfully");
     },
     onSubmitInvalid({ formApi }) {
       if (settings.focusOnError) {
-        const errorMap = formApi.state.errorMap.onDynamic!;
+        const errorMap = formApi.state.errorMap.onDynamic;
         const inputs = Array.from(
           document.querySelectorAll("#previewForm input"),
         ) as HTMLInputElement[];
 
         let firstInput: HTMLInputElement | undefined;
         for (const input of inputs) {
-          if (errorMap[input.name]) {
+          if (errorMap?.[input.name]) {
             firstInput = input;
             break;
           }
@@ -92,8 +87,5 @@ export const useFormBuilder = (): {
     actions.resetFormElements();
     reset();
   };
-  const onSubmit = async (): Promise<void> => {
-    return new Promise<void>((resolve) => setTimeout(() => resolve(), 2000));
-  };
-  return { form: form as unknown as AppForm, onSubmit, resetForm };
+  return { form: form as unknown as AppForm,  resetForm };
 };

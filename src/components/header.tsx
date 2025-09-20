@@ -75,8 +75,8 @@ export default function FormHeader() {
       setSaveFormName("");
     }
   };
-  function setChecked(arg0: boolean): void {
-    throw new Error("Function not implemented.");
+  function setChecked(value : boolean): void {
+    actions.setIsMS(value);
   }
 
   return (

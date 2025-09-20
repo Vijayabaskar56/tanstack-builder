@@ -9,8 +9,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { formElementsList } from "@/constants/form-elements-list";
 import { useFormStore } from "@/hooks/use-form-store";
-import type { FormArray } from "@/lib/store-zod-schema";
-import type { FormElement } from "@/types/form-types";
+import type { FormArray, FormElement } from "@/types/form-types";
 import { Plus, PlusCircle } from "lucide-react";
 
 type DropdownContext = "nested" | "multistep" | "formarray";

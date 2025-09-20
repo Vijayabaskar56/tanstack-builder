@@ -4,17 +4,15 @@ import { MultiStepFormPreview } from "@/components/builder/multi-step-preview";
 import { RenderFormElement } from "@/components/builder/render-form-element";
 import { Button } from "@/components/ui/button";
 
-import type { FormArray, FormElement, FormStep } from "@/types/form-types";
 import type { AppForm } from "@/hooks/use-form-builder";
-import { useFormBuilder } from "@/hooks/use-form-builder";
 import { useFormStore, useIsMultiStep } from "@/hooks/use-form-store";
+import type { FormArray, FormElement, FormStep } from "@/types/form-types";
 
 interface FormPreviewProps {
   form: AppForm;
 }
 
 export function SingleStepFormPreview({ form }: FormPreviewProps) {
-  const { onSubmit } = useFormBuilder();
   const { formElements } = useFormStore();
   const isMS = useIsMultiStep();
   if (formElements.length < 1)
@@ -28,18 +26,9 @@ export function SingleStepFormPreview({ form }: FormPreviewProps) {
   return (
     <div className="w-full animate-in rounded-md">
       <form.AppForm>
-        <form
+        <form.Form
           id="previewForm"
           noValidate
-          onSubmit={async (e) => {
-            e.preventDefault();
-            if (!isMS) {
-              await form.handleSubmit();
-              const formData = form.baseStore.state.values;
-              await onSubmit(formData);
-            }
-          }}
-          className="flex flex-col p-2 md:px-5 w-full gap-4"
         >
           {isMS ? (
             <MultiStepFormPreview
@@ -97,7 +86,7 @@ export function SingleStepFormPreview({ form }: FormPreviewProps) {
               </Button>
             </div>
           )}
-        </form>
+        </form.Form>
       </form.AppForm>
     </div>
   );

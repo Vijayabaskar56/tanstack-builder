@@ -4,24 +4,13 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { useAppForm } from "@/components/ui/tanstack-form";
-import { settingsCollection } from "@/db-collections/settings.collections";
+import { settingsCollection, SettingsSchema } from "@/db-collections/settings.collections";
 import useSettings from "@/hooks/use-settings";
 import { Eye, Shield } from "lucide-react";
 import { useId } from "react";
-import * as z from "zod";
 import { Separator } from "../ui/separator";
-
-// Zod schema for settings validation
-const settingsSchema = z.object({
-  defaultRequiredValidation: z.boolean(),
-  numericInput: z.boolean(),
-  focusOnError: z.boolean(),
-  validationMethod: z.enum(["onChange", "onBlue", "onDynamic"]),
-  asyncValidation: z.number().min(0).max(10000),
-  preferredSchema: z.enum(["zod", "valibot", "arktype"]),
-  preferredFramework: z.enum(["react", "vue", "angular", "solid"]),
-});
-
+import type * as v from "valibot"
+import type { PreferredSchema, PreferredFramework, ValidationMethod } from "@/db-collections/settings.collections";
 export function SettingsSidebar() {
   const requiredValidationId = useId();
   const focusOnErrorId = useId();
@@ -39,9 +28,9 @@ export function SettingsSidebar() {
       asyncValidation: data?.asyncValidation,
       preferredSchema: data?.preferredSchema,
       preferredFramework: data?.preferredFramework,
-    } as z.input<typeof settingsSchema>,
+    } as v.InferInput<typeof SettingsSchema>,
     validators: {
-      onChange: settingsSchema,
+      onChange: SettingsSchema,
     },
     listeners: {
       onChangeDebounceMs: 1000,
@@ -170,9 +159,7 @@ export function SettingsSidebar() {
                               }`}
                               onClick={() =>
                                 field.handleChange(
-                                  option.value as z.input<
-                                    typeof settingsSchema
-                                  >["validationMethod"],
+                                  option.value as ValidationMethod,
                                 )
                               }
                               // biome-ignore lint/a11y/useSemanticElements: <explanation>
@@ -183,9 +170,7 @@ export function SettingsSidebar() {
                                 if (e.key === "Enter" || e.key === " ") {
                                   e.preventDefault();
                                   field.handleChange(
-                                    option.value as z.input<
-                                      typeof settingsSchema
-                                    >["validationMethod"],
+                                    option.value as ValidationMethod,
                                   );
                                 }
                               }}
@@ -227,7 +212,7 @@ export function SettingsSidebar() {
                             min={100}
                             max={1000}
                             step={50}
-                            value={[field.state.value]}
+                            value={[field.state.value ?? 500]}
                             onValueChange={(value) => {
                               field.handleChange(value[0]);
                             }}
@@ -284,9 +269,7 @@ export function SettingsSidebar() {
                               }`}
                               onClick={() =>
                                 field.handleChange(
-                                  option.value as z.input<
-                                    typeof settingsSchema
-                                  >["preferredSchema"],
+                                  option.value as PreferredSchema
                                 )
                               }
                               // biome-ignore lint/a11y/useSemanticElements: <explanation>
@@ -297,9 +280,7 @@ export function SettingsSidebar() {
                                 if (e.key === "Enter" || e.key === " ") {
                                   e.preventDefault();
                                   field.handleChange(
-                                    option.value as z.input<
-                                      typeof settingsSchema
-                                    >["preferredSchema"],
+                                      option.value as PreferredSchema
                                   );
                                 }
                               }}
@@ -343,9 +324,7 @@ export function SettingsSidebar() {
                               }`}
                               onClick={() =>
                                 field.handleChange(
-                                  option.value as z.input<
-                                    typeof settingsSchema
-                                  >["preferredFramework"],
+                                  option.value as PreferredFramework,
                                 )
                               }
                               // biome-ignore lint/a11y/useSemanticElements: <explanation>
@@ -356,9 +335,7 @@ export function SettingsSidebar() {
                                 if (e.key === "Enter" || e.key === " ") {
                                   e.preventDefault();
                                   field.handleChange(
-                                    option.value as z.input<
-                                      typeof settingsSchema
-                                    >["preferredFramework"],
+                                      option.value as PreferredFramework,
                                   );
                                 }
                               }}
