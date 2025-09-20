@@ -18,7 +18,6 @@ import type {
 } from "@/types/form-types";
 import { useFormStore, useIsMultiStep } from "@/hooks/use-form-store";
 import useSettings from "@/hooks/use-settings";
-import { generateFormCode } from "@/lib/form-code-generators/react/generate-form-code";
 import { flattenFormSteps } from "@/lib/form-elements-helpers";
 import { getArkTypeSchemaString } from "@/lib/schema-generators/generate-arktype-schema";
 import { getValiSchemaString } from "@/lib/schema-generators/generate-valibot-schema";
@@ -29,6 +28,7 @@ import {
 import type { FormArray } from "@/types/form-types";
 import { formatCode } from "@/lib/utils";
 import { useEffect } from "react";
+import { generateFormCode } from "@/lib/form-code-generators/react/generate-form-code";
 
 const Wrapper = ({
   children,

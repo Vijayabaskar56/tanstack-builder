@@ -19,6 +19,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { settingsCollection } from "@/db-collections/settings.collections";
 import type { QueryClient } from "@tanstack/react-query";
 import { FormDevtoolsPlugin } from "@tanstack/react-form-devtools";
+import { ErrorFallback } from "@/components/ui/error-fallback";
 
 interface MyRouterContext {
 	queryClient: QueryClient;
@@ -77,6 +78,12 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 			]);
 		}
 	},
+	onError : (context) => {
+	console.error("Global error handler:", context.error);
+	return (
+		<ErrorFallback error={context.error}  />
+		);
+  	},
 });
 
 function RootDocument({ children }: { children: React.ReactNode }) {

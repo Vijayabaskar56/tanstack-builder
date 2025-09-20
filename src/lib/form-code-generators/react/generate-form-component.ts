@@ -1,9 +1,10 @@
+// generate-form-component.ts
 import type { FormElement } from "@/types/form-types";
 
 const formatFieldName = (name: string) => {
   // If name starts with backtick, it's an array field - ensure it ends with backtick
   if (name.startsWith("`")) {
-    return name.endsWith("`") ? name : name + "`";
+    return name.endsWith("`") ? name : `${name}\``;
   }
   // Otherwise, wrap in quotes as string literal
   return `"${name}"`;
@@ -14,8 +15,8 @@ export const getFormElementCode = (field: FormElement, isInGroup = false) => {
   switch (field.fieldType) {
     case "Input":
       return `<${fieldPrefix}.AppField
-                name={${formatFieldName(field.name)}}
-                children={(field) => (
+                name={${formatFieldName(field.name)}}>
+                {(field) => (
                     <field.FormItem className="w-full">
                      ${field.label && `<field.FormLabel>${field.label} ${field.required ? "*" : ""}</field.FormLabel>`}
                       <field.FormControl>
@@ -32,13 +33,12 @@ export const getFormElementCode = (field: FormElement, isInGroup = false) => {
                       <field.FormMessage />
                   </field.FormItem>
                   )}
-              />
+              </${fieldPrefix}.AppField>
               `;
     case "OTP":
       return `
-       <${fieldPrefix}.AppField
-          name={${formatFieldName(field.name)}}
-          children={(field) => (
+       <${fieldPrefix}.AppField name={${formatFieldName(field.name)}} >
+          {(field) => (
            <field.FormItem className="w-full">
           ${field.label && `<field.FormLabel>${field.label} ${field.required ? "*" : ""}</field.FormLabel>`}
           <field.FormControl>
@@ -66,12 +66,12 @@ export const getFormElementCode = (field: FormElement, isInGroup = false) => {
           <field.FormMessage />
         </field.FormItem>
           )}
-        />`;
+        </${fieldPrefix}.AppField>
+        `;
     case "Textarea":
       return `
-        <${fieldPrefix}.AppField
-          name={${formatFieldName(field.name)}}
-          children={(field) => (
+        <${fieldPrefix}.AppField name={${formatFieldName(field.name)}} >
+          {(field) => (
             <field.FormItem>
            ${field.label && `<field.FormLabel>${field.label} ${field.required ? "*" : ""}</field.FormLabel>`}
               <field.FormControl>
@@ -88,12 +88,12 @@ export const getFormElementCode = (field: FormElement, isInGroup = false) => {
               <field.FormMessage />
             </field.FormItem>
           )}
-        />`;
+        </${fieldPrefix}.AppField>
+        `;
     case "Password":
       return `
-       <${fieldPrefix}.AppField
-          name={${formatFieldName(field.name)}}
-          children={(field) => (
+       <${fieldPrefix}.AppField name={${formatFieldName(field.name)}} >
+          {(field) => (
             <field.FormItem className="w-full">
             ${field.label && `<field.FormLabel>${field.label} ${field.required ? "*" : ""}</field.FormLabel>`}
               <field.FormControl>
@@ -110,12 +110,11 @@ export const getFormElementCode = (field: FormElement, isInGroup = false) => {
               <field.FormMessage />
             </field.FormItem>
           )}
-        />
+        </${fieldPrefix}.AppField>
         `;
     case "Checkbox":
-      return `<${fieldPrefix}.AppField
-          name={${formatFieldName(field.name)}}
-          children={(field) => (
+      return `<${fieldPrefix}.AppField name={${formatFieldName(field.name)}}  >
+          {(field) => (
             <field.FormItem className="flex flex-row items-start space-x-3 space-y-0 p-4">
               <field.FormControl>
                 <Checkbox
@@ -133,12 +132,12 @@ export const getFormElementCode = (field: FormElement, isInGroup = false) => {
               </div>
             </field.FormItem>
           )}
-        />`;
+        </${fieldPrefix}.AppField>
+        `;
     case "DatePicker":
       return `
-      <${fieldPrefix}.AppField
-      name={${formatFieldName(field.name)}}
-      children={(field) => (
+      <${fieldPrefix}.AppField name={${formatFieldName(field.name)}} >
+      {(field) => (
         <field.FormItem className="flex flex-col">
             ${field.label && `<field.FormLabel>${field.label} ${field.required ? "*" : ""}</field.FormLabel>`}
           <Popover>
@@ -173,12 +172,12 @@ export const getFormElementCode = (field: FormElement, isInGroup = false) => {
           <field.FormMessage />
         </field.FormItem>
       )}
-    />`;
+    </${fieldPrefix}.AppField>
+    `;
     case "MultiSelect":
       return `
-           <${fieldPrefix}.AppField
-              name={${formatFieldName(field.name)}}
-              children={(field) => {
+           <${fieldPrefix}.AppField name={${formatFieldName(field.name)}} >
+              {(field) => {
               const options = ${
                 field.options
                   ? `[${field.options.map((opt) => `{label: "${opt.label}", value: "${opt.value}"}`).join(", ")}]`
@@ -213,12 +212,12 @@ export const getFormElementCode = (field: FormElement, isInGroup = false) => {
                   <field.FormMessage />
                 </field.FormItem>
               )}}
-            />`;
+            </${fieldPrefix}.AppField>
+            `;
     case "Select":
       return `
-        <${fieldPrefix}.AppField
-          name={${formatFieldName(field.name)}}
-          children={(field) => {
+        <${fieldPrefix}.AppField name={${formatFieldName(field.name)}} >
+          {(field) => {
           const options = ${
             field.options
               ? `[${field.options.map((opt) => `{label: "${opt.label}", value: "${opt.value}"}`).join(", ")}]`
@@ -249,12 +248,12 @@ export const getFormElementCode = (field: FormElement, isInGroup = false) => {
               <field.FormMessage />
             </field.FormItem>
           )}}
-        />`;
+        </${fieldPrefix}.AppField>
+        `;
     case "Slider":
       return `
-            <${fieldPrefix}.AppField
-              name={${formatFieldName(field.name)}}
-              children={(field) => (
+            <${fieldPrefix}.AppField name={${formatFieldName(field.name)}} >
+              {(field) => (
               <field.FormItem>
                 <field.FormLabel className="flex justify-between items-center">${field.label ?? ""}<span>{field.state.value}/${field?.max ?? 100}</span>
                 </field.FormLabel>
@@ -274,12 +273,12 @@ export const getFormElementCode = (field: FormElement, isInGroup = false) => {
                 <field.FormMessage />
               </field.FormItem>
               )}
-            />`;
+            </${fieldPrefix}.AppField>
+            `;
     case "Switch":
       return `
-            <${fieldPrefix}.AppField
-              name={${formatFieldName(field.name)}}
-              children={(field) => (
+            <${fieldPrefix}.AppField name={${formatFieldName(field.name)}} >
+              {(field) => (
                 <field.FormItem className="flex flex-col p-3 justify-center w-full border rounded">
                     <div className="flex items-center justify-between h-full">
                       ${field.label && `<field.FormLabel>${field.label} ${field.required ? "*" : ""}</field.FormLabel>`}
@@ -293,11 +292,11 @@ export const getFormElementCode = (field: FormElement, isInGroup = false) => {
                     ${field.description ? `<field.FormDescription>${field.description}</field.FormDescription>` : ""}
                 </field.FormItem>
               )}
-            />`;
+            </${fieldPrefix}.AppField>
+            `;
     case "RadioGroup":
-      return `<${fieldPrefix}.AppField
-              name={${formatFieldName(field.name)}}
-              children={(field) => {
+      return `<${fieldPrefix}.AppField name={${formatFieldName(field.name)}} >
+              {(field) => {
                 const options = ${
                   field.options
                     ? `[${field.options.map((opt) => `{label: "${opt.label}", value: "${opt.value}"}`).join(", ")}]`
@@ -331,11 +330,11 @@ export const getFormElementCode = (field: FormElement, isInGroup = false) => {
                     <field.FormMessage />
                 </field.FormItem>
               )}}
-            />`;
+            </${fieldPrefix}.AppField>
+            `;
     case "ToggleGroup":
-      return `<${fieldPrefix}.AppField
-              name={${formatFieldName(field.name)}}
-              children={(field) => {
+      return `<${fieldPrefix}.AppFieldname={${formatFieldName(field.name)}} >
+              {(field) => {
               const options = ${
                 field.options
                   ? `[${field.options.map((opt) => `{label: "${opt.label}", value: "${opt.value}"}`).join(", ")}]`
