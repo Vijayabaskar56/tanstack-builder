@@ -1,10 +1,10 @@
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import {
- HeadContent,
- Outlet,
- Scripts,
- createRootRouteWithContext,
- useRouterState,
+	HeadContent,
+	Outlet,
+	Scripts,
+	createRootRouteWithContext,
+	useRouterState,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 
@@ -20,7 +20,6 @@ import { settingsCollection } from "@/db-collections/settings.collections";
 import type { QueryClient } from "@tanstack/react-query";
 import { FormDevtoolsPlugin } from "@tanstack/react-form-devtools";
 import { ErrorFallback } from "@/components/ui/error-fallback";
-
 interface MyRouterContext {
 	queryClient: QueryClient;
 }
@@ -78,12 +77,10 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 			]);
 		}
 	},
-	onError : (context) => {
-	console.error("Global error handler:", context.error);
-	return (
-		<ErrorFallback error={context.error}  />
-		);
-  	},
+	onError: (context) => {
+		console.error("Global error handler:", context.error);
+		return <ErrorFallback error={context.error} />;
+	},
 });
 
 function RootDocument({ children }: { children: React.ReactNode }) {
@@ -92,29 +89,30 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 	});
 
 	return (
-		<html lang="en">
+		<html lang="en" suppressHydrationWarning>
 			<head>
 				<HeadContent />
 			</head>
-			<body>
+			<body suppressHydrationWarning={true}>
 				<ThemeProvider defaultTheme="system" attribute="class" enableSystem>
 					<div className="max-h-screen">
 						<NavBar />
 						{isFetching ? <Loader /> : <Outlet />}
 					</div>
-     	 <TanStackDevtools
-					config={{
-						position: "bottom-left",
-					}}
-					plugins={[
-      // FormDevtoolsPlugin(),
-   			{
-							name: "Tanstack Router",
-							render: <TanStackRouterDevtoolsPanel />,
-						},
-						TanStackQueryDevtools,
-					]}
-				/>
+					<TanStackDevtools
+						config={{
+							position: "bottom-left",
+						}}
+						plugins={[
+							FormDevtoolsPlugin(),
+							// pacerDevtoolsPlugin(),
+							{
+								name: "Tanstack Router",
+								render: <TanStackRouterDevtoolsPanel />,
+							},
+							TanStackQueryDevtools,
+						]}
+					/>
 					<Toaster richColors />
 				</ThemeProvider>
 				<Scripts />

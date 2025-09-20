@@ -1,16 +1,12 @@
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
-import { Separator } from "@/components/ui/separator";
-import { Slider } from "@/components/ui/slider";
 import { useAppForm, withFieldGroup } from "@/components/ui/tanstack-form";
 import { Textarea } from "@/components/ui/textarea";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useFormStepper } from "@/hooks/use-stepper";
-import { revalidateLogic, useStore } from "@tanstack/react-form";
+import { createFieldMap, mergeForm, revalidateLogic, useStore } from "@tanstack/react-form";
 import { createFileRoute } from "@tanstack/react-router";
-import { Plus, Trash2 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useCallback } from "react";
 import { toast } from "sonner";
@@ -25,15 +21,16 @@ const Step1Group = withFieldGroup({
     name: "",
     lastName: "",
   },
-  render: function Step1Render({ group }) {
+  onSubmitMeta : {stepNo : 1},
+  render: function Step1Render({ group, }) {
     return (
       <div>
         <h2 className="text-2xl font-bold">Step 1</h2>
         <h2 className="text-2xl font-bold">Personal Details</h2>
         <p className="text-base">Please provide your personal details</p>
         <group.AppField
-          name={"name"}
-          children={(field) => (
+          name={"name"}>
+          {(field) => (
             <field.FormItem className="w-full">
               <field.FormLabel>First name *</field.FormLabel>
               <field.FormControl>
@@ -50,11 +47,11 @@ const Step1Group = withFieldGroup({
               <field.FormMessage />
             </field.FormItem>
           )}
-        />
+        </group.AppField>
 
         <group.AppField
-          name={"lastName"}
-          children={(field) => (
+          name={"lastName"}>
+          {(field) => (
             <field.FormItem className="w-full">
               <field.FormLabel>Last name </field.FormLabel>
               <field.FormControl>
@@ -71,7 +68,7 @@ const Step1Group = withFieldGroup({
               <field.FormMessage />
             </field.FormItem>
           )}
-        />
+        </group.AppField>
       </div>
     );
   },
@@ -88,8 +85,8 @@ const Step2Group = withFieldGroup({
         <h2 className="text-2xl font-bold">Contact Information</h2>
         <p className="text-base">Please provide your contact information</p>
         <group.AppField
-          name={"yourEmail"}
-          children={(field) => (
+          name={"yourEmail"}>
+          {(field) => (
             <field.FormItem className="w-full">
               <field.FormLabel>Your Email *</field.FormLabel>
               <field.FormControl>
@@ -106,11 +103,11 @@ const Step2Group = withFieldGroup({
               <field.FormMessage />
             </field.FormItem>
           )}
-        />
+        </group.AppField>
 
         <group.AppField
-          name={"phoneNumber"}
-          children={(field) => (
+          name={"phoneNumber"}>
+            {(field) => (
             <field.FormItem className="w-full">
               <field.FormLabel>Phone Number </field.FormLabel>
               <field.FormControl>
@@ -127,7 +124,7 @@ const Step2Group = withFieldGroup({
               <field.FormMessage />
             </field.FormItem>
           )}
-        />
+        </group.AppField>
       </div>
     );
   },
@@ -143,8 +140,8 @@ const Step3Group = withFieldGroup({
         <h2 className="text-2xl font-bold">Step 3</h2>
         <h2 className="text-2xl font-bold">Your Preferences</h2>
         <group.AppField
-          name={"preferences"}
-          children={(field) => {
+          name={"preferences"}>
+          {(field) => {
             const options = [
               { label: "Technology", value: "technology" },
               { label: "Business", value: "Business" },
@@ -180,11 +177,11 @@ const Step3Group = withFieldGroup({
               </field.FormItem>
             );
           }}
-        />
+        </group.AppField>
 
         <group.AppField
-          name={"comment"}
-          children={(field) => (
+          name={"comment"}>
+            {(field) => (
             <field.FormItem>
               <field.FormLabel>Feedback Comment </field.FormLabel>
               <field.FormControl>
@@ -201,7 +198,7 @@ const Step3Group = withFieldGroup({
               <field.FormMessage />
             </field.FormItem>
           )}
-        />
+        </group.AppField>
       </div>
     );
   },
@@ -254,6 +251,7 @@ export function DraftForm() {
       comment: "",
     } as z.input<typeof formSchema>,
     validationLogic: revalidateLogic(),
+    onSubmitMeta:{stepNo : 1},
     validators: {
       onDynamic: currentValidator as typeof formSchema,
     },
@@ -269,11 +267,23 @@ export function DraftForm() {
     },
     [form],
   );
+  const stepOneFieldMap = createFieldMap({
+    name: "",
+    lastName: "",
+  })
+  const stepTwoFieldMap = createFieldMap({
+    yourEmail: "",
+    phoneNumber: 0,
+  })
+  const stepThreeFieldMap = createFieldMap({
+    preferences: [] as string[],
+    comment: "",
+  })
   const groups: Record<number, React.ReactNode> = {
     1: (
       <Step1Group
         form={form}
-        fields={{ name: "name" as never, lastName: "lastName" as never }}
+        fields={stepOneFieldMap}
       />
     ),
     2: (

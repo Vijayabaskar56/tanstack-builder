@@ -9,6 +9,7 @@ import { Button, type buttonVariants } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { Slot } from "@radix-ui/react-slot";
+import { Input } from "./input";
 
 const {
   fieldContext,

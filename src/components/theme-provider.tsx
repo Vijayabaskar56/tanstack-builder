@@ -148,7 +148,6 @@ const Theme = ({
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const handleMediaQuery = React.useCallback(
-		// biome-ignore lint/correctness/useUnusedVariables: <explanation>
 		(_e?: MediaQueryList | MediaQueryListEvent) => {
 			if (theme === "system" && enableSystem && !forcedTheme) {
 				applyTheme("system");
@@ -296,7 +295,7 @@ const disableAnimation = () => {
 		// Wait for next tick before removing, but check if element still exists and is our element
 		setTimeout(() => {
 			if (css.parentNode === document.head) {
-				document.head.removeChild(css);
+			document.head.removeChild(css);
 			}
 		}, 1);
 	};

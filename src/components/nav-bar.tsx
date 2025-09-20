@@ -1,5 +1,4 @@
 import { ModeToggle } from "@/components/mode-toggle";
-import AppToggle from "@/components/navbar-components/app-toggle";
 import { Button } from "@/components/ui/button";
 import { Link } from "@tanstack/react-router";
 import { Github, Twitter } from "lucide-react";
