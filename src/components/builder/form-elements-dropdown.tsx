@@ -1,5 +1,4 @@
-// apps/web/src/components/builder/form-elements-dropdown.tsx
-import { Plus, PlusCircle } from "lucide-react";
+// form-elements-dropdown.tsx
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -9,8 +8,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { formElementsList } from "@/constants/form-elements-list";
-import type { FormElement } from "@/types/form-types";
 import { useFormStore } from "@/hooks/use-form-store";
+import type { FormArray } from "@/lib/store-zod-schema";
+import type { FormElement } from "@/types/form-types";
+import { Plus, PlusCircle } from "lucide-react";
 
 type DropdownContext = "nested" | "multistep" | "formarray";
 
@@ -54,7 +55,7 @@ export function FormElementsDropdown({
       });
     } else {
       if (arrayId) {
-        actions.addFormArrayField(arrayId, fieldType as any);
+        actions.addFormArrayField(arrayId, fieldType as FormElement["fieldType"]);
       }
     }
   };
@@ -130,7 +131,7 @@ export function UnifiedFormElementsDropdown({
             required: false,
           };
 
-          let newElement: any;
+          let newElement: FormElement;
 
           switch (fieldType) {
             case "Input":
@@ -227,11 +228,11 @@ export function UnifiedFormElementsDropdown({
           }
 
           // Find the FormArray and update it
-          const formArrayElement = (formElements as any[]).find(
-            (el: any) => el.id === formArrayId,
+          const formArrayElement = (formElements as FormArray[]).find(
+            (el: FormArray) => el.id === formArrayId,
           );
 
-          if (formArrayElement.arrayField) {
+          if (formArrayElement?.arrayField && Array.isArray(formArrayElement.arrayField)) {
             const updatedArrayField = [
               ...formArrayElement.arrayField,
               newElement,

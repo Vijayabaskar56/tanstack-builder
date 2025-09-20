@@ -4,7 +4,7 @@ import { MultiStepFormPreview } from "@/components/builder/multi-step-preview";
 import { RenderFormElement } from "@/components/builder/render-form-element";
 import { Button } from "@/components/ui/button";
 
-import type { FormArray, FormStep } from "@/types/form-types";
+import type { FormArray, FormElement, FormStep } from "@/types/form-types";
 import type { AppForm } from "@/hooks/use-form-builder";
 import { useFormBuilder } from "@/hooks/use-form-builder";
 import { useFormStore, useIsMultiStep } from "@/hooks/use-form-store";
@@ -47,7 +47,7 @@ export function SingleStepFormPreview({ form }: FormPreviewProps) {
               form={form}
             />
           ) : (
-            (formElements as any[]).map((element, i) => {
+            (formElements).map((element, i) => {
               // Check if element is a FormArray
               if (
                 typeof element === "object" &&
@@ -68,20 +68,20 @@ export function SingleStepFormPreview({ form }: FormPreviewProps) {
               if (Array.isArray(element)) {
                 return (
                   <div
-                    key={i}
+                    key={element[i]?.id ?? i}
                     className="flex items-start flex-wrap sm:flex-nowrap w-full gap-2"
                   >
-                    {element.map((el: any, ii: number) => (
-                      <div key={el.name + ii} className="flex-1 min-w-0">
-                        <RenderFormElement formElement={el} form={form} />
+                    {element.map((el) => (
+                      <div key={(el as FormElement)?.name} className="flex-1 min-w-0">
+                        <RenderFormElement formElement={el as FormElement} form={form} />
                       </div>
                     ))}
                   </div>
                 );
               }
               return (
-                <div key={(element as any).name + i} className="w-full">
-                  <RenderFormElement formElement={element} form={form} />
+                <div key={(element as FormElement)?.name} className="w-full">
+                  <RenderFormElement formElement={element as FormElement} form={form} />
                 </div>
               );
             })

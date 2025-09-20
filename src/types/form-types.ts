@@ -36,7 +36,7 @@ type PasswordInput = {
 type OTPInput = {
   name: string;
   fieldType: "OTP";
-} & OTPInputProps &
+} & Omit<OTPInputProps, 'children'> & { children?: React.ReactNode } &
   SharedFormProps;
 
 type Textarea = {
@@ -185,7 +185,7 @@ export type FormElement =
 export type FormElementOrList = FormElement | FormElement[];
 
 export type FormElementList = FormElement[] | FormElementOrList[];
-
+export type FormElements = FormElementList | FormStep[] | FormArray[];
 export type FormStep = {
   id: string;
   stepFields: FormElementList;

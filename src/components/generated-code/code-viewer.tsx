@@ -1,4 +1,3 @@
-// apps/web/src/components/generated-code/code-viewer.tsx
 import { useTheme } from "@/components/theme-provider";
 import {
   CodeBlock,
@@ -118,25 +117,25 @@ export function CodeBlockPackagesInstallation() {
       value: "pnpm",
       shadcn: `pnpm add shadcn@latest add ${packages}`,
       base: `pnpm add ${otherPackages}`,
-      registery: `pnpm dlx shadcn@canary add https://tan-form-builder.baskar.dev/r/tanstack-form.json`,
+      registery: "pnpm dlx shadcn@canary add https://tan-form-builder.baskar.dev/r/tanstack-form.json",
     },
     {
       value: "npm",
       shadcn: `npx shadcn@latest add ${packages}`,
       base: `npx i ${otherPackages}`,
-      registery: `npx shadcn@canary add https://tan-form-builder.baskar.dev/r/tanstack-form.json`,
+      registery: "npx shadcn@canary add https://tan-form-builder.baskar.dev/r/tanstack-form.json",
     },
     {
       value: "yarn",
       shadcn: `npx shadcn@latest add ${packages}`,
       base: `npx add ${otherPackages}`,
-      registery: `yarn shadcn@canary add https://tan-form-builder.baskar.dev/r/tanstack-form.json`,
+      registery: "yarn shadcn@canary add https://tan-form-builder.baskar.dev/r/tanstack-form.json",
     },
     {
       value: "bun",
       shadcn: `bunx --bun shadcn@latest add ${packages}`,
       base: `bunx --bun add ${otherPackages}`,
-      registery: `bunx --bun shadcn@canary add https://tan-form-builder.baskar.dev/r/tanstack-form.json`,
+      registery: "bunx --bun shadcn@canary add https://tan-form-builder.baskar.dev/r/tanstack-form.json",
     },
   ];
   const updatePreference = (
@@ -253,7 +252,7 @@ const CodeBlockTSX = () => {
   }, [formElements]);
 
   // Generate the actual schema object based on validationSchema type
-  let schemaObject: any = null;
+  let schemaObject = null;
   try {
     if (validationSchema === "zod") {
       // For multi-step forms, flatten the formElements first

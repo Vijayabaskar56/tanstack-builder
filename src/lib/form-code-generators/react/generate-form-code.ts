@@ -1,356 +1,394 @@
-import type {
-  FormArray,
-  FormElement,
-  FormElementOrList,
-  FormStep,
-} from "@/types/form-types";
-import {
-  getDefaultValuesString,
-  objectToLiteralString,
-  processFormElements,
-} from "@/lib/form-code-generators/react/generate-default-value";
-import { getFormElementCode } from "@/lib/form-code-generators/react/generate-form-component";
-import { generateImports } from "@/lib/form-code-generators/react/generate-imports";
-import { flattenFormSteps } from "@/lib/form-elements-helpers";
-import {
-  generateZodSchemaObject,
-  generateZodSchemaString,
-} from "@/lib/schema-generators/generate-zod-schema";
-import { getDefaultFormElement } from "@/lib/form-code-generators/react/generate-default-value";
+// generate-form-component.ts
+import type { FormElement } from "@/types/form-types";
 
-const modifyElement = (
-  el: FormElementOrList,
-  prefix: string,
-): FormElementOrList => {
-  if (Array.isArray(el)) {
-    return el.map((e) => modifyElement(e, prefix)) as FormElement[];
+const formatFieldName = (name: string) => {
+  // If name starts with backtick, it's an array field - ensure it ends with backtick
+  if (name.startsWith("`")) {
+    return name.endsWith("`") ? name : `${name}\``;
   }
-  return { ...el, name: prefix + el.name };
+  // Otherwise, wrap in quotes as string literal
+  return `"${name}"`;
 };
 
-const renderFields = (
-  fields: (FormElementOrList | FormArray)[],
-  isInGroup = false,
-): string => {
-  return fields
-    .map((formElement) => {
-      if (Array.isArray(formElement)) {
-        return `
-          <div className="flex items-center justify-between flex-wrap sm:flex-nowrap w-full gap-2">
-            ${formElement.map((field) => getFormElementCode(field, isInGroup)).join("")}
-          </div>`;
-      }
-      // Check if it's a FormArray
-      if ("arrayField" in formElement) {
-        const formArray = formElement as FormArray;
-
-        // Use the template arrayField for pushValue, not runtime entries
-        const actualFields = formArray.arrayField;
-        const defaultEntry = processFormElements(
-          actualFields as FormElementOrList[],
-        );
-        const pushValueStr = objectToLiteralString(defaultEntry);
-        const fieldPrefix = isInGroup ? "group" : "form";
-        return (
-          // biome-ignore lint/style/useTemplate: <explanation>
-          "{" +
-          fieldPrefix +
-          ".AppField({\n" +
-          '  name: "' +
-          formArray.name +
-          '",\n' +
-          '  mode: "array",\n' +
-          "  children: (field) => (\n" +
-          '    <div className="w-full space-y-4">\n' +
-          "      {field.state.value.map((_, index) => (\n" +
-          '        <div key={index} className="space-y-3 p-4 relative">\n' +
-          "          <Separator />\n" +
-          "          " +
-          renderFields(
-            (actualFields as FormElementOrList[]).map((el) =>
-              modifyElement(el, "`" + formArray.name + "[${index}]."),
-            ),
-            isInGroup, // Pass the correct group context
-          ) +
-          "\n" +
-          "        </div>\n" +
-          "      ))}\n" +
-          '      <div className="flex justify-between pt-2">\n' +
-          '        <Button variant="outline" type="button" onClick={() => field.pushValue(' +
-          pushValueStr +
-          ", { dontValidate: true })}>\n" +
-          '          <Plus className="h-4 w-4 mr-2" /> Add\n' +
-          "        </Button>\n" +
-          '        <Button variant="outline" type="button" onClick={() => field.removeValue(field.state.value.length - 1)} disabled={field.state.value.length <= 1}>\n' +
-          '          <Trash2 className="h-4 w-4 mr-2" /> Remove\n' +
-          "        </Button>\n" +
-          "      </div>\n" +
-          "    </div>\n" +
-          "  )\n" +
-          "})}"
-        );
-      }
-      return getFormElementCode(formElement as FormElement, isInGroup);
-    })
-    .join("\n");
-};
-
-export const generateFormCode = ({
-  formElements,
-  isMS,
-  validationSchema,
-  settings,
-}: {
-  formElements: FormElementOrList[] | FormStep[];
-  isMS: boolean;
-  validationSchema: any;
-  settings: any;
-}): { file: string; code: string }[] => {
-  const flattenedFormElements = isMS
-    ? flattenFormSteps(formElements as FormStep[]).flat()
-    : formElements.flat();
-  const defaultValues = getDefaultValuesString();
-  const imports = Array.from(
-    generateImports(
-      flattenedFormElements as (FormElement | FormArray)[],
-      validationSchema,
-      isMS,
-    ),
-  ).join("\n");
-
-  const singleStepFormCode = [
-    {
-      file: "single-step-form.tsx",
-      code: `
-${imports}
-
-export function DraftForm() {
-
-const form = useAppForm({
-  defaultValues: ${defaultValues},
-  validationLogic: revalidateLogic(),
-  validators: {     onDynamicAsyncDebounceMs: 500, onDynamic: formSchema },
-  onSubmit : ({value}) => {
-			toast.success("success");
-  },${
-    settings.focusOnError
-      ? `
-  onSubmitInvalid({ formApi }) {
-				const errorMap = formApi.state.errorMap.onDynamic!;
-				const inputs = Array.from(
-					document.querySelectorAll("#previewForm input"),
-				) as HTMLInputElement[];
-
-				let firstInput: HTMLInputElement | undefined;
-				for (const input of inputs) {
-					if (errorMap[input.name]) {
-						firstInput = input;
-						break;
-					}
-				}
-				firstInput?.focus();
-		}`
-      : ""
-  }
-});
-
-return (
-  <div>
-    <form.AppForm>
-      <form.Form>
-         ${renderFields(formElements as (FormElementOrList | FormArray)[], false)}
-        ${
-          !isMS
-            ? `
-         <div className="flex justify-end items-center w-full pt-3">
-         <form.SubmitButton label="Submit" />
-        </div>`
-            : ""
-        }
-      </form.Form>
-    </form.AppForm>
-  </div>
-)
-}`,
-    },
-  ];
-  if (!isMS) return singleStepFormCode;
-
-  // Handle multi-step form
-  function generateStepSchemas(steps: FormStep[]): string {
-    const stepSchemas = steps.map((step, index) => {
-      const stepFields = step.stepFields.flat();
-      const stepSchema = generateZodSchemaObject(
-        stepFields as (FormElement | FormArray)[],
-      );
-      const stepSchemaString = generateZodSchemaString(stepSchema);
-      return `  // Step ${index + 1}\n  ${stepSchemaString},`;
-    });
-
-    return `[\n${stepSchemas.join("\n")}\n]`;
-  }
-
-  function generateStepComponents(steps: FormStep[]): string {
-    const stepComponents = steps.map((step, index) => {
-      const stepNumber = index + 1;
-      const renderedFields = renderFields(step.stepFields, true);
-      return `const Step${stepNumber}Group = withFieldGroup({
-  defaultValues: ${getStepDefaultValues(step.stepFields)},
-  render: function Step${stepNumber}Render({ group }) {
-    return (
-      <div>
-        <h2 className="text-2xl font-bold">Step ${stepNumber}</h2>
-        ${renderedFields}
-      </div>
-    );
-  },
-});`;
-    });
-
-    return stepComponents.join("\n\n");
-  }
-
-  function getStepDefaultValues(stepFields: FormElementOrList[]): string {
-    const defaults = getDefaultFormElement(
-      stepFields as (FormElementOrList | FormArray)[],
-    );
-    return objectToLiteralString(defaults);
-  }
-
-  function getStepFieldMappings(stepFields: FormElementOrList[]): string {
-    const fieldMappings: Record<string, string> = {};
-
-    const processFields = (fields: FormElementOrList[]) => {
-      fields
-        .filter((f) => !Array.isArray(f) && !f.static)
-        .forEach((field) => {
-          if (Array.isArray(field)) {
-            processFields(field);
-          } else if ("arrayField" in field) {
-            // Handle FormArray
-            fieldMappings[field.name] = `${field.name}`;
-          } else {
-            // Handle regular FormElement
-            fieldMappings[field.name] = field.name;
-          }
-        });
-    };
-
-    processFields(stepFields);
-    return Object.entries(fieldMappings)
-      .map(([key, value]) => `${key}: "${value}" as never`)
-      .join(", ");
-  }
-
-  const stepSchemasStr = generateStepSchemas(formElements as FormStep[]);
-  const stepComponentsStr = generateStepComponents(formElements as FormStep[]);
-
-  const MSF_Code = `
-  ${imports}
-  import { Progress } from '@/components/ui/progress'
-  import { motion, AnimatePresence } from 'motion/react'
-  import { useFormStepper } from '@/hooks/use-stepper'
-
-  ${stepComponentsStr}
-
-
-  // Step-specific schemas for the stepper hook
-  const stepSchemas = ${stepSchemasStr};
-
-  export function DraftForm() {
-    const {
-      currentValidator,
-      step,
-      currentStep,
-      isFirstStep,
-      handleCancelOrBack,
-      handleNextStepOrSubmit,
-    } = useFormStepper(stepSchemas);
-
-    const form = useAppForm({
-      defaultValues: ${defaultValues},
-      validationLogic: revalidateLogic(),
-      validators: {
-        onDynamic: currentValidator as typeof formSchema,
-      },
-      onSubmit: ({ value }) => {
-        toast.success("Submitted Successfully");
-      },
-    });
-
-    const groups: Record<number, React.ReactNode> = {
-      ${Array.from({ length: (formElements as FormStep[]).length }, (_, i) => {
-        const step = (formElements as FormStep[])[i];
-        const fieldMappings = getStepFieldMappings(step.stepFields);
-        return `${i + 1}: <Step${i + 1}Group form={form} fields={{ ${fieldMappings} }} />`;
-      }).join(",\n      ")}
-    };
-
-    const handleNext = async () => {
-      await handleNextStepOrSubmit(form);
-    };
-
-    const handlePrevious = () => {
-      handleCancelOrBack({ onBack: () => {} });
-    };
-
-    const current = groups[currentStep];
-
-    return (
-      <div>
-        <form.AppForm>
-          <form.Form>
-            <div className="flex flex-col gap-2 pt-3">
-              <div className="flex flex-col items-center justify-start gap-1">
-                <span>
-                  Step {currentStep} of {Object.keys(groups).length}
-                </span>
-                <Progress
-                  value={(currentStep / Object.keys(groups).length) * 100}
+export const getFormElementCode = (field: FormElement, isInGroup = false) => {
+  const fieldPrefix = isInGroup ? "group" : "form";
+  switch (field.fieldType) {
+    case "Input":
+      return `<${fieldPrefix}.AppField
+                name={${formatFieldName(field.name)}}>
+                {(field) => (
+                    <field.FormItem className="w-full">
+                     ${field.label && `<field.FormLabel>${field.label} ${field.required ? "*" : ""}</field.FormLabel>`}
+                      <field.FormControl>
+                        <Input
+                          name={${formatFieldName(field.name)}}
+                          placeholder="${field.placeholder ?? ""}"
+                          type="${field.type ?? "text"}"
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                        />
+                      </field.FormControl>
+                      ${field.description ? `<field.FormDescription>${field.description}</field.FormDescription>` : ""}
+                      <field.FormMessage />
+                  </field.FormItem>
+                  )}
+              </${fieldPrefix}.AppField>
+              `;
+    case "OTP":
+      return `
+       <${fieldPrefix}.AppField name={${formatFieldName(field.name)}} >
+          {(field) => (
+           <field.FormItem className="w-full">
+          ${field.label && `<field.FormLabel>${field.label} ${field.required ? "*" : ""}</field.FormLabel>`}
+          <field.FormControl>
+            <InputOTP
+              maxLength={6}
+              name={${formatFieldName(field.name)}}
+              value={field.state.value}
+              onBlur={field.handleBlur}
+              onChange={(e) => field.handleChange(e.target.value)}
+            >
+              <InputOTPGroup>
+                <InputOTPSlot index={0} />
+                <InputOTPSlot index={1} />
+                <InputOTPSlot index={2} />
+              </InputOTPGroup>
+              <InputOTPSeparator />
+              <InputOTPGroup>
+                <InputOTPSlot index={3} />
+                <InputOTPSlot index={4} />
+                <InputOTPSlot index={5} />
+              </InputOTPGroup>
+            </InputOTP>
+          </field.FormControl>
+          ${field.description ? `<field.FormDescription>${field.description}</field.FormDescription>` : ""}
+          <field.FormMessage />
+        </field.FormItem>
+          )}
+        </${fieldPrefix}.AppField>
+        `;
+    case "Textarea":
+      return `
+        <${fieldPrefix}.AppField name={${formatFieldName(field.name)}} >
+          {(field) => (
+            <field.FormItem>
+           ${field.label && `<field.FormLabel>${field.label} ${field.required ? "*" : ""}</field.FormLabel>`}
+              <field.FormControl>
+                <Textarea
+                  placeholder="${field.placeholder ?? ""}"
+                  className="resize-none"
+                  name={${formatFieldName(field.name)}}
+                  value={field.state.value}
+                  onBlur={field.handleBlur}
+                  onChange={(e) => field.handleChange(e.target.value)}
                 />
+              </field.FormControl>
+              ${field.description ? `<field.FormDescription>${field.description}</field.FormDescription>` : ""}
+              <field.FormMessage />
+            </field.FormItem>
+          )}
+        </${fieldPrefix}.AppField>
+        `;
+    case "Password":
+      return `
+       <${fieldPrefix}.AppField name={${formatFieldName(field.name)}} >
+          {(field) => (
+            <field.FormItem className="w-full">
+            ${field.label && `<field.FormLabel>${field.label} ${field.required ? "*" : ""}</field.FormLabel>`}
+              <field.FormControl>
+                <Input
+                  name={${formatFieldName(field.name)}}
+                  placeholder="${field.placeholder ?? ""}"
+                  type="password"
+                  value={field.state.value}
+                  onBlur={field.handleBlur}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                />
+              </field.FormControl>
+              ${field.description ? `<field.FormDescription>${field.description}</field.FormDescription>` : ""}
+              <field.FormMessage />
+            </field.FormItem>
+          )}
+        </${fieldPrefix}.AppField>
+        `;
+    case "Checkbox":
+      return `<${fieldPrefix}.AppField name={${formatFieldName(field.name)}}  >
+          {(field) => (
+            <field.FormItem className="flex flex-row items-start space-x-3 space-y-0 p-4">
+              <field.FormControl>
+                <Checkbox
+                  name={${formatFieldName(field.name)}}
+                  checked={field.state.value}
+                  onBlur={field.handleBlur}
+                  onCheckedChange={(checked : boolean) => {field.handleChange(checked)}}
+                  ${field.disabled ? "disabled" : ""}
+                />
+              </field.FormControl>
+              <div className="space-y-1 leading-none">
+                <field.FormLabel>${field.label ?? ""}</field.FormLabel>
+                ${field.description ? `<field.FormDescription>${field.description}</field.FormDescription>` : ""}
+                <field.FormMessage />
               </div>
-              <AnimatePresence mode="popLayout">
-                <motion.div
-                  key={currentStep}
-                  initial={{ opacity: 0, x: 15 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -15 }}
-                  transition={{ duration: 0.4, type: "spring" }}
-                  className="flex flex-col gap-2"
+            </field.FormItem>
+          )}
+        </${fieldPrefix}.AppField>
+        `;
+    case "DatePicker":
+      return `
+      <${fieldPrefix}.AppField name={${formatFieldName(field.name)}} >
+      {(field) => (
+        <field.FormItem className="flex flex-col">
+            ${field.label && `<field.FormLabel>${field.label} ${field.required ? "*" : ""}</field.FormLabel>`}
+          <Popover>
+            <PopoverTrigger asChild>
+              <field.FormControl>
+                <Button
+                  variant={"outline"}
+                  className={cn(
+                    "w-full pl-3 text-start font-normal",
+                    !field.state.value && "text-muted-foreground"
+                  )}
                 >
-                  {current}
-                </motion.div>
-              </AnimatePresence>
-              <div className="flex items-center justify-between gap-3 w-full pt-3">
-               <form.StepButton
-                  label="Previous"
-                  disabled={isFirstStep}
-                  handleMovement={() =>
-                    handleCancelOrBack({
-                      onBack: () => handlePrevious(),
-                    })
-                  }
-                />
-                {step.isCompleted ? (
-                  <form.SubmitButton
-                    label="Submit"
-                    onClick={() => handleNextStepOrSubmit(form)}
+                  {field.state.value ? (
+                    format(field.state.value, "PPP")
+                  ) : (
+                    <span>Pick a date</span>
+                  )}
+                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                </Button>
+              </field.FormControl>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={field.state.value}
+                onSelect={field.handleChange}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
+            ${field.description ? `<field.FormDescription>${field.description}</field.FormDescription>` : ""}
+          <field.FormMessage />
+        </field.FormItem>
+      )}
+    </${fieldPrefix}.AppField>
+    `;
+    case "MultiSelect":
+      return `
+           <${fieldPrefix}.AppField name={${formatFieldName(field.name)}} >
+              {(field) => {
+              const options = ${
+                field.options
+                  ? `[${field.options.map((opt) => `{label: "${opt.label}", value: "${opt.value}"}`).join(", ")}]`
+                  : `[
+                      { value: '1', label: 'Option 1' },
+                      { value: '2', label: 'Option 2' },
+                      { value: '3', label: 'Option 3' },
+                    ]`
+              }
+              return (
+                <field.FormItem className="w-full">
+                 ${field.label && `<field.FormLabel>${field.label} ${field.required ? "*" : ""}</field.FormLabel>`}
+                  <MultiSelect value={field.state.value} onValueChange={field.handleChange}>
+                    <field.FormControl>
+                      <MultiSelectTrigger>
+                        <MultiSelectValue
+                          placeholder={"${field.placeholder ?? "Select Item"}"}
+                        />
+                      </MultiSelectTrigger>
+                    </field.FormControl>
+                    <MultiSelectContent>
+                      <MultiSelectList>
+                        {options.map(({ label, value }) => (
+                          <MultiSelectItem key={value} value={value}>
+                            {label}
+                          </MultiSelectItem>
+                        ))}
+                      </MultiSelectList>
+                    </MultiSelectContent>
+                  </MultiSelect>
+                  ${field.description ? `<field.FormDescription>${field.description}</field.FormDescription>` : ""}
+                  <field.FormMessage />
+                </field.FormItem>
+              )}}
+            </${fieldPrefix}.AppField>
+            `;
+    case "Select":
+      return `
+        <${fieldPrefix}.AppField name={${formatFieldName(field.name)}} >
+          {(field) => {
+          const options = ${
+            field.options
+              ? `[${field.options.map((opt) => `{label: "${opt.label}", value: "${opt.value}"}`).join(", ")}]`
+              : `[
+            { value: 'option-1', label: 'Option 1' },
+            { value: 'option-2', label: 'Option 2' },
+            { value: 'option-3', label: 'Option 3' },
+          ]`
+          }
+          return (
+            <field.FormItem className="w-full">
+            ${field.label && `<field.FormLabel>${field.label} ${field.required ? "*" : ""}</field.FormLabel>`}
+              <Select name={${formatFieldName(field.name)}} onValueChange={field.handleChange} defaultValue={field.state.value} value={field.state.value as string}>
+                <field.FormControl>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="${field.placeholder ?? "Select an option"}" />
+                  </SelectTrigger>
+                </field.FormControl>
+                <SelectContent>
+                  {options.map(({ label, value }) => (
+                    <SelectItem key={value} value={value}>
+                      {label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+                ${field.description ? `<field.FormDescription>${field.description}</field.FormDescription>` : ""}
+              <field.FormMessage />
+            </field.FormItem>
+          )}}
+        </${fieldPrefix}.AppField>
+        `;
+    case "Slider":
+      return `
+            <${fieldPrefix}.AppField name={${formatFieldName(field.name)}} >
+              {(field) => (
+              <field.FormItem>
+                <field.FormLabel className="flex justify-between items-center">${field.label ?? ""}<span>{field.state.value}/${field?.max ?? 100}</span>
+                </field.FormLabel>
+                <field.FormControl>
+                  <Slider
+                    name={${formatFieldName(field.name)}}
+                    min={${field?.min ?? 0}}
+                    max={${field?.max ?? 100}}
+                    step={${field?.step ?? 1}}
+                    defaultValue={[5]}
+                    onValueChange={(values) => {
+                      field.handleChange(values[0]);
+                    }}
                   />
-                ) : (
-                   <form.StepButton label="Next" handleMovement={handleNext} />
-                )}
-              </div>
-            </div>
-          </form.Form>
-        </form.AppForm>
-      </div>
-    );
-  }`;
-  const multiStepFormCode = [
-    {
-      file: "multi-step-form.tsx",
-      code: MSF_Code,
-    },
-  ];
-  return multiStepFormCode;
+                </field.FormControl>
+                ${field.description ? `<field.FormDescription>${field.description}</field.FormDescription>` : ""}
+                <field.FormMessage />
+              </field.FormItem>
+              )}
+            </${fieldPrefix}.AppField>
+            `;
+    case "Switch":
+      return `
+            <${fieldPrefix}.AppField name={${formatFieldName(field.name)}} >
+              {(field) => (
+                <field.FormItem className="flex flex-col p-3 justify-center w-full border rounded">
+                    <div className="flex items-center justify-between h-full">
+                      ${field.label && `<field.FormLabel>${field.label} ${field.required ? "*" : ""}</field.FormLabel>`}
+                      <field.FormControl>
+                        <Switch
+                          checked={field.state.value}
+                          onCheckedChange={field.handleChange}
+                        />
+                      </field.FormControl>
+                    </div>
+                    ${field.description ? `<field.FormDescription>${field.description}</field.FormDescription>` : ""}
+                </field.FormItem>
+              )}
+            </${fieldPrefix}.AppField>
+            `;
+    case "RadioGroup":
+      return `<${fieldPrefix}.AppField name={${formatFieldName(field.name)}} >
+              {(field) => {
+                const options = ${
+                  field.options
+                    ? `[${field.options.map((opt) => `{label: "${opt.label}", value: "${opt.value}"}`).join(", ")}]`
+                    : `[
+                  { value: 'option-1', label: 'Option 1' },
+                  { value: 'option-2', label: 'Option 2' },
+                  { value: 'option-3', label: 'Option 3' },
+                ]`
+                }
+              return (
+                <field.FormItem className="flex flex-col gap-2 w-full py-1">
+                   ${field.label && `<field.FormLabel>${field.label} ${field.required ? "*" : ""}</field.FormLabel>`}
+                    <field.FormControl>
+                      <RadioGroup
+                        name={${formatFieldName(field.name)}}
+                        onValueChange={field.handleChange}
+                        defaultValue={field.state.value}
+                      >
+                        {options.map(({ label, value }) => (
+                        <div className="flex items-center gap-x-2">
+                          <RadioGroupItem
+                            key={value}
+                            value={value}
+                            />
+                          <Label htmlFor={value}>{label}</Label>
+                        </div>
+                        ))}
+                      </RadioGroup>
+                    </field.FormControl>
+                    ${field.description ? `<field.FormDescription>${field.description}</field.FormDescription>` : ""}
+                    <field.FormMessage />
+                </field.FormItem>
+              )}}
+            </${fieldPrefix}.AppField>
+            `;
+    case "ToggleGroup":
+      return `<${fieldPrefix}.AppFieldname={${formatFieldName(field.name)}} >
+              {(field) => {
+              const options = ${
+                field.options
+                  ? `[${field.options.map((opt) => `{label: "${opt.label}", value: "${opt.value}"}`).join(", ")}]`
+                  : `[
+                     { value: 'monday', label: 'Mon' },
+                     { value: 'tuesday', label: 'Tue' },
+                     { value: 'wednesday', label: 'Wed' },
+                     { value: 'thursday', label: 'Thu' },
+                     { value: 'friday', label: 'Fri' },
+                     { value: 'saturday', label: 'Sat' },
+                     { value: 'sunday', label: 'Sun' },
+                  ]`
+              }
+            return (
+              <field.FormItem className="flex flex-col gap-2 w-full py-1">
+               ${field.label && `<field.FormLabel>${field.label} ${field.required ? "*" : ""}</field.FormLabel>`}
+                <field.FormControl>
+                  <ToggleGroup
+                      variant="outline"
+                      onValueChange={field.handleChange}
+                      defaultValue={field.state.value}
+                      type='${field.type ?? "single"}'
+                      className="flex justify-start items-center gap-2 flex-wrap"
+                    >
+                     {options.map(({ label, value }) => (
+                        <ToggleGroupItem
+                          key={value}
+                          value={value}
+                          className="flex items-center gap-x-2"
+                        >
+                          {label}
+                        </ToggleGroupItem>))
+                    }
+                  </ToggleGroup>
+                </field.FormControl>
+                ${field.description ? `<field.FormDescription>${field.description}</field.FormDescription>` : ""}
+                <field.FormMessage />
+              </field.FormItem>
+            )
+              }}
+            />`;
+    case "H1":
+      return `<h1 className="text-3xl font-bold">${field.content ?? ""}</h1>`;
+    case "H2":
+      return `<h2 className="text-2xl font-bold">${field.content ?? ""}</h2>`;
+    case "H3":
+      return `<h3 className="text-xl font-bold">${field.content ?? ""}</h3>`;
+    case "P":
+      return `<p className="text-base">${field.content ?? ""}</p>`;
+    case "Separator":
+      return `<div className="py-3 w-full">
+                <Separator />
+              </div>`;
+    default:
+      return null;
+  }
 };

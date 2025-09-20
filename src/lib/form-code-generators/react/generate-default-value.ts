@@ -116,11 +116,10 @@ export const processFormElements = (
   elements: FormElementOrList[],
 ): Record<string, DefaultValue> => {
   const defaults: Record<string, DefaultValue> = {};
-
-  elements.forEach((element) => {
+  for (const element of elements) {
     if (Array.isArray(element)) {
       // Handle nested array of elements
-      element.forEach((nestedElement) => {
+      for (const nestedElement of element) {
         if (isFormElement(nestedElement)) {
           if (!isStaticElement(nestedElement) && nestedElement.name) {
             const defaultValue = getFieldDefaultValue(nestedElement);
@@ -131,7 +130,7 @@ export const processFormElements = (
             }
           }
         }
-      });
+      }
     } else {
       // Handle single element
       if (!isStaticElement(element) && element.name) {
@@ -142,7 +141,7 @@ export const processFormElements = (
         }
       }
     }
-  });
+  }
 
   return defaults;
 };
@@ -238,8 +237,7 @@ export const getDefaultFormElement = (
   elements: (FormElementOrList | FormArray)[],
 ): Record<string, DefaultValue> => {
   const defaults: Record<string, DefaultValue> = {};
-
-  elements.forEach((element) => {
+  for (const element of elements) {
     if (isFormArray(element)) {
       // Handle FormArray
       if (element.name) {
@@ -250,7 +248,7 @@ export const getDefaultFormElement = (
       }
     } else if (Array.isArray(element)) {
       // Handle nested array of elements (FormElement[])
-      element.forEach((nestedElement) => {
+      for (const nestedElement of element) {
         if (isFormArray(nestedElement)) {
           // Handle nested FormArray
           const formArray = nestedElement as FormArray;
@@ -272,7 +270,7 @@ export const getDefaultFormElement = (
             }
           }
         }
-      });
+      }
     } else {
       // Handle single element (FormElement)
       const formElement = element as FormElement;
@@ -283,7 +281,7 @@ export const getDefaultFormElement = (
         }
       }
     }
-  });
+  }
 
   return defaults;
 };

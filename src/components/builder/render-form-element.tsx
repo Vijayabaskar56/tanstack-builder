@@ -1,4 +1,3 @@
-/** biome-ignore-all lint/correctness/noChildrenProp: Required for form field rendering */
 // render-form-element.tsx
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
@@ -54,8 +53,8 @@ export const RenderFormElement = ({
     case "Input":
       return (
         <form.AppField
-          name={formElement.name}
-          children={(field) => (
+          name={formElement.name}>
+          {(field) => (
             <field.FormItem className="w-full">
               <field.FormLabel>
                 {formElement.label} {formElement.required ? " *" : ""}
@@ -79,13 +78,14 @@ export const RenderFormElement = ({
               <field.FormMessage />
             </field.FormItem>
           )}
-        />
+        </form.AppField>
       );
     case "Password":
       return (
         <form.AppField
           name={formElement.name}
-          children={(field) => (
+          > 
+          {(field) => (
             <field.FormItem className="w-full">
               <field.FormLabel>
                 {formElement.label} {formElement.required && " *"}
@@ -107,13 +107,13 @@ export const RenderFormElement = ({
               <field.FormMessage />
             </field.FormItem>
           )}
-        />
+        </form.AppField>
       );
     case "OTP":
       return (
         <form.AppField
-          name={formElement.name}
-          children={(field) => (
+          name={formElement.name}>
+          {(field) => (
             <field.FormItem className="w-full">
               <field.FormLabel>
                 {formElement.label} {formElement.required && "*"}
@@ -145,13 +145,13 @@ export const RenderFormElement = ({
               <field.FormMessage />
             </field.FormItem>
           )}
-        />
+        </form.AppField>
       );
     case "Textarea":
       return (
         <form.AppField
-          name={formElement.name}
-          children={(field) => (
+          name={formElement.name}>
+          {(field) => (
             <field.FormItem className="w-full">
               <field.FormLabel>
                 {formElement.label} {formElement.required && "*"}
@@ -174,13 +174,14 @@ export const RenderFormElement = ({
               <field.FormMessage />
             </field.FormItem>
           )}
-        />
+        </form.AppField>
       );
     case "Checkbox":
       return (
         <form.AppField
           name={formElement.name}
-          children={(field) => (
+          >
+          {(field) => (
             <field.FormItem className="flex items-start gap-2 w-full py-1 space-y-0">
               <field.FormControl>
                 <Checkbox
@@ -201,13 +202,14 @@ export const RenderFormElement = ({
               </div>
             </field.FormItem>
           )}
-        />
+        </form.AppField>
       );
     case "RadioGroup":
       return (
         <form.AppField
           name={formElement.name}
-          children={(field) => (
+          >
+          {(field) => (
             <field.FormItem className="flex flex-col gap-2 w-full py-1">
               <field.FormLabel className="mt-0">
                 {formElement?.label} {formElement.required && " *"}
@@ -238,7 +240,7 @@ export const RenderFormElement = ({
               <field.FormMessage />
             </field.FormItem>
           )}
-        />
+        </form.AppField>
       );
     case "ToggleGroup": {
       const options = formElement.options.map(({ label, value }) => (
@@ -254,7 +256,8 @@ export const RenderFormElement = ({
       return (
         <form.AppField
           name={formElement.name}
-          children={(field) => (
+          >
+          {(field) => (
             <field.FormItem className="flex flex-col gap-2 w-full py-1">
               <field.FormLabel className="mt-0">
                 {formElement?.label} {formElement.required && "*"}
@@ -298,14 +301,15 @@ export const RenderFormElement = ({
               <field.FormMessage />
             </field.FormItem>
           )}
-        />
+        </form.AppField>
       );
     }
     case "Switch":
       return (
         <form.AppField
           name={formElement.name}
-          children={(field) => (
+          >
+          {(field) => (
             <field.FormItem className="flex flex-col p-3 justify-center w-full border rounded">
               <div className="flex items-center justify-between h-full">
                 <field.FormLabel className="w-full grow">
@@ -330,13 +334,14 @@ export const RenderFormElement = ({
               )}
             </field.FormItem>
           )}
-        />
+        </form.AppField>
       );
     case "Slider":
       return (
         <form.AppField
           name={formElement.name}
-          children={(field) => {
+          >
+          {(field) => {
             const min = formElement.min || 0;
             const max = formElement.max || 100;
             const step = formElement.step || 1;
@@ -375,13 +380,14 @@ export const RenderFormElement = ({
               </field.FormItem>
             );
           }}
-        />
+        </form.AppField>
       );
     case "Select":
       return (
         <form.AppField
           name={formElement.name}
-          children={(field) => (
+          >
+          {(field) => (
             <field.FormItem className="w-full">
               <field.FormLabel>
                 {formElement.label} {formElement.required && " *"}
@@ -413,13 +419,14 @@ export const RenderFormElement = ({
               <field.FormMessage />
             </field.FormItem>
           )}
-        />
+        </form.AppField>
       );
     case "MultiSelect":
       return (
         <form.AppField
           name={formElement.name}
-          children={(field) => (
+            >
+          {(field) => (
             <>
               <field.FormItem className="w-full">
                 <field.FormLabel>
@@ -453,13 +460,14 @@ export const RenderFormElement = ({
               </field.FormItem>
             </>
           )}
-        />
+        </form.AppField>
       );
     case "DatePicker":
       return (
         <form.AppField
           name={formElement.name}
-          children={(field) => {
+          >
+          {(field) => {
             const date = field.state.value;
             return (
               <field.FormItem className="flex flex-col w-full">
@@ -504,7 +512,7 @@ export const RenderFormElement = ({
               </field.FormItem>
             );
           }}
-        />
+        </form.AppField>
       );
     case "H1":
       return (

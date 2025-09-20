@@ -14,6 +14,7 @@ import type {
   FormElement,
   FormElementList,
   FormElementOrList,
+  FormElements,
   FormStep,
   ReorderElements,
   SetTemplate,
@@ -28,7 +29,7 @@ import {
 // Core state type without actions
 type FormBuilderCoreState = {
   isMS: boolean;
-  formElements: FormElementList | FormStep[] | FormArray[];
+  formElements: FormElements
   formName: string;
   schemaName: string;
   validationSchema: ValidationSchema;
@@ -36,7 +37,7 @@ type FormBuilderCoreState = {
   lastAddedStepIndex?: number;
 };
 // Actions type
-type FormBuilderActions = {
+export type FormBuilderActions = {
   setFormName: (formName: string) => void;
   setSchemaName: (schemaName: string) => void;
   setValidationSchema: (validationSchema: ValidationSchema) => void;

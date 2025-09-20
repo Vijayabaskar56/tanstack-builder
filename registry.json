@@ -1,10 +1,10 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry.json",
-  "name": "acme",
-  "homepage": "https://acme.com",
+  "name": "tan-form-builder",
+  "homepage": "https://tan-form-builder.baskar.dev/",
   "items": [
     {
-      "name": "tanstack-cn-form",
+      "name": "tanstack-form",
       "title": "Tanstack Builder Form",
       "type": "registry:ui",
       "description": "TanStack Form",
@@ -13,6 +13,10 @@
         {
           "path": "src/components/ui/tanstack-form.tsx",
           "type": "registry:ui"
+        },
+        {
+          "path": "src/hooks/use-stepper.tsx",
+          "type": "registry:hook"
         }
       ]
     }

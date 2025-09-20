@@ -169,6 +169,7 @@ function SubmitButton({
   label,
   className,
   size,
+  ...props
 }: React.ComponentProps<"button"> &
   VariantProps<typeof buttonVariants> & {
     label: string;
@@ -182,6 +183,7 @@ function SubmitButton({
           size={size}
           type="submit"
           disabled={isSubmitting}
+          {...props}
         >
           {isSubmitting && (
             <div className="w-4 h-4 border-2 border-secondary border-t-transparent rounded-full animate-spin" />
@@ -196,13 +198,14 @@ function SubmitButton({
 function StepButton({
   label,
   handleMovement,
+  ...props
 }: React.ComponentProps<"button"> &
   VariantProps<typeof buttonVariants> & {
     label: string;
     handleMovement: () => Promise<boolean>;
   }) {
   return (
-    <Button size="sm" variant="ghost" type="button" onClick={handleMovement}>
+    <Button size="sm" variant="ghost" type="button" onClick={handleMovement} {...props}>
       {label}
     </Button>
   );

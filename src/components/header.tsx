@@ -1,23 +1,4 @@
-"use client";
 // header.tsx
-import { useLocation } from "@tanstack/react-router";
-import {
-  BookMarked,
-  Brackets,
-  ChevronDown,
-  Code,
-  FormInput,
-  Heart,
-  MoonIcon,
-  RotateCcw,
-  Save,
-  Settings,
-  Share,
-  Share2,
-  SunIcon,
-  Upload,
-} from "lucide-react";
-import { useId, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -42,9 +23,24 @@ import { settingsCollection } from "@/db-collections/settings.collections";
 import { useFormBuilder } from "@/hooks/use-form-builder";
 import { useFormStore } from "@/hooks/use-form-store";
 import useSettings from "@/hooks/use-settings";
+// header.tsx
+import { useLocation } from "@tanstack/react-router";
+import {
+  BookMarked,
+  Brackets,
+  ChevronDown,
+  Code,
+  FormInput,
+  Heart,
+  MoonIcon,
+  RotateCcw,
+  Settings,
+  Share2,
+  SunIcon
+} from "lucide-react";
+import { useId, useState } from "react";
 import type { Framework, ValidationSchema } from "./builder/types";
 export default function FormHeader() {
-  const _links = [{ to: "/", label: "Home" }];
   const location = useLocation();
   const { activeTab, isCodeSidebarOpen } = useSettings();
   const frameworks = ["react", "vue", "angular", "solid"];
@@ -120,11 +116,7 @@ export default function FormHeader() {
             </Tabs>
           </div>
         )}
-
-        {/* Spacer to push settings to the right */}
         <div className="flex-1" />
-
-        {/* Settings and actions - right side on desktop */}
         <div className="flex items-center gap-2">
           <nav className="flex items-center space-x-2">
             <DropdownMenu>
@@ -328,6 +320,11 @@ export default function FormHeader() {
                   className="group-data-[state=checked]:text-muted-foreground/70 flex-1 cursor-pointer text-right text-sm font-medium"
                   aria-controls={id}
                   onClick={() => setChecked(false)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      setChecked(false);
+                    }
+                  }}
                 >
                   <MoonIcon size={16} aria-hidden="true" />
                 </span>
@@ -343,6 +340,11 @@ export default function FormHeader() {
                   className="group-data-[state=unchecked]:text-muted-foreground/70 flex-1 cursor-pointer text-left text-sm font-medium"
                   aria-controls={id}
                   onClick={() => actions.setIsMS(!isMS)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      actions.setIsMS(!isMS);
+                    }
+                  }}
                 >
                   <SunIcon size={16} aria-hidden="true" />
                 </span>

@@ -24,7 +24,6 @@ const settingsSchema = z.object({
 
 export function SettingsSidebar() {
   const requiredValidationId = useId();
-  const numericInputId = useId();
   const focusOnErrorId = useId();
   const validationMethodId = useId();
   const asyncValidationId = useId();
@@ -142,26 +141,6 @@ export function SettingsSidebar() {
                       </div>
                     )}
                   </form.AppField>
-
-                  {/*<form.AppField name="numericInput" mode="value">
-                    {(field) => (
-                      <div className="flex items-center justify-between p-3 border-b mx-2">
-                        <div className="flex items-center gap-2">
-                          <Hash className="w-4 h-4 text-muted-foreground" />
-                          <Label htmlFor={numericInputId} className="text-sm">
-                            Numeric Input Validation
-                          </Label>
-                        </div>
-                        <Switch
-                          id={numericInputId}
-                          checked={field.state.value}
-                          onCheckedChange={field.handleChange}
-                          className="data-[state=unchecked]:border-input data-[state=unchecked]:[&_span]:bg-input data-[state=unchecked]:bg-transparent [&_span]:transition-all data-[state=unchecked]:[&_span]:size-4 data-[state=unchecked]:[&_span]:translate-x-0.5 data-[state=unchecked]:[&_span]:shadow-none data-[state=unchecked]:[&_span]:rtl:-translate-x-0.5"
-                        />
-                      </div>
-                    )}
-                  </form.AppField>*/}
-
                   <form.AppField name="validationMethod" mode="value">
                     {(field) => (
                       <div className="p-3 border-b mx-2">
@@ -196,6 +175,7 @@ export function SettingsSidebar() {
                                   >["validationMethod"],
                                 )
                               }
+                              // biome-ignore lint/a11y/useSemanticElements: <explanation>
                               role="radio"
                               aria-checked={field.state.value === option.value}
                               tabIndex={0}
@@ -309,6 +289,7 @@ export function SettingsSidebar() {
                                   >["preferredSchema"],
                                 )
                               }
+                              // biome-ignore lint/a11y/useSemanticElements: <explanation>
                               role="radio"
                               aria-checked={field.state.value === option.value}
                               tabIndex={0}
@@ -367,6 +348,7 @@ export function SettingsSidebar() {
                                   >["preferredFramework"],
                                 )
                               }
+                              // biome-ignore lint/a11y/useSemanticElements: <explanation>
                               role="radio"
                               aria-checked={field.state.value === option.value}
                               tabIndex={0}
