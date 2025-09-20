@@ -6,3 +6,4 @@ node_modules
 .nitro
 .output
 .tanstack
+src/routes/testing.tsx

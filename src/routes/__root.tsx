@@ -1,4 +1,3 @@
-import { TanStackDevtools } from "@tanstack/react-devtools";
 import {
 	HeadContent,
 	Outlet,
@@ -6,20 +5,17 @@ import {
 	createRootRouteWithContext,
 	useRouterState,
 } from "@tanstack/react-router";
-import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 
-import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 
 import appCss from "../styles.css?url";
 
 import Loader from "@/components/loader";
 import NavBar from "@/components/nav-bar";
 import { ThemeProvider } from "@/components/theme-provider";
+import { ErrorFallback } from "@/components/ui/error-fallback";
 import { Toaster } from "@/components/ui/sonner";
 import { settingsCollection } from "@/db-collections/settings.collections";
 import type { QueryClient } from "@tanstack/react-query";
-import { FormDevtoolsPlugin } from "@tanstack/react-form-devtools";
-import { ErrorFallback } from "@/components/ui/error-fallback";
 interface MyRouterContext {
 	queryClient: QueryClient;
 }
@@ -99,7 +95,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 						<NavBar />
 						{isFetching ? <Loader /> : <Outlet />}
 					</div>
-					<TanStackDevtools
+					{/* <TanStackDevtools
 						config={{
 							position: "bottom-left",
 						}}
@@ -112,7 +108,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 							},
 							TanStackQueryDevtools,
 						]}
-					/>
+					/> */}
 					<Toaster richColors />
 				</ThemeProvider>
 				<Scripts />

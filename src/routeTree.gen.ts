@@ -9,11 +9,17 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TestingRouteImport } from './routes/testing'
 import { Route as TableBuilderRouteImport } from './routes/table-builder'
 import { Route as FormBuilderRouteImport } from './routes/form-builder'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as FormBuilderIndexRouteImport } from './routes/form-builder/index'
 
+const TestingRoute = TestingRouteImport.update({
+  id: '/testing',
+  path: '/testing',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TableBuilderRoute = TableBuilderRouteImport.update({
   id: '/table-builder',
   path: '/table-builder',
@@ -39,11 +45,13 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/form-builder': typeof FormBuilderRouteWithChildren
   '/table-builder': typeof TableBuilderRoute
+  '/testing': typeof TestingRoute
   '/form-builder/': typeof FormBuilderIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/table-builder': typeof TableBuilderRoute
+  '/testing': typeof TestingRoute
   '/form-builder': typeof FormBuilderIndexRoute
 }
 export interface FileRoutesById {
@@ -51,24 +59,44 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/form-builder': typeof FormBuilderRouteWithChildren
   '/table-builder': typeof TableBuilderRoute
+  '/testing': typeof TestingRoute
   '/form-builder/': typeof FormBuilderIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/form-builder' | '/table-builder' | '/form-builder/'
+  fullPaths:
+    | '/'
+    | '/form-builder'
+    | '/table-builder'
+    | '/testing'
+    | '/form-builder/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/table-builder' | '/form-builder'
-  id: '__root__' | '/' | '/form-builder' | '/table-builder' | '/form-builder/'
+  to: '/' | '/table-builder' | '/testing' | '/form-builder'
+  id:
+    | '__root__'
+    | '/'
+    | '/form-builder'
+    | '/table-builder'
+    | '/testing'
+    | '/form-builder/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   FormBuilderRoute: typeof FormBuilderRouteWithChildren
   TableBuilderRoute: typeof TableBuilderRoute
+  TestingRoute: typeof TestingRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/testing': {
+      id: '/testing'
+      path: '/testing'
+      fullPath: '/testing'
+      preLoaderRoute: typeof TestingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/table-builder': {
       id: '/table-builder'
       path: '/table-builder'
@@ -116,6 +144,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   FormBuilderRoute: FormBuilderRouteWithChildren,
   TableBuilderRoute: TableBuilderRoute,
+  TestingRoute: TestingRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
