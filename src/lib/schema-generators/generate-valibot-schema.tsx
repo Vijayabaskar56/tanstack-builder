@@ -282,6 +282,8 @@ export const generateValiSchemaString = (schema: ValiSchema): string => {
 // Direct schema string generation approach (similar to Arktype)
 export const getValiSchemaStringDirect = (
   formElements: (FormElement | FormArray)[],
+  isMultiStep: boolean = false,
+  stepSchemas?: (FormElement | FormArray)[][],
 ): string => {
   const processElements = (elements: (FormElement | FormArray)[]): string[] => {
     return elements
@@ -409,16 +411,35 @@ export const getValiSchemaStringDirect = (
 
   const schemaEntries = processElements(formElements).join(",\n");
 
-  return `import * as v from "valibot"
+  let code = `import * as v from "valibot"
 
 export const formSchema = v.object({
 ${schemaEntries}
 });`;
+
+  if (isMultiStep && stepSchemas) {
+    const stepSchemasStr = stepSchemas
+      .map((stepSchema, index) => {
+        const stepEntries = processElements(stepSchema).join(",\n");
+        return `  // Step ${index + 1}\n  v.object({\n${stepEntries}\n  })`;
+      })
+      .join(",\n");
+
+    code += `
+
+export const stepSchemas = [
+${stepSchemasStr}
+];`;
+  }
+
+  return code;
 };
 
 // Keep the original function for now but use the direct approach
 export const getValiSchemaString = (
   formElements: (FormElement | FormArray)[],
+  isMultiStep: boolean = false,
+  stepSchemas?: (FormElement | FormArray)[][],
 ): string => {
-  return getValiSchemaStringDirect(formElements);
+  return getValiSchemaStringDirect(formElements, isMultiStep, stepSchemas);
 };

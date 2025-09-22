@@ -38,7 +38,7 @@ export function formatCode(code: string): string {
       }
     } else if (inImport) {
       // Continue building multi-line import
-      currentImport += " " + trimmedLine;
+      currentImport += ` ${trimmedLine}`;
 
       // Check if import is complete
       if (trimmedLine.includes("}") && currentImport.includes("from")) {

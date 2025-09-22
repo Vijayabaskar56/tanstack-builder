@@ -85,48 +85,80 @@ const Theme = ({
 	);
 	const attrs = !value ? themes : Object.values(value);
 
-	// apply selected theme function (light, dark, system)
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-	const applyTheme = React.useCallback((theme: string | undefined) => {
-		let resolved = theme;
-		if (!resolved) return;
+	// Calculate system theme for provider value
+	const systemTheme = React.useMemo((): "dark" | "light" | undefined => {
+		if (!enableSystem) return undefined;
+		const system = getSystemTheme();
+		return system === "dark" || system === "light" ? system : undefined;
+	}, [enableSystem]);
 
-		// If theme is system, resolve it before setting theme
+	// Calculate resolved theme (for when theme is "system")
+	const resolvedTheme = React.useMemo(() => {
 		if (theme === "system" && enableSystem) {
-			resolved = getSystemTheme();
+			const system = getSystemTheme();
+			return system === "dark" || system === "light" ? system : theme;
 		}
+		return theme;
+	}, [theme, enableSystem]);
 
-		const name = value ? value[resolved] : resolved;
-		const enable = disableTransitionOnChange ? disableAnimation() : null;
-		const d = document.documentElement;
+	// apply selected theme function (light, dark, system)
+	const applyTheme = React.useCallback(
+		(theme: string | undefined) => {
+			let resolved = theme;
+			if (!resolved) return;
 
-		const handleAttribute = (attr: Attribute) => {
-			if (attr === "class") {
-				d.classList.remove(...attrs);
-				if (name) d.classList.add(name);
-			} else if (attr.startsWith("data-")) {
-				if (name) {
-					d.setAttribute(attr, name);
-				} else {
-					d.removeAttribute(attr);
-				}
+			// If theme is system, use resolved theme
+			if (theme === "system" && enableSystem) {
+				resolved = resolvedTheme;
 			}
-		};
 
-		if (Array.isArray(attribute)) attribute.forEach(handleAttribute);
-		else handleAttribute(attribute);
+			// Ensure resolved is not undefined
+			if (!resolved) return;
 
-		if (enableColorScheme) {
-			const fallback = colorSchemes.includes(defaultTheme)
-				? defaultTheme
-				: null;
-			const colorScheme = colorSchemes.includes(resolved) ? resolved : fallback;
-			// @ts-ignore
-			d.style.colorScheme = colorScheme;
-		}
+			const name = value ? (value[resolved] ?? resolved) : resolved;
+			const enable = disableTransitionOnChange ? disableAnimation() : null;
+			const d = document.documentElement;
 
-		enable?.();
-	}, []);
+			const handleAttribute = (attr: Attribute) => {
+				if (attr === "class") {
+					d.classList.remove(...attrs);
+					if (name) d.classList.add(name);
+				} else if (attr.startsWith("data-")) {
+					if (name) {
+						d.setAttribute(attr, name);
+					} else {
+						d.removeAttribute(attr);
+					}
+				}
+			};
+
+			if (Array.isArray(attribute)) attribute.forEach(handleAttribute);
+			else handleAttribute(attribute);
+
+			if (enableColorScheme && resolved) {
+				const fallback = colorSchemes.includes(defaultTheme)
+					? defaultTheme
+					: null;
+				const colorScheme = colorSchemes.includes(resolved)
+					? resolved
+					: fallback;
+				// @ts-ignore
+				d.style.colorScheme = colorScheme;
+			}
+
+			enable?.();
+		},
+		[
+			resolvedTheme,
+			value,
+			disableTransitionOnChange,
+			enableColorScheme,
+			attrs,
+			attribute,
+			defaultTheme,
+			enableSystem,
+		],
+	);
 
 	// Set theme state and save to local storage
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
@@ -195,9 +227,10 @@ const Theme = ({
 			theme,
 			setTheme,
 			forcedTheme,
+			systemTheme,
 			themes: enableSystem ? [...themes, "system"] : themes,
 		}),
-		[theme, setTheme, forcedTheme, enableSystem, themes],
+		[theme, setTheme, forcedTheme, systemTheme, enableSystem, themes],
 	);
 
 	return (
@@ -295,13 +328,16 @@ const disableAnimation = () => {
 		// Wait for next tick before removing, but check if element still exists and is our element
 		setTimeout(() => {
 			if (css.parentNode === document.head) {
-			document.head.removeChild(css);
+				document.head.removeChild(css);
 			}
 		}, 1);
 	};
 };
 
-const getSystemTheme = (e?: MediaQueryList | MediaQueryListEvent) => {
+const getSystemTheme = (
+	e?: MediaQueryList | MediaQueryListEvent,
+): "dark" | "light" | undefined => {
+	if (isServer) return undefined;
 	const event = e ?? window.matchMedia(MEDIA);
 	const isDark = event.matches;
 	const systemTheme = isDark ? "dark" : "light";

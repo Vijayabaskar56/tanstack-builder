@@ -39,8 +39,8 @@ const Wrapper = ({
   children: string;
   title: string;
 }) => {
-  const { theme } = useTheme();
-  const codeTheme = theme === "dark" ? "github-dark" : "github-light";
+  const { theme , systemTheme} = useTheme();
+  const codeTheme = theme === "system" ? (systemTheme === "dark" ? "github-dark" : "github-light") : theme === "dark" ? "github-dark" : "github-light";
 
   return (
     <CodeBlock className="my-0 w-full border-border border rounded-md overflow-hidden bg-background dark:bg-background/95">
@@ -95,10 +95,11 @@ const installableShadcnComponents: Partial<
 };
 //======================================
 export function CodeBlockPackagesInstallation() {
-  const { theme } = useTheme();
+  const { theme  , systemTheme} = useTheme();
+  console.log("🚀 ~ CodeBlockPackagesInstallation ~ systemTheme:", systemTheme)
   const { formElements } = useFormStore();
   const isMS = useIsMultiStep();
-  const codeTheme = theme === "dark" ? "github-dark" : "github-light";
+  const codeTheme = theme === "system" ? (systemTheme === "dark" ? "github-dark" : "github-light") : theme === "dark" ? "github-dark" : "github-light";
   const processedFormElements = isMS
     ? flattenFormSteps(formElements as FormStep[])
     : formElements;
@@ -304,24 +305,47 @@ const CodeBlockSchema = () => {
       formElements,
     );
   }, [formElements]);
+
   const parsedFormElements = isMS
     ? flattenFormSteps(formElements as FormStep[])
     : formElements.flat();
+
   let generatedCode = "";
+  let stepSchemas: (FormElement | FormArray)[][] | undefined;
+
+  // Generate step schemas for multi-step forms
+  if (isMS) {
+    stepSchemas = (formElements as FormStep[]).map(step => step.stepFields.flat());
+  }
+
   switch (validationSchema) {
     case "zod":
-      generatedCode = getZodSchemaString(parsedFormElements as FormElement[]);
+      generatedCode = getZodSchemaString(
+        parsedFormElements as FormElement[],
+        isMS,
+        stepSchemas?.map(step => generateZodSchemaObject(step))
+      );
       break;
     case "valibot":
-      generatedCode = getValiSchemaString(parsedFormElements as FormElement[]);
+      generatedCode = getValiSchemaString(
+        parsedFormElements as FormElement[],
+        isMS,
+        stepSchemas
+      );
       break;
     case "arktype":
       generatedCode = getArkTypeSchemaString(
         parsedFormElements as FormElement[],
+        isMS,
+        stepSchemas
       );
       break;
     default:
-      generatedCode = getZodSchemaString(parsedFormElements as FormElement[]);
+      generatedCode = getZodSchemaString(
+        parsedFormElements as FormElement[],
+        isMS,
+        stepSchemas?.map(step => generateZodSchemaObject(step))
+      );
       break;
   }
   const formattedCode = formatCode(generatedCode);

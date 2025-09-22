@@ -457,6 +457,8 @@ export const generateArkTypeSchemaString = (schema: any): string => {
 };
 export const getArkTypeSchemaString = (
 	formElements: (FormElement | FormArray)[],
+	isMultiStep: boolean = false,
+	stepSchemas?: (FormElement | FormArray)[][],
 ): string => {
 	// Generate ArkType definitions directly from form elements
 	const processElements = (elements: (FormElement | FormArray)[]): string[] => {
@@ -602,9 +604,26 @@ export const getArkTypeSchemaString = (
 
 	const schemaEntries = processElements(formElements).join(",\n");
 
-	return `import { type } from "arktype"
+	let code = `import { type } from "arktype"
 
 export const formSchema = type({
 ${schemaEntries}
 });`;
+
+	if (isMultiStep && stepSchemas) {
+		const stepSchemasStr = stepSchemas
+			.map((stepSchema, index) => {
+				const stepEntries = processElements(stepSchema).join(",\n");
+				return `  // Step ${index + 1}\n  type({\n${stepEntries}\n  })`;
+			})
+			.join(",\n");
+
+		code += `
+
+export const stepSchemas = [
+${stepSchemasStr}
+];`;
+	}
+
+	return code;
 };

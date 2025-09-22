@@ -15,6 +15,7 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@base-ui-components/react": "^1.0.0-beta.3",
     "@faker-js/faker": "^9.9.0",
     "@hookform/resolvers": "^5.2.2",
     "@orpc/client": "^1.8.9",
@@ -102,6 +103,8 @@
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
+    "@fontsource-variable/inter": "^5.2.8",
+    "@fontsource/instrument-serif": "^5.2.8",
     "@tanstack/devtools-event-client": "^0.2.5",
     "@tanstack/devtools-vite": "^0.2.14",
     "@testing-library/dom": "^10.4.1",

@@ -1,7 +1,7 @@
 import { isStatic } from "@/lib/utils";
 import type { FormArray, FormElement } from "@/types/form-types";
 // generate-zod-schema.tsx
-import { type ZodType, z } from "zod";
+import { type ZodType, type ZodObject, z } from "zod";
 
 // Type guard to check if an element is a FormArray
 const isFormArray = (element: unknown): element is FormArray => {
@@ -427,7 +427,10 @@ export const generateZodSchemaString = (schema: ZodType): string => {
 
 export const getZodSchemaString = (
 	formElements: (FormElement | FormArray)[],
-): string => {
+	isMultiStep: boolean,
+	// biome-ignore lint/suspicious/noExplicitAny: Complex Zod type constraints
+	stepSchemas?: ZodObject<any>[],
+) => {
 	const schema = generateZodSchemaObject(formElements);
 	const schemaEntries = Object.entries(schema.shape)
 		.map(([key, value]) => {
@@ -438,7 +441,32 @@ export const getZodSchemaString = (
 		})
 		.join(",\n");
 
-	return `
+	let code = `
   import * as z from "zod"
+
   export const formSchema = z.object({\n${schemaEntries}\n});`;
+
+	if (isMultiStep && stepSchemas) {
+		const stepSchemasStr = stepSchemas
+			// biome-ignore lint/suspicious/noExplicitAny: Complex Zod type constraints
+			.map((stepSchema: ZodObject<any>, index: number) => {
+				const stepEntries = Object.entries(stepSchema.shape as Record<string, unknown>)
+					.map(([key, value]) => {
+						const needsQuotes = /\s/.test(key) || /^\d/.test(key);
+						const quotedKey = needsQuotes ? `"${key}"` : key;
+						return `${quotedKey}: ${generateZodSchemaString(value as ZodType)}`;
+					})
+					.join(",\n");
+				return `  // Step ${index + 1}\n  z.object({\n${stepEntries}\n  })`;
+			})
+			.join(",\n");
+
+		code += `
+
+  export const stepSchemas = [
+  ${stepSchemasStr}
+  ];`;
+	}
+
+	return code;
 };
