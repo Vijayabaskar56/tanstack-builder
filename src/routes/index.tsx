@@ -3,19 +3,20 @@ import CTASection from "@/components/cta";
 import FAQSection from "@/components/faq";
 import FooterSection from "@/components/footer";
 import { Button } from "@/components/ui/button";
-import { createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 
+import { useTheme } from "@/components/theme-provider";
 import {
+	CheckCircle,
+	Circle,
+	Clock,
 	Code,
 	Eye,
 	Layers,
 	Move,
 	Palette,
 	Share2,
-	CheckCircle,
-	Clock,
-	Circle,
 } from "lucide-react";
 export const Route = createFileRoute("/")({
 	component: HomePage,
@@ -190,7 +191,9 @@ function HomePage() {
 	const [activeCard, setActiveCard] = useState(0);
 	const [progress, setProgress] = useState(0);
 	const mountedRef = useRef(true);
-
+	const { theme, systemTheme } = useTheme();
+	const resolvedTheme =
+		theme === "system" ? (systemTheme === "dark" ? "dark" : "light") : theme;
 	useEffect(() => {
 		const progressInterval = setInterval(() => {
 			if (!mountedRef.current) return;
@@ -254,8 +257,13 @@ function HomePage() {
 								</div>
 
 								<div className="w-full max-w-[497px] lg:w-[497px] flex flex-col justify-center items-center gap-6 sm:gap-8 md:gap-10 lg:gap-12 relative z-10 mt-6 sm:mt-8 md:mt-10 lg:mt-12">
-									<Button variant="default" size="lg" className="w-32 rounded">
-										Start Building
+									<Button
+										variant="default"
+										size="lg"
+										className="w-32 rounded"
+										asChild
+									>
+										<Link to="/form-builder">Start Building</Link>
 									</Button>
 								</div>
 
@@ -286,7 +294,11 @@ function HomePage() {
 														}`}
 													>
 														<img
-															src="/assets/form-builder.png"
+															src={
+																resolvedTheme === "light"
+																	? "/assets/hero-light.png"
+																	: "/assets/hero-dark.png"
+															}
 															alt="Form Builder Interface"
 															className="w-full h-full  object-contain"
 														/>
@@ -301,7 +313,11 @@ function HomePage() {
 														}`}
 													>
 														<img
-															src="/analytics-dashboard-with-charts-graphs-and-data-vi.jpg"
+															src={
+																resolvedTheme === "light"
+																	? "/assets/hero-light.png"
+																	: "/assets/hero-dark.png"
+															}
 															alt="Analytics Dashboard"
 															className="w-full h-full object-cover"
 														/>
@@ -316,7 +332,11 @@ function HomePage() {
 														}`}
 													>
 														<img
-															src="/data-visualization-dashboard-with-interactive-char.jpg"
+															src={
+																resolvedTheme === "light"
+																	? "/assets/hero-light.png"
+																	: "/assets/hero-dark.png"
+															}
 															alt="Data Visualization Dashboard"
 															className="w-full h-full object-contain" // Changed from object-cover to object-contain to preserve landscape aspect ratio
 														/>
