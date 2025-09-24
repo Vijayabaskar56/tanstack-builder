@@ -313,7 +313,11 @@ function HomePage() {
 														}`}
 													>
 														<img
-															src="/analytics-dashboard-with-charts-graphs-and-data-vi.jpg"
+															src={
+																resolvedTheme === "light"
+																	? "/assets/hero-light.png"
+																	: "/assets/hero-dark.png"
+															}
 															alt="Analytics Dashboard"
 															className="w-full h-full object-cover"
 														/>
@@ -328,7 +332,11 @@ function HomePage() {
 														}`}
 													>
 														<img
-															src="/data-visualization-dashboard-with-interactive-char.jpg"
+															src={
+																resolvedTheme === "light"
+																	? "/assets/hero-light.png"
+																	: "/assets/hero-dark.png"
+															}
 															alt="Data Visualization Dashboard"
 															className="w-full h-full object-contain" // Changed from object-cover to object-contain to preserve landscape aspect ratio
 														/>
