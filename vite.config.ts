@@ -6,6 +6,9 @@ import tailwindcss from "@tailwindcss/vite";
 import { devtools } from "@tanstack/devtools-vite";
 
 const config = defineConfig({
+  server: {
+    port : 3000,
+  },
   plugins: [
     // this is the plugin that enables path aliases
     viteTsConfigPaths({
@@ -13,7 +16,6 @@ const config = defineConfig({
     }),
     tailwindcss(),
     tanstackStart({
-      customViteReactPlugin: true,
       spa : {
        enabled : true,
       }

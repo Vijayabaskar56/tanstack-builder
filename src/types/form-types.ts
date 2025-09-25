@@ -10,7 +10,7 @@ import type {
 } from "@radix-ui/react-toggle-group";
 import type { OTPInputProps } from "input-otp";
 
-export type Option = { value: string; label: React.ReactNode };
+export type Option = { value: string; label: string };
 //------------------------------------------------------------
 type SharedFormProps = {
   name: string;

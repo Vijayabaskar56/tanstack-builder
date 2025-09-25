@@ -1,13 +1,15 @@
+import { useLoaderData, useNavigate } from "@tanstack/react-router";
+import { useEffect, useMemo, useRef } from "react";
+import { toast } from "sonner";
+import type * as v from "valibot";
 import { revalidateLogic, useAppForm } from "@/components/ui/tanstack-form";
 import { useFormStore, useIsMultiStep } from "@/hooks/use-form-store";
 import useSettings from "@/hooks/use-settings";
 import { getDefaultFormElement } from "@/lib/form-code-generators/react/generate-default-value";
 import { flattenFormSteps } from "@/lib/form-elements-helpers";
 import { generateValiSchemaObject } from "@/lib/schema-generators/generate-valibot-schema";
-import type { FormElement, FormStep } from "@/types/form-types";
-import { useMemo } from "react";
-import { toast } from "sonner";
-import type * as v from "valibot";
+import type { FormElement, FormElements, FormStep } from "@/types/form-types";
+
 interface DefaultValues {
 	[key: string]: unknown;
 }
@@ -43,6 +45,22 @@ export const useFormBuilder = (): {
 } => {
 	const isMS = useIsMultiStep();
 	const { actions, formElements } = useFormStore();
+	const shared = useLoaderData({ from: "/form-builder" });
+	const hasProcessedShared = useRef(false);
+	const navigator = useNavigate()
+	useEffect(() => {
+		if (shared && !hasProcessedShared.current) {
+			hasProcessedShared.current = true;
+			try {
+				console.log("🚀 ~ useFormBuilder ~ shared:", shared);
+				actions.setFormElements(shared as FormElements);
+				//TODO: Find a Way to remove it
+				// navigator({ search: true })
+			} catch (error) {
+				console.error("Failed to parse share param:", error);
+			}
+		}
+	}, [shared]);
 	const flattenFormElements = isMS
 		? flattenFormSteps(formElements as FormStep[]).flat()
 		: (formElements.flat() as FormElement[]);
@@ -61,8 +79,7 @@ export const useFormBuilder = (): {
 		defaultValues: defaultValue as v.InferInput<typeof valiSchema.objectSchema>,
 		validationLogic: revalidateLogic(),
 		validators: { onDynamic: valiSchema.objectSchema },
-		onSubmit: ({ value }) => {
-			console.log("🚀 ~ useFormBuilder ~ value:", value);
+		onSubmit: () => {
 			toast.success("Submitted Successfully");
 		},
 		onSubmitInvalid({ formApi }) {

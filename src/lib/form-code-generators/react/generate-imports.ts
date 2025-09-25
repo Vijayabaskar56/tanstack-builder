@@ -90,7 +90,7 @@ export const generateImports = (
 		}
 
 		if (isMS) {
-			importSet.add('import type { FormStep } from "@/types/form-types"');
+			importSet.add('import type { stepSchemas } from "./formSchema"');
 			importSet.add(
 				'import { withFieldGroup } from "@/components/ui/tanstack-form"',
 			);
