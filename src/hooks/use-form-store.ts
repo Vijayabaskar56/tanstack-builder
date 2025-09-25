@@ -42,6 +42,7 @@ export type FormBuilderActions = {
 	setSchemaName: (schemaName: string) => void;
 	setValidationSchema: (validationSchema: ValidationSchema) => void;
 	setFramework: (framework: Framework) => void;
+	setFormElements: (formElements: FormElements) => void;
 	// Save/Load functions
 	saveForm: (formName: string) => void;
 	loadForm: (formName: string) => void;
@@ -1505,6 +1506,9 @@ const createActions = (
 	const setFramework = (framework: Framework) => {
 		store.setState((state) => ({ ...state, framework }));
 	};
+	const setFormElements = (formElements: FormElements) => {
+		store.setState((state) => ({ ...state, formElements }));
+	};
 
 	// Save/Load functions
 	const saveForm = (formName: string) => {
@@ -1677,6 +1681,7 @@ const createActions = (
 		setSchemaName,
 		setValidationSchema,
 		setFramework,
+		setFormElements,
 		saveForm,
 		loadForm,
 		getSavedForms,

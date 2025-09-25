@@ -1,17 +1,11 @@
 import { useListState } from "@/hooks/use-list-state";
 import {
-  Binary,
   Check,
   CircleX,
   Delete,
   Edit,
-  KeyRound,
-  Link,
   LucideGripVertical,
-  Mail,
-  Phone,
   PlusCircle,
-  TextCursorInput,
 } from "lucide-react";
 import { Reorder } from "motion/react";
 import * as React from "react";
@@ -34,56 +28,36 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAppForm } from "@/components/ui/tanstack-form";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+
 import type { FormElement, Option } from "@/types/form-types";
 import type { AppForm } from "@/hooks/use-form-builder";
 import { useFormStore } from "@/hooks/use-form-store";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { isStatic } from "@/lib/utils";
 
-const OptionLabel = ({
-  label,
-  Icon,
-}: {
-  label: string;
-  Icon: React.ReactNode;
-}) => (
-  <TooltipProvider>
-    <Tooltip>
-      <TooltipTrigger asChild>{Icon}</TooltipTrigger>
-      <TooltipContent>
-        <p>{label}</p>
-      </TooltipContent>
-    </Tooltip>
-  </TooltipProvider>
-);
+
 
 const inputTypes = [
   {
     value: "text",
-    label: <OptionLabel label="Text" Icon={<TextCursorInput />} />,
+    label: "Text",
   },
   {
     value: "number",
-    label: <OptionLabel label="Number" Icon={<Binary />} />,
+    label: "Number",
   },
-  { value: "url", label: <OptionLabel label="URL" Icon={<Link />} /> },
+  { value: "url", label: "URL" },
   {
     value: "password",
-    label: <OptionLabel label="Password" Icon={<KeyRound />} />,
+    label: "Password",
   },
   {
     value: "email",
-    label: <OptionLabel label="Email" Icon={<Mail />} />,
+    label: "Email",
   },
   {
     value: "tel",
-    label: <OptionLabel label="Phone number" Icon={<Phone />} />,
+    label: "Phone number",
   },
 ];
 

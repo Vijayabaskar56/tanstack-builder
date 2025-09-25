@@ -15,7 +15,10 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { ErrorFallback } from "@/components/ui/error-fallback";
 import { Toaster } from "@/components/ui/sonner";
 import { settingsCollection } from "@/db-collections/settings.collections";
+import { TanStackDevtools } from '@tanstack/react-devtools';
+import { FormDevtoolsPlugin } from '@tanstack/react-form-devtools';
 import type { QueryClient } from "@tanstack/react-query";
+import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
 interface MyRouterContext {
 	queryClient: QueryClient;
 }
@@ -95,20 +98,20 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 						<NavBar />
 						{isFetching ? <Loader /> : <Outlet />}
 					</div>
-					{/* <TanStackDevtools
+					<TanStackDevtools
 						config={{
 							position: "bottom-left",
 						}}
 						plugins={[
 							FormDevtoolsPlugin(),
+							// TODO: Check Once the Update Available
 							// pacerDevtoolsPlugin(),
 							{
 								name: "Tanstack Router",
 								render: <TanStackRouterDevtoolsPanel />,
 							},
-							TanStackQueryDevtools,
 						]}
-					/> */}
+					/>
 					<Toaster richColors />
 				</ThemeProvider>
 				<Scripts />
