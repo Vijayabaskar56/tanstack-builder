@@ -4,42 +4,36 @@ import viteReact from "@vitejs/plugin-react";
 import viteTsConfigPaths from "vite-tsconfig-paths";
 import tailwindcss from "@tailwindcss/vite";
 import { devtools } from "@tanstack/devtools-vite";
-
+import { cloudflare } from '@cloudflare/vite-plugin'
 const config = defineConfig({
-  server: {
-    port : 3000,
-  },
-  plugins: [
-    // this is the plugin that enables path aliases
-    viteTsConfigPaths({
-      projects: ["./tsconfig.json"],
-    }),
-    tailwindcss(),
-    tanstackStart({
-      spa : {
-       enabled : true,
-      }
-    }),
-    viteReact(),
-    devtools({
-     enhancedLogs : {
-      enabled : true,
-     },
-     editor : {
-      name: 'VSCode',
-       open: async (path, lineNumber, columnNumber) => {
-         const { exec } = await import('node:child_process')
-         exec(
-           // or windsurf/cursor/webstorm
-           `code -g "${(path).replaceAll('$', '\\$')}${lineNumber ? `:${lineNumber}` : ''}${columnNumber ? `:${columnNumber}` : ''}"`,
-         )
-       },
-     }
-    }),
-  ],
-  optimizeDeps: {
-    include: ['dayjs/plugin/relativeTime.js']
-  }
+	server: {
+		port: 3000,
+	},
+	plugins: [
+		// this is the plugin that enables path aliases
+		viteTsConfigPaths({
+			projects: ["./tsconfig.json"],
+		}),
+		cloudflare({ viteEnvironment: { name: 'ssr' } }),
+		tailwindcss(),
+		tanstackStart({}),
+		viteReact(),
+		devtools({
+			enhancedLogs: {
+				enabled: true,
+			},
+			editor: {
+				name: "VSCode",
+				open: async (path, lineNumber, columnNumber) => {
+					const { exec } = await import("node:child_process");
+					exec(
+						// or windsurf/cursor/webstorm
+						`code -g "${(path).replaceAll("$", "\\$")}${lineNumber ? `:${lineNumber}` : ""}${columnNumber ? `:${columnNumber}` : ""}"`,
+					);
+				},
+			},
+		}),
+	],
 });
 
 export default config;

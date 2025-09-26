@@ -8,3 +8,4 @@ node_modules
 .tanstack
 src/routes/testing.tsx
 dist
+.wrangler
