@@ -84,7 +84,7 @@ export default function FormHeader() {
 	function handleShare() {
 		console.log(formElements , `http://localhost:3000/form-builder?share=${encodeURIComponent(JSON.stringify(formElements))}`);
 		navigator.clipboard.writeText(
-			`https://tan-form-builder.baskar.dev/?share=${encodeURIComponent(JSON.stringify(formElements))}`,
+			`https://tan-form-builder.baskar.dev/form-builder?share=${encodeURIComponent(JSON.stringify(formElements))}`,
     );
     toast("Link Copied to clipboard")
 	}
