@@ -1507,7 +1507,8 @@ const createActions = (
 		store.setState((state) => ({ ...state, framework }));
 	};
 	const setFormElements = (formElements: FormElements) => {
-		store.setState((state) => ({ ...state, formElements }));
+		const isMS = isMultiStepForm(formElements);
+		store.setState((state) => ({ ...state, formElements, isMS }));
 	};
 
 	// Save/Load functions

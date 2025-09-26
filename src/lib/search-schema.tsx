@@ -54,15 +54,16 @@ const baseFormElementSchemas = [
 		required: v.optional(v.boolean()),
 		static: v.optional(v.boolean()),
 	}),
-	// Checkbox
-	v.object({
-		id: v.string(),
-		fieldType: v.literal("Checkbox"),
-		label: v.optional(v.string()),
-		description: v.optional(v.string()),
-		required: v.optional(v.boolean()),
-		static: v.optional(v.boolean()),
-	}),
+  // Checkbox
+  v.object({
+    id: v.string(),
+    fieldType: v.literal("Checkbox"),
+    name: v.string(),
+    label: v.optional(v.string()),
+    description: v.optional(v.string()),
+    required: v.optional(v.boolean()),
+    static: v.optional(v.boolean()),
+  }),
 	// RadioGroup
 	v.object({
 		id: v.string(),

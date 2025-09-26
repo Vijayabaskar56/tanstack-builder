@@ -44,6 +44,7 @@ export const generateValiSchemaObject = (
 
     // Handle regular FormElement
     if (isStatic(element.fieldType)) return;
+    if (!element.name) return;
     let elementSchema: ValiSchema;
     switch (element.fieldType) {
       case "Input":
