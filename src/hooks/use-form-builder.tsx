@@ -1,14 +1,12 @@
-import { useLoaderData, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useRef } from "react";
-import { toast } from "sonner";
-import type * as v from "valibot";
 import { revalidateLogic, useAppForm } from "@/components/ui/tanstack-form";
 import { useFormStore, useIsMultiStep } from "@/hooks/use-form-store";
-import useSettings from "@/hooks/use-settings";
 import { getDefaultFormElement } from "@/lib/form-code-generators/react/generate-default-value";
 import { flattenFormSteps } from "@/lib/form-elements-helpers";
 import { generateValiSchemaObject } from "@/lib/schema-generators/generate-valibot-schema";
-import type { FormElement, FormElements, FormStep } from "@/types/form-types";
+import type { FormElement, FormStep } from "@/types/form-types";
+import { useMemo } from "react";
+import { toast } from "sonner";
+import type * as v from "valibot";
 
 interface DefaultValues {
 	[key: string]: unknown;
@@ -45,27 +43,10 @@ export const useFormBuilder = (): {
 } => {
 	const isMS = useIsMultiStep();
 	const { actions, formElements } = useFormStore();
-	const shared = useLoaderData({ from: "/form-builder" });
-	const hasProcessedShared = useRef(false);
-	const navigator = useNavigate()
-	useEffect(() => {
-		if (shared && !hasProcessedShared.current) {
-			hasProcessedShared.current = true;
-			try {
-				console.log("🚀 ~ useFormBuilder ~ shared:", shared);
-				actions.setFormElements(shared as FormElements);
-				//TODO: Find a Way to remove it
-				// navigator({ search: true })
-			} catch (error) {
-				console.error("Failed to parse share param:", error);
-			}
-		}
-	}, [shared]);
 	const flattenFormElements = isMS
 		? flattenFormSteps(formElements as FormStep[]).flat()
 		: (formElements.flat() as FormElement[]);
 	const filteredFormFields = flattenFormElements.filter((o) => !o.static);
-	const settings = useSettings();
 	const valiSchema = useMemo(
 		() => generateValiSchemaObject(filteredFormFields),
 		[filteredFormFields],
@@ -82,22 +63,23 @@ export const useFormBuilder = (): {
 		onSubmit: () => {
 			toast.success("Submitted Successfully");
 		},
+		canSubmitWhenInvalid: true,
 		onSubmitInvalid({ formApi }) {
-			if (settings.focusOnError) {
-				const errorMap = formApi.state.errorMap.onDynamic;
-				const inputs = Array.from(
-					document.querySelectorAll("#previewForm input"),
-				) as HTMLInputElement[];
+			// This can be extracted to a function that takes the form ID and `formAPI` as arguments
+			const errorMap = formApi.state.errorMap.onDynamic;
+			const inputs = Array.from(
+				// Must match the selector used in your form
+				document.querySelectorAll("#previewForm input"),
+			) as HTMLInputElement[];
 
-				let firstInput: HTMLInputElement | undefined;
-				for (const input of inputs) {
-					if (errorMap?.[input.name]) {
-						firstInput = input;
-						break;
-					}
+			let firstInput: HTMLInputElement | undefined;
+			for (const input of inputs) {
+				if (errorMap?.[input.name]) {
+					firstInput = input;
+					break;
 				}
-				firstInput?.focus();
 			}
+			firstInput?.focus();
 		},
 	});
 	const { reset } = form;

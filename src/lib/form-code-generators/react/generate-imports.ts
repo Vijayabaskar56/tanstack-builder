@@ -5,13 +5,12 @@ export const generateImports = (
 	formElements: (FormElement | FormArray)[],
 	validationSchema: unknown,
 	isMS: boolean,
+	schemaName: string,
 ): Set<string> => {
 	const importSet = new Set([
-		"import { formSchema } from './form-schema'",
-		'import { Button } from "@/components/ui/button"',
+		`import { ${schemaName} } from './schema'`,
 		'import { useAppForm } from "@/components/ui/tanstack-form"',
-		'import { useStore , revalidateLogic } from "@tanstack/react-form"',
-		'import { useCallback } from "react"',
+		'import { revalidateLogic } from "@tanstack/react-form"',
 		'import { toast } from "sonner"',
 	]);
 	const processField = (field: FormElement | FormArray) => {
@@ -90,7 +89,7 @@ export const generateImports = (
 		}
 
 		if (isMS) {
-			importSet.add('import type { stepSchemas } from "./formSchema"');
+			importSet.add(`import type { stepSchemas } from "./schema"`);
 			importSet.add(
 				'import { withFieldGroup } from "@/components/ui/tanstack-form"',
 			);

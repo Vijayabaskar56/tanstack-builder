@@ -142,12 +142,18 @@ const isFormArrayForm = (
 ): formElements is FormArray[] => {
 	return formElements.length > 0 && isFormArray(formElements[0]);
 };
+const shared = localStorage.getItem("share");
+if (shared) {
+	localStorage.removeItem("share");
+}
 const initialFormElements = templates.contactUs.template as FormElementOrList[];
 const initialCoreState: FormBuilderCoreState = {
-	formElements: initialFormElements,
-	isMS: false,
-	formName: "Form",
-	schemaName: "formSchema",
+	formElements: shared ? JSON.parse(shared) : initialFormElements,
+	isMS: shared
+		? isMultiStepForm(JSON.parse(shared))
+		: isMultiStepForm(initialFormElements),
+	formName: "draftForm",
+	schemaName: "draftFormSchema",
 	validationSchema: "zod",
 	framework: "react",
 	lastAddedStepIndex: undefined,
@@ -1750,7 +1756,7 @@ const unmountFlattened = flattenedFormElementsStore.mount();
 const unmountValidation = formValidationStore.mount();
 const batchOperations = (operations: Array<() => void>) => {
 	batch(() => {
-		for(let i = 0; i < operations.length; i++) {
+		for (let i = 0; i < operations.length; i++) {
 			operations[i]();
 		}
 	});
@@ -1797,7 +1803,7 @@ const batchFormOperations = {
 	) => {
 		batch(() => {
 			formBuilderActions.setTemplate(templateName);
-			for(let i = 0; i < additionalElements.length; i++) {
+			for (let i = 0; i < additionalElements.length; i++) {
 				formBuilderActions.appendElement(additionalElements[i]);
 			}
 		});

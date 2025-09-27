@@ -459,6 +459,7 @@ export const getArkTypeSchemaString = (
 	formElements: (FormElement | FormArray)[],
 	isMultiStep: boolean = false,
 	stepSchemas?: (FormElement | FormArray)[][],
+	schemaName: string = "formSchema",
 ): string => {
 	// Generate ArkType definitions directly from form elements
 	const processElements = (elements: (FormElement | FormArray)[]): string[] => {
@@ -606,7 +607,7 @@ export const getArkTypeSchemaString = (
 
 	let code = `import { type } from "arktype"
 
-export const formSchema = type({
+export const ${schemaName} = type({
 ${schemaEntries}
 });`;
 

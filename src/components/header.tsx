@@ -82,11 +82,14 @@ export default function FormHeader() {
 	}
 
 	function handleShare() {
-		console.log(formElements , `http://localhost:3000/form-builder?share=${encodeURIComponent(JSON.stringify(formElements))}`);
+		console.log(
+			formElements,
+			`http://localhost:3000/form-builder?share=${encodeURIComponent(JSON.stringify(formElements))}`,
+		);
 		navigator.clipboard.writeText(
 			`https://tan-form-builder.baskar.dev/form-builder?share=${encodeURIComponent(JSON.stringify(formElements))}`,
-    );
-    toast("Link Copied to clipboard")
+		);
+		toast("Link Copied to clipboard");
 	}
 
 	return (
@@ -180,6 +183,7 @@ export default function FormHeader() {
 						<Switch
 							id={id}
 							onClick={() => actions.setIsMS(!isMS)}
+							checked={isMS}
 							className="data-[state=unchecked]:border-input data-[state=unchecked]:[&_span]:bg-input data-[state=unchecked]:bg-transparent [&_span]:transition-all data-[state=unchecked]:[&_span]:size-4 data-[state=unchecked]:[&_span]:translate-x-0.5 data-[state=unchecked]:[&_span]:shadow-none data-[state=unchecked]:[&_span]:rtl:-translate-x-0.5"
 						/>
 						<Label htmlFor={id} className="sr-only">

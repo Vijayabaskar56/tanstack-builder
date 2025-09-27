@@ -1,4 +1,3 @@
-// apps/web/tests/schema-generators/valibot.test.ts
 import { describe, expect, it } from "vitest";
 import { getValiSchemaString } from "@/lib/schema-generators/generate-valibot-schema";
 
@@ -38,7 +37,9 @@ describe("Valibot Schema Generator - FormArray Support", () => {
 		expect(schemaString).toContain("v.array");
 		expect(schemaString).toContain("v.object");
 		expect(schemaString).toContain("v.string()");
-		expect(schemaString).toContain("v.pipe(v.string(), v.email())");
+		expect(schemaString).toContain(
+			'v.pipe(v.string(), v.minLength(1, "This field is required"), v.email())',
+		);
 	});
 
 	it("should handle multiple field types in FormArray", () => {
@@ -85,7 +86,7 @@ describe("Valibot Schema Generator - FormArray Support", () => {
 
 		expect(schemaString).toContain("items");
 		expect(schemaString).toContain("v.array");
-		expect(schemaString).toContain("v.optional(v.boolean(), true)");
+		expect(schemaString).toContain("v.optional(v.boolean())");
 		expect(schemaString).toContain("v.pipe(v.string(), v.minLength(1");
 	});
 

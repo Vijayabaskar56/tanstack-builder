@@ -1,7 +1,9 @@
-import { isStatic } from "@/lib/utils";
-import type { FormArray, FormElement } from "@/types/form-types";
 // generate-zod-schema.tsx
-import { type ZodType, type ZodObject, z } from "zod";
+import { flattenFormSteps, getStepFields } from "@/lib/form-elements-helpers";
+import type { FormStep } from "@/types/form-types";
+import { type ZodType, z } from "zod";
+import type { FormArray, FormElement } from "@/types/form-types";
+import { isStatic } from "@/lib/utils";
 
 // Type guard to check if an element is a FormArray
 const isFormArray = (element: unknown): element is FormArray => {
@@ -60,7 +62,8 @@ const FIELD_SCHEMA_MAP = new Map<
 			if (hasTypeProperty(element)) {
 				if (element.type === "email") {
 					return z.email();
-				} if (element.type === "number") {
+				}
+				if (element.type === "number") {
 					return z.coerce.number();
 				}
 			}
@@ -73,7 +76,8 @@ const FIELD_SCHEMA_MAP = new Map<
 			if (hasTypeProperty(element)) {
 				if (element.type === "email") {
 					return z.email();
-				} if (element.type === "number") {
+				}
+				if (element.type === "number") {
 					return z.coerce.number();
 				}
 			}
@@ -119,12 +123,12 @@ const FIELD_SCHEMA_MAP = new Map<
 			if (hasTypeProperty(element) && element.type === "single") {
 				return z.string().min(1, "Please select an item");
 			}
-			return z.array(z.unknown()).nonempty("Please select at least one item");
+			return z.array(z.string()).nonempty("Please select at least one item");
 		},
 	],
 	[
 		"MultiSelect",
-		() => z.array(z.unknown()).nonempty("Please select at least one item"),
+		() => z.array(z.string()).nonempty("Please select at least one item"),
 	],
 	["RadioGroup", () => z.string().min(1, "Please select an item")],
 	[
@@ -347,19 +351,7 @@ export const generateZodSchemaString = (schema: ZodType): string => {
 
 		// If this is not an optional string and doesn't have min constraint, add default min(1)
 		// This handles the case where required string fields should have min validation
-		// But skip for basic strings with no checks (used in arrays)
-		const hasNoChecks =
-			!stringSchema.def.checks ||
-			(Array.isArray(stringSchema.def.checks) &&
-				stringSchema.def.checks.length === 0) ||
-			(typeof stringSchema.def.checks === "object" &&
-				Object.keys(stringSchema.def.checks).length === 0);
-		if (
-			!hasMinConstraint &&
-			!(schema instanceof z.ZodOptional) &&
-			!hasNoChecks &&
-			result !== "z.string()"
-		) {
+		if (!hasMinConstraint && !(schema instanceof z.ZodOptional)) {
 			result += `.min(1, "This field is required")`;
 		}
 
@@ -370,31 +362,8 @@ export const generateZodSchemaString = (schema: ZodType): string => {
 		return "z.date()";
 	}
 
-	if (schema instanceof z.ZodUnknown) {
-		return "z.unknown()";
-	}
-
 	if (schema instanceof z.ZodArray) {
-		const elementSchema = schema.element as ZodType;
-		let elementString = generateZodSchemaString(elementSchema);
-
-		// For basic string elements in arrays, don't add the default min constraint
-		if (elementSchema instanceof z.ZodString) {
-			elementString = elementString.replace(
-				/\.min\(1, "This field is required"\)$/,
-				"",
-			);
-		}
-
-		// For arrays with string or unknown elements, generate z.array() without element type
-		if (
-			(elementSchema instanceof z.ZodString &&
-				elementString === "z.string()") ||
-			elementString === "z.unknown()"
-		) {
-			return `z.array().nonempty("Please select at least one item")`;
-		}
-
+		const elementString = generateZodSchemaString(schema.element as ZodType);
 		// For FormArrays, don't add nonempty validation by default
 		return `z.array(${elementString})`;
 	}
@@ -426,12 +395,15 @@ export const generateZodSchemaString = (schema: ZodType): string => {
 };
 
 export const getZodSchemaString = (
-	formElements: (FormElement | FormArray)[],
-	isMultiStep: boolean,
-	// biome-ignore lint/suspicious/noExplicitAny: Complex Zod type constraints
-	stepSchemas?: ZodObject<any>[],
-) => {
-	const schema = generateZodSchemaObject(formElements);
+	formElements: FormStep[] | (FormElement | FormArray)[],
+	isMultiStep = false,
+	schemaName = "formSchema",
+): string => {
+	const flattenedElements = isMultiStep
+		? flattenFormSteps(formElements as FormStep[]).flat()
+		: (formElements as (FormElement | FormArray)[]);
+
+	const schema = generateZodSchemaObject(flattenedElements);
 	const schemaEntries = Object.entries(schema.shape)
 		.map(([key, value]) => {
 			// Quote keys that need it (contain spaces or start with number)
@@ -443,29 +415,31 @@ export const getZodSchemaString = (
 
 	let code = `
   import * as z from "zod"
+  export const ${schemaName} = z.object({\n${schemaEntries}\n});`;
 
-  export const formSchema = z.object({\n${schemaEntries}\n});`;
-
-	if (isMultiStep && stepSchemas) {
-		const stepSchemasStr = stepSchemas
-			// biome-ignore lint/suspicious/noExplicitAny: Complex Zod type constraints
-			.map((stepSchema: ZodObject<any>, index: number) => {
-				const stepEntries = Object.entries(stepSchema.shape as Record<string, unknown>)
-					.map(([key, value]) => {
-						const needsQuotes = /\s/.test(key) || /^\d/.test(key);
-						const quotedKey = needsQuotes ? `"${key}"` : key;
-						return `${quotedKey}: ${generateZodSchemaString(value as ZodType)}`;
-					})
-					.join(",\n");
-				return `  // Step ${index + 1}\n  z.object({\n${stepEntries}\n  })`;
+	if (isMultiStep) {
+		const stepFields = getStepFields(formElements as FormStep[]);
+		const stepSchemasStr = Object.entries(stepFields)
+			.map(([stepIndex, fieldNames]) => {
+				const pickObj = fieldNames.reduce(
+					(acc, name) => {
+						acc[sanitizeFieldName(name)] = true;
+						return acc;
+					},
+					{} as Record<string, boolean>,
+				);
+				const pickStr = Object.keys(pickObj)
+					.map((key) => `${key}: true`)
+					.join(",\n  ");
+				return `  // Step ${Number.parseInt(stepIndex) + 1}\n  ${schemaName}.pick({\n  ${pickStr}\n  })`;
 			})
 			.join(",\n");
 
 		code += `
 
-  export const stepSchemas = [
-  ${stepSchemasStr}
-  ];`;
+export const stepSchemas = [
+${stepSchemasStr}
+];`;
 	}
 
 	return code;
