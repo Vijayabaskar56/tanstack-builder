@@ -1,28 +1,25 @@
+// form-builder.tsx
 import FormHeader from "@/components/header";
-import {
-	FormElementsSchema
-} from "@/lib/search-schema";
-import { Outlet, createFileRoute } from "@tanstack/react-router";
-import * as v from "valibot";
+import type { FormElementsSchema } from "@/lib/search-schema";
+import { Outlet, createFileRoute, redirect } from "@tanstack/react-router";
+import type * as v from "valibot";
 
 export const Route = createFileRoute("/form-builder")({
 	component: FormBuilderLayout,
-	validateSearch: v.object({
-		share: v.optional(FormElementsSchema)
-	}),
-	loader: ({location}) : v.InferOutput<typeof FormElementsSchema> | undefined => {
+	loader: ({
+		location,
+	}): v.InferOutput<typeof FormElementsSchema> | undefined => {
 		if (location?.search?.share) {
-			return location.search.share;
+			localStorage.setItem("share", JSON.stringify(location.search.share));
+			throw redirect({
+				to: "/form-builder",
+			});
 		}
-	}
+		return undefined;
+	},
 });
 
 function FormBuilderLayout() {
-	const state = Route.useLoaderData()
-	if (state) {
-		// actions.resetFormElements();
-		// actions.batchAppendElements(state.share?.formElements as any)
-	}
 	return (
 		<>
 			<FormHeader />

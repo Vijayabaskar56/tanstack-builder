@@ -6,13 +6,11 @@ import {
 	useRouterState,
 } from "@tanstack/react-router";
 
-
 import appCss from "../styles.css?url";
 
 import Loader from "@/components/loader";
 import NavBar from "@/components/nav-bar";
 import { ThemeProvider } from "@/components/theme-provider";
-import { ErrorFallback } from "@/components/ui/error-fallback";
 import { Toaster } from "@/components/ui/sonner";
 import { settingsCollection } from "@/db-collections/settings.collections";
 import type { QueryClient } from "@tanstack/react-query";
@@ -51,6 +49,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 		],
 	}),
 	shellComponent: RootDocument,
+	notFoundComponent: () => <div>Page not found</div>,
 	beforeLoad: async () => {
 		if (
 			typeof window !== "undefined" &&
@@ -73,10 +72,6 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 			]);
 		}
 	},
-	onError: (context) => {
-		console.error("Global error handler:", context.error);
-		return <ErrorFallback error={context.error} />;
-	},
 });
 
 function RootDocument({ children }: { children: React.ReactNode }) {
@@ -85,7 +80,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 	});
 
 	return (
-	<html lang="en" suppressHydrationWarning className="font-sans">
+		<html lang="en" suppressHydrationWarning className="font-sans">
 			<head>
 				<HeadContent />
 			</head>
