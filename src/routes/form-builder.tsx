@@ -6,6 +6,8 @@ import type * as v from "valibot";
 
 export const Route = createFileRoute("/form-builder")({
 	component: FormBuilderLayout,
+	preload: false,
+	ssr: false,
 	loader: ({
 		location,
 	}): v.InferOutput<typeof FormElementsSchema> | undefined => {
