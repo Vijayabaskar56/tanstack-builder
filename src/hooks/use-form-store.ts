@@ -152,7 +152,7 @@ const initialCoreState: FormBuilderCoreState = {
 	isMS: shared
 		? isMultiStepForm(JSON.parse(shared))
 		: isMultiStepForm(initialFormElements),
-	formName: "draftForm",
+	formName: "draft",
 	schemaName: "draftFormSchema",
 	validationSchema: "zod",
 	framework: "react",

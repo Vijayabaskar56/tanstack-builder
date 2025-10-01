@@ -305,11 +305,18 @@ export function SettingsSidebar() {
 																field.state.value === option.value
 																	? ""
 																	: "hover:bg-accent hover:text-accent-foreground"
-															}`}
-															onClick={() =>
-																field.handleChange(
-																	option.value as PreferredFramework,
-																)
+															}
+															${
+																option.value === 'angular' || option.value === 'vue' || option.value === 'solid' ? 'opacity-35' : ''
+															}
+															`}
+															onClick={() =>{
+																if(option.value === 'angular' || option.value === 'vue'|| option.value === 'solid') {
+																}else {
+																	field.handleChange(
+																		option.value as PreferredFramework,
+																	)}
+																}
 															}
 															// biome-ignore lint/a11y/useSemanticElements: <explanation>
 															role="radio"

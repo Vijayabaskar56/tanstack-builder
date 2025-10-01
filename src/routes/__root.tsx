@@ -14,7 +14,9 @@ import { Toaster } from "@/components/ui/sonner";
 import { settingsCollection } from "@/db-collections/settings.collections";
 import type { QueryClient } from "@tanstack/react-query";
 import { ViteThemeProvider } from "@space-man/react-theme-animation";
-
+import {TanStackDevtools} from '@tanstack/react-devtools'
+import {TanStackRouterDevtoolsPanel }from '@tanstack/react-router-devtools'
+import {FormDevtoolsPlugin} from '@tanstack/react-form-devtools'
 interface MyRouterContext {
 	queryClient: QueryClient;
 }
@@ -96,7 +98,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 					<NavBar />
 					{isFetching ? <Loader /> : <Outlet />}
 				</div>
-				{/* <TanStackDevtools
+				<TanStackDevtools
 					config={{
 						position: "bottom-left",
 					}}
@@ -109,7 +111,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 							render: <TanStackRouterDevtoolsPanel />,
 						},
 					]}
-				/> */}
+				/>
 				<Toaster richColors />
 			</ViteThemeProvider>
 			<Scripts />
