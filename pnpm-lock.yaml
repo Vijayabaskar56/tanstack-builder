@@ -122,6 +122,9 @@ importers:
       '@radix-ui/react-use-controllable-state':
         specifier: ^1.2.2
         version: 1.2.2(@types/react@19.1.14)(react@19.1.1)
+      '@space-man/react-theme-animation':
+        specifier: ^1.1.1
+        version: 1.1.1(@radix-ui/react-select@2.2.6(@types/react-dom@19.1.9(@types/react@19.1.14))(@types/react@19.1.14)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(motion@12.23.22(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       '@t3-oss/env-core':
         specifier: ^0.12.0
         version: 0.12.0(typescript@5.9.2)(valibot@1.1.0(typescript@5.9.2))(zod@4.1.11)
@@ -2237,6 +2240,14 @@ packages:
     resolution: {integrity: sha512-hZ/M/qr25QOCcwDPOHtGjxTD8w2mNyVAYvcfgwzBHq2RwNqHNdDNsMZYap20+ruRwW4A3Cdkczyoz0TSxLCAPQ==}
     peerDependencies:
       solid-js: ^1.6.12
+
+  '@space-man/react-theme-animation@1.1.1':
+    resolution: {integrity: sha512-m/0FMIQiWik0JwmDZba1OOq40MXIH5TBwUvvsiN/WRcm4WsSPKHC+Y++lT3iQ6zTLStQ8DABnq2ZJMhlgd90+Q==}
+    peerDependencies:
+      '@radix-ui/react-select': '>=2'
+      motion: '>=11'
+      react: '>=17'
+      react-dom: '>=17'
 
   '@speed-highlight/core@1.2.7':
     resolution: {integrity: sha512-0dxmVj4gxg3Jg879kvFS/msl4s9F3T9UXC1InxgOf7t5NvcPD97u/WTA5vL/IxWHMn7qSxBozqrnnE2wvl1m8g==}
@@ -7498,6 +7509,14 @@ snapshots:
   '@solid-primitives/utils@6.3.2(solid-js@1.9.9)':
     dependencies:
       solid-js: 1.9.9
+
+  '@space-man/react-theme-animation@1.1.1(@radix-ui/react-select@2.2.6(@types/react-dom@19.1.9(@types/react@19.1.14))(@types/react@19.1.14)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(motion@12.23.22(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)':
+    dependencies:
+      '@radix-ui/react-select': 2.2.6(@types/react-dom@19.1.9(@types/react@19.1.14))(@types/react@19.1.14)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      clsx: 2.1.1
+      motion: 12.23.22(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      react: 19.1.1
+      react-dom: 19.1.1(react@19.1.1)
 
   '@speed-highlight/core@1.2.7': {}
 

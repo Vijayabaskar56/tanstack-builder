@@ -1,4 +1,3 @@
-// index.tsx
 import CTASection from "@/components/cta";
 import FAQSection from "@/components/faq";
 import FooterSection from "@/components/footer";
@@ -6,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 
-import { useTheme } from "@/components/theme-provider";
+import { useViteTheme } from "@space-man/react-theme-animation";
 import {
 	CheckCircle,
 	Circle,
@@ -191,7 +190,7 @@ function HomePage() {
 	const [activeCard, setActiveCard] = useState(0);
 	const [progress, setProgress] = useState(0);
 	const mountedRef = useRef(true);
-	const { theme, systemTheme } = useTheme();
+	const { theme, systemTheme } = useViteTheme();
 	const resolvedTheme =
 		theme === "system" ? (systemTheme === "dark" ? "dark" : "light") : theme;
 	useEffect(() => {

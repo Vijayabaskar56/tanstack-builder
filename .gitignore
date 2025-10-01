@@ -9,3 +9,4 @@ node_modules
 src/routes/testing.tsx
 dist
 .wrangler
+.vscode

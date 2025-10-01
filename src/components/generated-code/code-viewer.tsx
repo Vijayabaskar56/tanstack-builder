@@ -1,4 +1,4 @@
-import { useTheme } from "@/components/theme-provider";
+import { useViteTheme } from "@space-man/react-theme-animation";
 import {
 	CodeBlock,
 	CodeBlockCode,
@@ -39,7 +39,7 @@ const Wrapper = ({
 	children: string;
 	title: string;
 }) => {
-	const { theme, systemTheme } = useTheme();
+	const { theme, systemTheme } = useViteTheme();
 	const codeTheme =
 		theme === "system"
 			? systemTheme === "dark"
@@ -101,7 +101,7 @@ const installableShadcnComponents: Partial<
 };
 //======================================
 export function CodeBlockPackagesInstallation() {
-	const { theme, systemTheme } = useTheme();
+	const { theme, systemTheme } = useViteTheme();
 	const { formElements } = useFormStore();
 	const isMS = useIsMultiStep();
 	const codeTheme =
