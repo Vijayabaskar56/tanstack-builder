@@ -26,10 +26,10 @@ export const getFormElementCode = (
                         <Input
                           name={${formatFieldName(field.name)}}
                           placeholder="${field.placeholder ?? ""}"
-                          type="${field.type ?? "text"}"
+                          ${field.type === "number" || field.type === "tel" ? 'inputMode="decimal"' : ""}
                           value={field.state.value}
                           onBlur={field.handleBlur}
-                          onChange={(e) => field.handleChange(e.target.value)}
+                          onChange={(e) => field.handleChange(e.target.value${field.type === "number" || field.type === "tel" ? "AsNumber" : ""})}
                         />
                       </field.FormControl>
                       ${field.description ? `<field.FormDescription>${field.description}</field.FormDescription>` : ""}
