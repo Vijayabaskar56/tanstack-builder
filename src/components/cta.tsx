@@ -1,3 +1,6 @@
+import { Link } from "@tanstack/react-router";
+import { Button } from "./ui/button";
+
 export default function CTASection() {
 	return (
 		<div className="w-full relative overflow-hidden flex flex-col justify-center items-center gap-2">
@@ -30,12 +33,14 @@ export default function CTASection() {
 					</div>
 					<div className="w-full max-w-[497px] flex flex-col justify-center items-center gap-12">
 						<div className="flex justify-start items-center gap-4">
-							<div className="h-10 px-12 py-[6px] relative bg-primary shadow-[0px_0px_0px_2.5px_rgba(255,255,255,0.08)_inset] overflow-hidden rounded-full flex justify-center items-center cursor-pointer hover:bg-primary/90 transition-colors">
-								<div className="w-44 h-[41px] absolute left-0 top-0 bg-gradient-to-b from-transparent to-black/10 mix-blend-multiply" />
-								<div className="flex flex-col justify-center text-primary-foreground text-[13px] font-medium leading-5 font-sans">
+							<Button variant="default"
+								size="lg"
+								className="w-52 rounded-4xl"
+								asChild>
+								<Link to="/form-builder">
 									Start Building
-								</div>
-							</div>
+								</Link>
+							</Button>
 						</div>
 						<div className="text-muted-foreground text-sm font-normal leading-6 font-sans text-center">
 							No login required. Free to use. Open source.

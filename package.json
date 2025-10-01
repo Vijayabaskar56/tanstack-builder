@@ -55,6 +55,7 @@
 		"@radix-ui/react-toggle-group": "^1.1.11",
 		"@radix-ui/react-tooltip": "^1.2.8",
 		"@radix-ui/react-use-controllable-state": "^1.2.2",
+		"@space-man/react-theme-animation": "^1.1.1",
 		"@t3-oss/env-core": "^0.12.0",
 		"@tailwindcss/vite": "^4.1.13",
 		"@tanstack/db": "^0.3.2",

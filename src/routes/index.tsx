@@ -1,12 +1,11 @@
-// index.tsx
 import CTASection from "@/components/cta";
 import FAQSection from "@/components/faq";
 import FooterSection from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-import { useTheme } from "@/components/theme-provider";
+import { useViteTheme } from "@space-man/react-theme-animation";
 import {
 	CheckCircle,
 	Circle,
@@ -109,6 +108,21 @@ const features = [
 	},
 ];
 
+const assets = {
+	one: {
+		dark: "/assets/slide-1-dark.png",
+		light: "/assets/slide-1-light.png",
+	},
+	two: {
+		dark: "/assets/slide-2-dark.png",
+		light: "/assets/slide-2-light.png",
+	},
+	three: {
+		dark: "/assets/slide-3-dark.png",
+		light: "/assets/slide-3-light.png",
+	},
+};
+
 const roadmapItems = [
 	// Completed Features
 	{
@@ -190,19 +204,17 @@ const roadmapItems = [
 function HomePage() {
 	const [activeCard, setActiveCard] = useState(0);
 	const [progress, setProgress] = useState(0);
-	const mountedRef = useRef(true);
-	const { theme, systemTheme } = useTheme();
-	const resolvedTheme =
-		theme === "system" ? (systemTheme === "dark" ? "dark" : "light") : theme;
+	const { theme, systemTheme } = useViteTheme();
+	const resolvedTheme = useMemo(
+		() =>
+			theme === "system" ? (systemTheme === "dark" ? "dark" : "light") : theme,
+		[theme, systemTheme],
+	);
 	useEffect(() => {
 		const progressInterval = setInterval(() => {
-			if (!mountedRef.current) return;
-
 			setProgress((prev) => {
 				if (prev >= 100) {
-					if (mountedRef.current) {
-						setActiveCard((current) => (current + 1) % 3);
-					}
+					setActiveCard((current) => (current + 1) % 3);
 					return 0;
 				}
 				return prev + 2; // 2% every 100ms = 5 seconds total
@@ -211,18 +223,10 @@ function HomePage() {
 
 		return () => {
 			clearInterval(progressInterval);
-			mountedRef.current = false;
-		};
-	}, []);
-
-	useEffect(() => {
-		return () => {
-			mountedRef.current = false;
 		};
 	}, []);
 
 	const handleCardClick = (index: number) => {
-		if (!mountedRef.current) return;
 		setActiveCard(index);
 		setProgress(0);
 	};
@@ -287,37 +291,27 @@ function HomePage() {
 												<div className="relative w-full h-full overflow-hidden">
 													{/* Product Image 1 - Plan your schedules */}
 													<div
-														className={`absolute inset-0 transition-all duration-500 ease-in-out ${
-															activeCard === 0
-																? "opacity-100 scale-100 blur-0"
-																: "opacity-0 scale-95 blur-sm"
+														className={`absolute inset-0 transition-opacity duration-500 ease-in-out ${
+															activeCard === 0 ? "opacity-100" : "opacity-0"
 														}`}
 													>
 														<img
-															src={
-																resolvedTheme === "light"
-																	? "/assets/hero-light.png"
-																	: "/assets/hero-dark.png"
-															}
+															key={resolvedTheme}
+															src={assets.one[resolvedTheme]}
 															alt="Form Builder Interface"
-															className="w-full h-full  object-contain"
+															className="w-full h-full object-cover"
 														/>
 													</div>
 
 													{/* Product Image 2 - Data to insights */}
 													<div
-														className={`absolute inset-0 transition-all duration-500 ease-in-out ${
-															activeCard === 1
-																? "opacity-100 scale-100 blur-0"
-																: "opacity-0 scale-95 blur-sm"
+														className={`absolute inset-0 transition-opacity duration-500 ease-in-out ${
+															activeCard === 1 ? "opacity-100" : "opacity-0"
 														}`}
 													>
 														<img
-															src={
-																resolvedTheme === "light"
-																	? "/assets/hero-light.png"
-																	: "/assets/hero-dark.png"
-															}
+															key={resolvedTheme}
+															src={assets.two[resolvedTheme]}
 															alt="Analytics Dashboard"
 															className="w-full h-full object-cover"
 														/>
@@ -325,20 +319,15 @@ function HomePage() {
 
 													{/* Product Image 3 - Data visualization */}
 													<div
-														className={`absolute inset-0 transition-all duration-500 ease-in-out ${
-															activeCard === 2
-																? "opacity-100 scale-100 blur-0"
-																: "opacity-0 scale-95 blur-sm"
+														className={`absolute inset-0 transition-opacity duration-500 ease-in-out ${
+															activeCard === 2 ? "opacity-100" : "opacity-0"
 														}`}
 													>
 														<img
-															src={
-																resolvedTheme === "light"
-																	? "/assets/hero-light.png"
-																	: "/assets/hero-dark.png"
-															}
+															key={resolvedTheme}
+															src={assets.three[resolvedTheme]}
 															alt="Data Visualization Dashboard"
-															className="w-full h-full object-contain" // Changed from object-cover to object-contain to preserve landscape aspect ratio
+															className="w-full h-full object-cover"
 														/>
 													</div>
 												</div>
@@ -362,25 +351,25 @@ function HomePage() {
 									<div className="flex-1 px-0 sm:px-2 md:px-0 flex flex-col md:flex-row justify-center items-stretch gap-0">
 										{/* Feature Cards */}
 										<FeatureCard
-											title="Plan your schedules"
-											description="Streamline customer subscriptions and billing with automated scheduling tools."
+											title="Drag & Drop Builder"
+											description="Intuitive drag-and-drop interface for building forms quickly. Add, rearrange, and configure form fields with ease."
 											isActive={activeCard === 0}
 											progress={activeCard === 0 ? progress : 0}
 											onClick={() => handleCardClick(0)}
 										/>
 										<FeatureCard
-											title="Analytics & insights"
-											description="Transform your business data into actionable insights with real-time analytics."
-											isActive={activeCard === 1}
-											progress={activeCard === 1 ? progress : 0}
-											onClick={() => handleCardClick(1)}
-										/>
-										<FeatureCard
-											title="Collaborate seamlessly"
-											description="Keep your team aligned with shared dashboards and collaborative workflows."
+											title="Save, Share & Export"
+											description="Save your form configurations, share them with team members, and export generated code for immediate use in your projects."
 											isActive={activeCard === 2}
 											progress={activeCard === 2 ? progress : 0}
 											onClick={() => handleCardClick(2)}
+										/>
+										<FeatureCard
+											title="Real-time Preview"
+											description="See your form changes instantly with live preview. Test form behavior and styling as you build."
+											isActive={activeCard === 1}
+											progress={activeCard === 1 ? progress : 0}
+											onClick={() => handleCardClick(1)}
 										/>
 									</div>
 

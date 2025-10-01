@@ -7,6 +7,7 @@ import type { FormElement, FormStep } from "@/types/form-types";
 import { useMemo } from "react";
 import { toast } from "sonner";
 import type * as v from "valibot";
+import useSettings from "./use-settings";
 
 interface DefaultValues {
 	[key: string]: unknown;
@@ -43,6 +44,7 @@ export const useFormBuilder = (): {
 } => {
 	const isMS = useIsMultiStep();
 	const { actions, formElements } = useFormStore();
+	const settings = useSettings();
 	const flattenFormElements = isMS
 		? flattenFormSteps(formElements as FormStep[]).flat()
 		: (formElements.flat() as FormElement[]);
@@ -56,10 +58,38 @@ export const useFormBuilder = (): {
 		() => getDefaultFormElement(filteredFormFields),
 		[filteredFormFields],
 	);
+	const validators = useMemo(() => {
+		const baseValidators: any = {};
+		if (settings.validationMethod === "onDynamic") {
+			baseValidators.onDynamic = valiSchema.objectSchema;
+			baseValidators.onDynamicAsyncDebounceMs = settings.asyncValidation;
+		} else if (settings.validationMethod === "onChange") {
+			baseValidators.onChange = valiSchema.objectSchema;
+			baseValidators.onChangeAsyncDebounceMs = settings.asyncValidation;
+		} else if (settings.validationMethod === "onBlue") {
+			baseValidators.onBlue = valiSchema.objectSchema;
+			baseValidators.onBlueAsyncDebounceMs = settings.asyncValidation;
+		} else {
+			baseValidators.onDynamic = valiSchema.objectSchema;
+			baseValidators.onDynamicAsyncDebounceMs = settings.asyncValidation;
+		}
+		return baseValidators;
+	}, [
+		settings.validationMethod,
+		settings.asyncValidation,
+		valiSchema.objectSchema,
+	]);
 	const form = useAppForm({
 		defaultValues: defaultValue as v.InferInput<typeof valiSchema.objectSchema>,
-		validationLogic: revalidateLogic(),
-		validators: { onDynamic: valiSchema.objectSchema },
+		validationLogic:
+			settings.validationMethod === "onDynamic"
+				? revalidateLogic()
+				: settings.validationMethod === "onChange"
+					? revalidateLogic({ mode: "change", modeAfterSubmission: "change" })
+					: settings.validationMethod === "onBlue"
+						? revalidateLogic({ mode: "blur", modeAfterSubmission: "blur" })
+						: revalidateLogic({ mode: "blur", modeAfterSubmission: "blur" }),
+		validators: validators,
 		onSubmit: () => {
 			toast.success("Submitted Successfully");
 		},

@@ -10,10 +10,13 @@ import appCss from "../styles.css?url";
 
 import Loader from "@/components/loader";
 import NavBar from "@/components/nav-bar";
-import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { settingsCollection } from "@/db-collections/settings.collections";
 import type { QueryClient } from "@tanstack/react-query";
+import { ViteThemeProvider } from "@space-man/react-theme-animation";
+import {TanStackDevtools} from '@tanstack/react-devtools'
+import {TanStackRouterDevtoolsPanel }from '@tanstack/react-router-devtools'
+import {FormDevtoolsPlugin} from '@tanstack/react-form-devtools'
 interface MyRouterContext {
 	queryClient: QueryClient;
 }
@@ -84,30 +87,35 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 			<head>
 				<HeadContent />
 			</head>
-			<body suppressHydrationWarning={true}>
-				<ThemeProvider defaultTheme="system" attribute="class" enableSystem>
-					<div className="max-h-screen">
-						<NavBar />
-						{isFetching ? <Loader /> : <Outlet />}
-					</div>
-					{/* <TanStackDevtools
-						config={{
-							position: "bottom-left",
-						}}
-						plugins={[
-							FormDevtoolsPlugin(),
-							// TODO: Check Once the Update Available
-							// pacerDevtoolsPlugin(),
-							{
-								name: "Tanstack Router",
-								render: <TanStackRouterDevtoolsPanel />,
-							},
-						]}
-					/> */}
-					<Toaster richColors />
-				</ThemeProvider>
-				<Scripts />
-			</body>
+		<body suppressHydrationWarning={true}>
+			<ViteThemeProvider 
+				defaultTheme="system" 
+				attribute="class" 
+				enableSystem={true}
+				storageKey="theme"
+			>
+				<div className="max-h-screen">
+					<NavBar />
+					{isFetching ? <Loader /> : <Outlet />}
+				</div>
+				<TanStackDevtools
+					config={{
+						position: "bottom-left",
+					}}
+					plugins={[
+						FormDevtoolsPlugin(),
+						// TODO: Check Once the Update Available
+						// pacerDevtoolsPlugin(),
+						{
+							name: "Tanstack Router",
+							render: <TanStackRouterDevtoolsPanel />,
+						},
+					]}
+				/>
+				<Toaster richColors />
+			</ViteThemeProvider>
+			<Scripts />
+		</body>
 		</html>
 	);
 }
