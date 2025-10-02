@@ -11,6 +11,7 @@ import { formElementsList } from "@/constants/form-elements-list";
 import { useFormStore } from "@/hooks/use-form-store";
 import type { FormArray, FormElement } from "@/types/form-types";
 import { Plus, PlusCircle } from "lucide-react";
+import { PlusIcon } from "../ui/plus";
 
 type DropdownContext = "nested" | "multistep" | "formarray";
 
@@ -63,7 +64,7 @@ export function FormElementsDropdown({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="rounded-xl h-9">
-          <Plus />
+          <PlusIcon />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent data-align="end" className="p-0">

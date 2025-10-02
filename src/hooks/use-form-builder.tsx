@@ -48,7 +48,7 @@ export const useFormBuilder = (): {
 	const flattenFormElements = isMS
 		? flattenFormSteps(formElements as FormStep[]).flat()
 		: (formElements.flat() as FormElement[]);
-	const filteredFormFields = flattenFormElements.filter((o) => !o.static);
+	const filteredFormFields = flattenFormElements.filter((o) => o && !o.static);
 	const valiSchema = useMemo(
 		() => generateValiSchemaObject(filteredFormFields),
 		[filteredFormFields],
