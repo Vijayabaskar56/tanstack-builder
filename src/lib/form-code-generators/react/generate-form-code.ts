@@ -1,11 +1,7 @@
-// generate-form-code.ts
-import type {
-	FormArray,
-	FormElement,
-	FormElementOrList,
-	FormStep,
-} from "@/types/form-types";
+import type { Settings } from "@/components/builder/types";
+import useSettings from "@/hooks/use-settings";
 import {
+	getDefaultFormElement,
 	getDefaultValuesString,
 	objectToLiteralString,
 	processFormElements,
@@ -13,12 +9,38 @@ import {
 import { getFormElementCode } from "@/lib/form-code-generators/react/generate-form-component";
 import { generateImports } from "@/lib/form-code-generators/react/generate-imports";
 import { flattenFormSteps } from "@/lib/form-elements-helpers";
-import {
-	generateZodSchemaObject,
-	generateZodSchemaString,
-} from "@/lib/schema-generators/generate-zod-schema";
-import { getDefaultFormElement } from "@/lib/form-code-generators/react/generate-default-value";
 import { generateFormNames } from "@/lib/utils";
+// generate-form-code.ts
+import type {
+	FormArray,
+	FormElement,
+	FormElementOrList,
+	FormStep,
+} from "@/types/form-types";
+
+const generateValidationLogic = (settings: Settings): string => {
+	if (settings.validationMethod === "onDynamic") {
+		return "revalidateLogic()";
+	}
+	if (settings.validationMethod === "onChange") {
+		return 'revalidateLogic({ mode: "change", modeAfterSubmission: "change" })';
+	}
+	if (settings.validationMethod === "onBlur") {
+		return 'revalidateLogic({ mode: "blur", modeAfterSubmission: "blur" })';
+	}
+	return "revalidateLogic()";
+};
+
+const generateValidatorsString = (
+	settings: Settings,
+	schemaName: string,
+): string => {
+	const validators: string[] = [];
+	const method = settings.validationMethod || "onDynamic";
+	validators.push(`${method}: ${schemaName}`);
+	validators.push(`${method}AsyncDebounceMs: ${settings.asyncValidation}`);
+	return `{ ${validators.join(", ")} }`;
+};
 
 const modifyElement = (
 	el: FormElementOrList,
@@ -95,17 +117,18 @@ export const generateFormCode = ({
 	formElements,
 	isMS,
 	validationSchema,
-	settings,
+	settingss,
 	formName,
 }: {
 	formElements: FormElementOrList[] | FormStep[];
 	isMS: boolean;
-	validationSchema: any;
-	settings: any;
+	validationSchema: Settings["preferredSchema"];
+	settingss: Settings;
 	formName: string;
 }): { file: string; code: string }[] => {
 	const { componentName, variableName, schemaName } =
 		generateFormNames(formName);
+	const settings = useSettings()
 	const flattenedFormElements = isMS
 		? flattenFormSteps(formElements as FormStep[]).flat()
 		: formElements.flat();
@@ -129,15 +152,15 @@ export function ${componentName}() {
 
 const ${variableName} = useAppForm({
   defaultValues: ${defaultValues},
-  validationLogic: revalidateLogic(),
-  validators: {     onDynamicAsyncDebounceMs: 500, onDynamic: ${schemaName} },
+  validationLogic: ${generateValidationLogic(settings)},
+  validators: ${generateValidatorsString(settings, schemaName)},
   onSubmit : ({value}) => {
 			toast.success("success");
   },${
 		settings.focusOnError
 			? `
   onSubmitInvalid({ formApi }) {
-				const errorMap = formApi.state.errorMap.onDynamic!;
+				const errorMap = formApi.state.errorMap['${settings.validationMethod || "onDynamic"}']!;
 				const inputs = Array.from(
 					document.querySelectorAll("#previewForm input"),
 				) as HTMLInputElement[];
@@ -176,20 +199,6 @@ return (
 		},
 	];
 	if (!isMS) return singleStepFormCode;
-
-	// Handle multi-step form
-	function generateStepSchemas(steps: FormStep[]): string {
-		const stepSchemas = steps.map((step, index) => {
-			const stepFields = step.stepFields.flat();
-			const stepSchema = generateZodSchemaObject(
-				stepFields as (FormElement | FormArray)[],
-			);
-			const stepSchemaString = generateZodSchemaString(stepSchema);
-			return `  // Step ${index + 1}\n  ${stepSchemaString},`;
-		});
-
-		return `[\n${stepSchemas.join("\n")}\n]`;
-	}
 
 	function generateStepComponents(steps: FormStep[]): string {
 		const stepComponents = steps.map((step, index) => {
@@ -242,7 +251,7 @@ return (
 			.map(([key, value]) => `${key}: "${value}"`)
 			.join(", ");
 	}
-	
+
 	const stepComponentsStr = generateStepComponents(formElements as FormStep[]);
 
 	const MSF_Code = `
@@ -266,9 +275,10 @@ return (
 
     const ${variableName} = useAppForm({
       defaultValues: ${defaultValues},
-      validationLogic: revalidateLogic(),
+      validationLogic: ${generateValidationLogic(settings)},
       validators: {
-        onDynamic: currentValidator as typeof ${schemaName},
+        ${settings.validationMethod || "onDynamic"}: currentValidator as typeof ${schemaName},
+        ${settings.validationMethod || "onDynamic"}AsyncDebounceMs: ${settings.asyncValidation},
       },
       onSubmit: ({ value }) => {
         toast.success("Submitted Successfully");

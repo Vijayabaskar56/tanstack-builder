@@ -11,7 +11,7 @@ export const SettingsSchema = v.object({
 	numericInput: v.optional(v.boolean(), false),
 	focusOnError: v.optional(v.boolean(), true),
 	validationMethod: v.optional(
-		v.picklist(["onChange", "onBlue", "onDynamic"]),
+		v.picklist(["onChange", "onBlur", "onDynamic"]),
 		"onDynamic",
 	),
 	asyncValidation: v.optional(

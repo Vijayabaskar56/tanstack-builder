@@ -35,6 +35,7 @@ import type {
 	FormStep,
 	Option,
 } from "@/types/form-types";
+import { DeleteIcon } from "../ui/delete";
 
 const getTransitionProps = (isLayoutTransitioning: boolean) => ({
 	transition: isLayoutTransitioning
@@ -574,7 +575,7 @@ const EditFormItem = (props: EditFormItemProps) => {
 						}}
 						className="rounded-xl h-9"
 					>
-						<Delete />
+						<DeleteIcon />
 					</Button>
 					{!isNested && (
 						<FormElementsDropdown

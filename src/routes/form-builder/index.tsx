@@ -22,6 +22,7 @@ import { GeneratedFormCodeViewer } from "../../components/generated-code/code-vi
 import { settingsCollection } from "../../db-collections/settings.collections";
 import { Input } from "@/components/ui/input";
 import { useFormStore } from "@/hooks/use-form-store";
+import { XIcon } from "@/components/ui/x";
 
 export const Route = createFileRoute("/form-builder/")({
 	component: FormBuilderComponent,
@@ -115,7 +116,7 @@ function FormBuilderComponent() {
 								<div className="mb-4 pb-2 border-b">
 									<h3 className="text-lg font-semibold text-primary">Editor</h3>
 									<p className="text-sm text-muted-foreground">
-										Copy Code and Build Awesome Stuffs
+										Design your form elements
 									</p>
 								</div>
 								<FormEdit />
@@ -252,7 +253,7 @@ function FormBuilderComponent() {
 											}
 											className="text-muted-foreground hover:text-foreground transition-colors duration-200"
 										>
-											✕
+											<XIcon size={20} />
 										</button>
 									</div>
 									<div className="p-4">
