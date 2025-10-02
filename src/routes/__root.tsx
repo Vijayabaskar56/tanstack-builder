@@ -12,11 +12,9 @@ import Loader from "@/components/loader";
 import NavBar from "@/components/nav-bar";
 import { Toaster } from "@/components/ui/sonner";
 import { settingsCollection } from "@/db-collections/settings.collections";
-import type { QueryClient } from "@tanstack/react-query";
+import DevTools from "@/integrations/tanstack-query/devtools";
 import { ViteThemeProvider } from "@space-man/react-theme-animation";
-import {TanStackDevtools} from '@tanstack/react-devtools'
-import {TanStackRouterDevtoolsPanel }from '@tanstack/react-router-devtools'
-import {FormDevtoolsPlugin} from '@tanstack/react-form-devtools'
+import type { QueryClient } from "@tanstack/react-query";
 interface MyRouterContext {
 	queryClient: QueryClient;
 }
@@ -77,7 +75,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 	},
 });
 
-function RootDocument({ children }: { children: React.ReactNode }) {
+function RootDocument() {
 	const isFetching = useRouterState({
 		select: (s) => s.isLoading,
 	});
@@ -87,35 +85,22 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 			<head>
 				<HeadContent />
 			</head>
-		<body suppressHydrationWarning={true}>
-			<ViteThemeProvider 
-				defaultTheme="system" 
-				attribute="class" 
-				enableSystem={true}
-				storageKey="theme"
-			>
-				<div className="max-h-screen">
-					<NavBar />
-					{isFetching ? <Loader /> : <Outlet />}
-				</div>
-				<TanStackDevtools
-					config={{
-						position: "bottom-left",
-					}}
-					plugins={[
-						FormDevtoolsPlugin(),
-						// TODO: Check Once the Update Available
-						// pacerDevtoolsPlugin(),
-						{
-							name: "Tanstack Router",
-							render: <TanStackRouterDevtoolsPanel />,
-						},
-					]}
-				/>
-				<Toaster richColors />
-			</ViteThemeProvider>
-			<Scripts />
-		</body>
+			<body suppressHydrationWarning={true}>
+				<ViteThemeProvider
+					defaultTheme="system"
+					attribute="class"
+					enableSystem={true}
+					storageKey="theme"
+				>
+					<div className="max-h-screen">
+						<NavBar />
+						{isFetching ? <Loader /> : <Outlet />}
+					</div>
+					{import.meta.env.DEV && <DevTools />}
+					<Toaster richColors />
+				</ViteThemeProvider>
+				<Scripts />
+			</body>
 		</html>
 	);
 }

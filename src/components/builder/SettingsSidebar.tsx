@@ -126,7 +126,7 @@ export function SettingsSidebar() {
 												<div className="flex flex-wrap gap-2">
 													{[
 														{ value: "onChange", label: "On Change" },
-														{ value: "onBlue", label: "On Blur" },
+														{ value: "onBlur", label: "On Blur" },
 														{ value: "onDynamic", label: "On Dynamic" },
 													].map((option) => (
 														<Badge

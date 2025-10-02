@@ -96,7 +96,7 @@ export type Settings = {
   defaultRequiredValidation?: boolean;
   numericInput?: boolean;
   focusOnError?: boolean;
-  validationMethod?: 'onChange' | 'onBlue' | 'onDynamic';
+  validationMethod?: 'onChange' | 'onBlur' | 'onDynamic';
   asyncValidation?: number;
   preferredSchema?: ValidationSchema;
   preferredFramework?: Framework;

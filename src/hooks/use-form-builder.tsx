@@ -66,9 +66,9 @@ export const useFormBuilder = (): {
 		} else if (settings.validationMethod === "onChange") {
 			baseValidators.onChange = valiSchema.objectSchema;
 			baseValidators.onChangeAsyncDebounceMs = settings.asyncValidation;
-		} else if (settings.validationMethod === "onBlue") {
-			baseValidators.onBlue = valiSchema.objectSchema;
-			baseValidators.onBlueAsyncDebounceMs = settings.asyncValidation;
+		} else if (settings.validationMethod === "onBlur") {
+			baseValidators.onBlur = valiSchema.objectSchema;
+			baseValidators.onBlurAsyncDebounceMs = settings.asyncValidation;
 		} else {
 			baseValidators.onDynamic = valiSchema.objectSchema;
 			baseValidators.onDynamicAsyncDebounceMs = settings.asyncValidation;
@@ -86,7 +86,7 @@ export const useFormBuilder = (): {
 				? revalidateLogic()
 				: settings.validationMethod === "onChange"
 					? revalidateLogic({ mode: "change", modeAfterSubmission: "change" })
-					: settings.validationMethod === "onBlue"
+					: settings.validationMethod === "onBlur"
 						? revalidateLogic({ mode: "blur", modeAfterSubmission: "blur" })
 						: revalidateLogic({ mode: "blur", modeAfterSubmission: "blur" }),
 		validators: validators,
@@ -96,7 +96,8 @@ export const useFormBuilder = (): {
 		canSubmitWhenInvalid: true,
 		onSubmitInvalid({ formApi }) {
 			// This can be extracted to a function that takes the form ID and `formAPI` as arguments
-			const errorMap = formApi.state.errorMap.onDynamic;
+			const errorMap =
+				formApi.state.errorMap[settings.validationMethod || "onDynamic"];
 			const inputs = Array.from(
 				// Must match the selector used in your form
 				document.querySelectorAll("#previewForm input"),
