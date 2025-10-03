@@ -94,6 +94,11 @@
 		"vite-tsconfig-paths": "^5.1.4",
 		"zod": "4.1.11"
 	},
+	"lint-staged": {
+		"*.{js,ts,tsx,jsx}": [
+			"biome check --write"
+		]
+	},
 	"devDependencies": {
 		"@biomejs/biome": "2.2.4",
 		"@cloudflare/vite-plugin": "^1.13.7",
