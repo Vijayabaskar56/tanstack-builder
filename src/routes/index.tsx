@@ -3,6 +3,8 @@ import FAQSection from "@/components/faq";
 import FooterSection from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Link, createFileRoute } from "@tanstack/react-router";
+import { ErrorBoundary } from "@/components/error-boundary";
+import { NotFound } from "@/components/not-found";
 import { useEffect, useMemo, useState } from "react";
 
 import { useViteTheme } from "@space-man/react-theme-animation";
@@ -19,6 +21,8 @@ import {
 } from "lucide-react";
 export const Route = createFileRoute("/")({
 	component: HomePage,
+	errorComponent: ErrorBoundary,
+	notFoundComponent: NotFound,
 });
 
 // features array removed as it is unused
@@ -158,45 +162,45 @@ const roadmapItems = [
 
 	// In Progress Features
 	{
-		title: "Export & Import",
+		title: "Save & Share",
 		description: "Save and share form configurations",
-		status: "in-progress",
+		status: "completed",
 	},
 	{
-		title: "Template Library",
+		title: "Templates",
 		description: "Pre-built form templates for common use cases",
-		status: "in-progress",
+		status: "completed",
 	},
 	{
 		title: "Advanced Validation",
 		description: "Custom validation rules and error handling",
 		status: "in-progress",
 	},
+	{
+		title: "SolidJS Support",
+		description: "Support for SolidJS",
+		status: "in-progress",
+	},
 
 	// Planned Features
 	{
-		title: "Table Builder",
-		description: "Auto-generate tables from form schemas",
+		title: "Auto-Save",
+		description: "Auto-save form configurations",
 		status: "planned",
 	},
 	{
-		title: "Team Collaboration",
-		description: "Share and collaborate on form designs",
+		title: "Server Funtion for Form Submission",
+		description: "Server function for form submission",
 		status: "planned",
 	},
 	{
-		title: "API Integration",
-		description: "Connect forms to external APIs and databases",
+		title: "Single Command Code Generation",
+		description: "Single command code generation With ShadCN Registry",
 		status: "planned",
 	},
 	{
-		title: "Advanced Analytics",
-		description: "Form performance and usage analytics",
-		status: "planned",
-	},
-	{
-		title: "Mobile App Builder",
-		description: "Generate mobile forms and PWA support",
+		title: "React Native Support",
+		description: "Generate React Native forms",
 		status: "planned",
 	},
 ];
@@ -237,15 +241,8 @@ function HomePage() {
 		<>
 			<div className="w-full min-h-screen relative bg-background overflow-x-hidden flex flex-col justify-start items-center">
 				<div className="relative flex flex-col justify-start items-center w-full">
-					{/* Main container with proper margins */}
 					<div className="w-full max-w-none px-4 sm:px-6 md:px-8 lg:px-0 lg:max-w-[1060px] lg:w-[1060px] relative flex flex-col justify-start items-start min-h-screen">
-						{/* vertical line */}
-						{/* <div className="w-[1px] h-full absolute left-4 sm:left-6 md:left-8 lg:left-0 top-0 bg-foreground   dark:bg-foreground shadow-[1px_0px_0px_white] z-0" />
-
-          <div className="w-[1px] h-full absolute right-4 sm:right-6 md:right-8 lg:right-0 top-0 bg-foreground dark:bg-foreground shadow-[1px_0px_0px_white] z-0" /> */}
-
 						<div className="self-stretch pt-[9px] overflow-hidden border-b border-border flex flex-col justify-center items-center gap-4 sm:gap-6 md:gap-8 lg:gap-[66px] relative z-10">
-							{/* Hero Section */}
 							<div className="pt-16 sm:pt-20 md:pt-24 lg:pt-[216px] pb-8 sm:pb-12 md:pb-16 flex flex-col justify-start items-center px-2 sm:px-4 md:px-8 lg:px-0 w-full sm:pl-0 sm:pr-0 pl-0 pr-0">
 								<div className="w-full max-w-[937px] lg:w-[937px] flex flex-col justify-center items-center gap-3 sm:gap-4 md:gap-5 lg:gap-6">
 									<div className="self-stretch rounded-[3px] flex flex-col justify-center items-center gap-4 sm:gap-5 md:gap-6 lg:gap-8">
@@ -284,12 +281,9 @@ function HomePage() {
 
 								<div className="w-full max-w-[960px] lg:w-[960px] pt-2 sm:pt-4 pb-6 sm:pb-8 md:pb-10 px-2 sm:px-4 md:px-6 lg:px-11 flex flex-col justify-center items-center gap-2 relative z-5 my-8 sm:my-12 md:my-16 lg:my-16 mb-0 lg:pb-0">
 									<div className="w-full max-w-[960px] lg:w-[960px] h-[200px] sm:h-[280px] md:h-[450px] lg:h-[550px] bg-white shadow-[0px_0px_0px_0.9056603908538818px_rgba(0,0,0,0.08)] overflow-hidden rounded-[6px] sm:rounded-[8px] lg:rounded-[9.06px] flex flex-col justify-start items-start">
-										{/* Dashboard Content */}
 										<div className="self-stretch flex-1 flex justify-start items-start">
-											{/* Main Content */}
 											<div className="w-full h-full flex items-center justify-center">
 												<div className="relative w-full h-full overflow-hidden">
-													{/* Product Image 1 - Plan your schedules */}
 													<div
 														className={`absolute inset-0 transition-opacity duration-500 ease-in-out ${
 															activeCard === 0 ? "opacity-100" : "opacity-0"
@@ -303,7 +297,6 @@ function HomePage() {
 														/>
 													</div>
 
-													{/* Product Image 2 - Data to insights */}
 													<div
 														className={`absolute inset-0 transition-opacity duration-500 ease-in-out ${
 															activeCard === 1 ? "opacity-100" : "opacity-0"
@@ -317,7 +310,6 @@ function HomePage() {
 														/>
 													</div>
 
-													{/* Product Image 3 - Data visualization */}
 													<div
 														className={`absolute inset-0 transition-opacity duration-500 ease-in-out ${
 															activeCard === 2 ? "opacity-100" : "opacity-0"
@@ -337,7 +329,6 @@ function HomePage() {
 								</div>
 								<div className="self-stretch border-t border-b border-border flex justify-center items-start">
 									<div className="w-4 sm:w-6 md:w-8 lg:w-12 self-stretch relative overflow-hidden">
-										{/* Left decorative pattern */}
 										<div className="w-[120px] sm:w-[140px] md:w-[162px] left-[-40px] sm:left-[-50px] md:left-[-58px] top-[-120px] absolute flex flex-col justify-start items-start">
 											{Array.from({ length: 50 }).map((_, i) => (
 												<div
@@ -349,7 +340,6 @@ function HomePage() {
 									</div>
 
 									<div className="flex-1 px-0 sm:px-2 md:px-0 flex flex-col md:flex-row justify-center items-stretch gap-0">
-										{/* Feature Cards */}
 										<FeatureCard
 											title="Drag & Drop Builder"
 											description="Intuitive drag-and-drop interface for building forms quickly. Add, rearrange, and configure form fields with ease."
@@ -374,7 +364,6 @@ function HomePage() {
 									</div>
 
 									<div className="w-4 sm:w-6 md:w-8 lg:w-12 self-stretch relative overflow-hidden">
-										{/* Right decorative pattern */}
 										<div className="w-[120px] sm:w-[140px] md:w-[162px] left-[-40px] sm:left-[-50px] md:left-[-58px] top-[-120px] absolute flex flex-col justify-start items-start">
 											{Array.from({ length: 50 }).map((_, i) => (
 												<div
@@ -394,14 +383,12 @@ function HomePage() {
 									const IconComponent = feature.icon;
 									return (
 										<div key={feature.title} className="relative group h-full">
-											{/* Floating Icon */}
 											<div className="absolute -top-6 left-1/2 transform -translate-x-1/2 z-10">
 												<div className="bg-primary/10 backdrop-blur-sm border border-primary/20 rounded-full p-3 shadow-lg group-hover:scale-110 transition-transform duration-300">
 													<IconComponent className="w-6 h-6 text-primary" />
 												</div>
 											</div>
 
-											{/* Feature Card */}
 											<div className="h-full flex flex-col p-6 pt-8 rounded-xl border bg-card hover:shadow-md transition-all duration-300">
 												<div className="flex-1 flex flex-col">
 													<h3 className="font-semibold mb-4 text-lg text-center">
@@ -420,13 +407,11 @@ function HomePage() {
 							</div>
 						</div>
 
-						{/* Roadmap Section */}
 						<div className="mt-16 text-center">
 							<h2 className="text-2xl font-semibold mb-8">
 								Development Roadmap
 							</h2>
 							<div className="grid gap-6 max-w-6xl mx-4 sm:mx-6 md:mx-8 lg:mx-10">
-								{/* Completed Features */}
 								<div className="text-left">
 									<div className="flex items-center gap-3 mb-4">
 										<CheckCircle className="w-6 h-6 text-green-500" />
@@ -458,7 +443,6 @@ function HomePage() {
 									</div>
 								</div>
 
-								{/* In Progress Features */}
 								<div className="text-left">
 									<div className="flex items-center gap-3 mb-4">
 										<Clock className="w-6 h-6 text-yellow-500" />
@@ -490,7 +474,6 @@ function HomePage() {
 									</div>
 								</div>
 
-								{/* Planned Features */}
 								<div className="text-left">
 									<div className="flex items-center gap-3 mb-4">
 										<Circle className="w-6 h-6 text-blue-500" />
@@ -524,13 +507,10 @@ function HomePage() {
 							</div>
 						</div>
 
-						{/* FAQ Section */}
 						<FAQSection />
 
-						{/* CTA Section */}
 						<CTASection />
 
-						{/* Footer Section */}
 						<FooterSection />
 					</div>
 				</div>
@@ -539,7 +519,6 @@ function HomePage() {
 	);
 }
 
-// FeatureCard component definition inline to fix import error
 function FeatureCard({
 	title,
 	description,

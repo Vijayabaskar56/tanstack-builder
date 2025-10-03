@@ -59,7 +59,7 @@ export const useFormBuilder = (): {
 		[filteredFormFields],
 	);
 	const validators = useMemo(() => {
-		const baseValidators: any = {};
+		const baseValidators: Record<string, unknown> = {};
 		if (settings.validationMethod === "onDynamic") {
 			baseValidators.onDynamic = valiSchema.objectSchema;
 			baseValidators.onDynamicAsyncDebounceMs = settings.asyncValidation;
@@ -90,27 +90,37 @@ export const useFormBuilder = (): {
 						? revalidateLogic({ mode: "blur", modeAfterSubmission: "blur" })
 						: revalidateLogic({ mode: "blur", modeAfterSubmission: "blur" }),
 		validators: validators,
-		onSubmit: () => {
-			toast.success("Submitted Successfully");
+		onSubmit: async () => {
+			try {
+				// Simulate async submission
+				await new Promise(resolve => setTimeout(resolve, 1000));
+				toast.success("Form submitted successfully!");
+			} catch (error) {
+				toast.error("Failed to submit form. Please try again.");
+			}
 		},
 		canSubmitWhenInvalid: true,
 		onSubmitInvalid({ formApi }) {
-			// This can be extracted to a function that takes the form ID and `formAPI` as arguments
-			const errorMap =
-				formApi.state.errorMap[settings.validationMethod || "onDynamic"];
-			const inputs = Array.from(
-				// Must match the selector used in your form
-				document.querySelectorAll("#previewForm input"),
-			) as HTMLInputElement[];
+			try {
+				// This can be extracted to a function that takes the form ID and `formAPI` as arguments
+				const errorMap =
+					formApi.state.errorMap[settings.validationMethod || "onDynamic"];
+				const inputs = Array.from(
+					// Must match the selector used in your form
+					document.querySelectorAll("#previewForm input"),
+				) as HTMLInputElement[];
 
-			let firstInput: HTMLInputElement | undefined;
-			for (const input of inputs) {
-				if (errorMap?.[input.name]) {
-					firstInput = input;
-					break;
+				let firstInput: HTMLInputElement | undefined;
+				for (const input of inputs) {
+					if (errorMap?.[input.name]) {
+						firstInput = input;
+						break;
+					}
 				}
+				firstInput?.focus();
+			} catch (error) {
+			console.log("🚀 ~ onSubmitInvalid ~ error:", error)
 			}
-			firstInput?.focus();
 		},
 	});
 	const { reset } = form;

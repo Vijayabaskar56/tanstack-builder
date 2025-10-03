@@ -1,4 +1,3 @@
-// render-form-element.tsx
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import type * as React from "react";
@@ -125,6 +124,7 @@ export const RenderFormElement = ({
                   value={(field.state.value as string | undefined) ?? ""}
                   onChange={field.handleChange}
                   required={formElement.required}
+                  disabled={formElement.disabled}
                 >
                   <InputOTPGroup>
                     <InputOTPSlot index={0} />
@@ -187,6 +187,7 @@ export const RenderFormElement = ({
                 <Checkbox
                   checked={Boolean(field.state.value)}
                   onCheckedChange={field.handleChange}
+                  disabled={formElement.disabled}
                 />
               </field.FormControl>
               <div>
@@ -219,6 +220,7 @@ export const RenderFormElement = ({
                   onValueChange={field.handleChange}
                   name={formElement.name}
                   value={(field.state.value as string | undefined) ?? ""}
+                  disabled={formElement.disabled}
                 >
                   {formElement.options.map(({ label, value }) => (
                     <div key={value} className="flex items-center gap-x-2">
@@ -248,6 +250,7 @@ export const RenderFormElement = ({
           name={formElement.name}
           value={value}
           key={value}
+          disabled={formElement.disabled}
           className="flex items-center gap-x-2 px-1"
         >
           {label}
@@ -324,6 +327,7 @@ export const RenderFormElement = ({
                       // Trigger validation by simulating blur
                       field.handleBlur();
                     }}
+                    disabled={formElement.disabled}
                   />
                 </field.FormControl>
               </div>
@@ -364,6 +368,7 @@ export const RenderFormElement = ({
                     name={formElement.name}
                     min={min}
                     max={max}
+                    disabled={formElement.disabled}
                     step={step}
                     value={sliderValue}
                     onValueChange={(newValue) => {
@@ -397,6 +402,7 @@ export const RenderFormElement = ({
                 value={(field.state.value as string | undefined) ?? ""}
                 onValueChange={field.handleChange}
                 defaultValue={String(field?.state.value ?? "")}
+                disabled={formElement.disabled}
               >
                 <field.FormControl>
                   <SelectTrigger className="w-full">
@@ -434,6 +440,7 @@ export const RenderFormElement = ({
                 </field.FormLabel>
                 <MultiSelect
                   // value={field.state.value as string[]}
+                  disabled={formElement.disabled}
                   onValueChange={field.handleChange}
                 >
                   <field.FormControl>
@@ -478,7 +485,7 @@ export const RenderFormElement = ({
                 </div>
                 <field.FormControl>
                   <Popover>
-                    <PopoverTrigger asChild>
+                    <PopoverTrigger asChild disabled={formElement.disabled}>
                       <Button
                         variant={"outline"}
                         className={cn(

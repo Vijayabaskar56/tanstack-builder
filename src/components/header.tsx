@@ -1,4 +1,3 @@
-// header.tsx
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -166,12 +165,7 @@ export default function FormHeader() {
 					<div className="flex items-center gap-2">
 						<nav className="flex items-center space-x-2">
 							<DropdownMenu>
-								<DropdownMenuTrigger
-									asChild
-									defaultValue={preferredFramework}
-									defaultChecked
-									value={preferredFramework}
-								>
+								<DropdownMenuTrigger asChild>
 									<AnimatedIconButton
 										icon={<ChevronDownIcon className="w-4 h-4 ml-1" />}
 										text={
@@ -201,12 +195,7 @@ export default function FormHeader() {
 							</DropdownMenu>
 							<div className="h-4 w-px bg-border" />
 							<DropdownMenu>
-								<DropdownMenuTrigger
-									asChild
-									defaultValue={preferredSchema}
-									defaultChecked
-									value={preferredSchema}
-								>
+								<DropdownMenuTrigger asChild>
 									<AnimatedIconButton
 										icon={<ChevronDownIcon className="w-4 h-4 ml-1" />}
 										text={
@@ -268,7 +257,9 @@ export default function FormHeader() {
 						<AnimatedIconButton
 							icon={<RotateCWIcon className="w-4 h-4 mr-1" />}
 							text={<span className="hidden xl:block ml-1">Reset</span>}
-							onClick={resetForm}
+							onClick={() => {
+								resetForm()
+							}}
 						/>
 						<div className="h-4 w-px bg-border" />
 						<AnimatedIconButton

@@ -1,6 +1,8 @@
 // apps/web/src/routes/form-builder/index.tsx
 
 import { createFileRoute } from "@tanstack/react-router";
+import { ErrorBoundary } from "@/components/error-boundary";
+import { NotFound } from "@/components/not-found";
 import { useEffect, useState } from "react";
 import { FormEdit } from "@/components/builder/form-edit";
 import { SingleStepFormPreview } from "@/components/builder/form-preview";
@@ -26,6 +28,8 @@ import { XIcon } from "@/components/ui/x";
 
 export const Route = createFileRoute("/form-builder/")({
 	component: FormBuilderComponent,
+	errorComponent: ErrorBoundary,
+	notFoundComponent: NotFound,
 });
 
 function FormBuilderComponent() {
