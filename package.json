@@ -111,6 +111,7 @@
 		"@types/react": "^19.2.0",
 		"@types/react-dom": "^19.2.0",
 		"@vitejs/plugin-react": "^5.0.4",
+		"husky": "^9.1.7",
 		"jsdom": "^27.0.0",
 		"lint-staged": "^16.2.3",
 		"typescript": "^5.9.3",

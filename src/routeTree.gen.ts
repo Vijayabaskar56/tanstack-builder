@@ -8,154 +8,154 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from "./routes/__root";
-import { Route as FormBuilderRouteImport } from "./routes/form-builder";
-import { Route as FormBuilderIndexRouteImport } from "./routes/form-builder/index";
-import { Route as FormBuilderShareRouteImport } from "./routes/form-builder/share";
-import { Route as IndexRouteImport } from "./routes/index";
-import { Route as TableBuilderRouteImport } from "./routes/table-builder";
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as FormBuilderRouteImport } from './routes/form-builder'
+import { Route as FormBuilderIndexRouteImport } from './routes/form-builder/index'
+import { Route as FormBuilderShareRouteImport } from './routes/form-builder/share'
+import { Route as IndexRouteImport } from './routes/index'
+import { Route as TableBuilderRouteImport } from './routes/table-builder'
 
 const TableBuilderRoute = TableBuilderRouteImport.update({
-	id: "/table-builder",
-	path: "/table-builder",
-	getParentRoute: () => rootRouteImport,
-} as any);
+  id: '/table-builder',
+  path: '/table-builder',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FormBuilderRoute = FormBuilderRouteImport.update({
-	id: "/form-builder",
-	path: "/form-builder",
-	getParentRoute: () => rootRouteImport,
-} as any);
+  id: '/form-builder',
+  path: '/form-builder',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
-	id: "/",
-	path: "/",
-	getParentRoute: () => rootRouteImport,
-} as any);
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FormBuilderIndexRoute = FormBuilderIndexRouteImport.update({
-	id: "/",
-	path: "/",
-	getParentRoute: () => FormBuilderRoute,
-} as any);
+  id: '/',
+  path: '/',
+  getParentRoute: () => FormBuilderRoute,
+} as any)
 const FormBuilderShareRoute = FormBuilderShareRouteImport.update({
-	id: "/share",
-	path: "/share",
-	getParentRoute: () => FormBuilderRoute,
-} as any);
+  id: '/share',
+  path: '/share',
+  getParentRoute: () => FormBuilderRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
-	"/": typeof IndexRoute;
-	"/form-builder": typeof FormBuilderRouteWithChildren;
-	"/table-builder": typeof TableBuilderRoute;
-	"/form-builder/share": typeof FormBuilderShareRoute;
-	"/form-builder/": typeof FormBuilderIndexRoute;
+  '/': typeof IndexRoute
+  '/form-builder': typeof FormBuilderRouteWithChildren
+  '/table-builder': typeof TableBuilderRoute
+  '/form-builder/share': typeof FormBuilderShareRoute
+  '/form-builder/': typeof FormBuilderIndexRoute
 }
 export interface FileRoutesByTo {
-	"/": typeof IndexRoute;
-	"/table-builder": typeof TableBuilderRoute;
-	"/form-builder/share": typeof FormBuilderShareRoute;
-	"/form-builder": typeof FormBuilderIndexRoute;
+  '/': typeof IndexRoute
+  '/table-builder': typeof TableBuilderRoute
+  '/form-builder/share': typeof FormBuilderShareRoute
+  '/form-builder': typeof FormBuilderIndexRoute
 }
 export interface FileRoutesById {
-	__root__: typeof rootRouteImport;
-	"/": typeof IndexRoute;
-	"/form-builder": typeof FormBuilderRouteWithChildren;
-	"/table-builder": typeof TableBuilderRoute;
-	"/form-builder/share": typeof FormBuilderShareRoute;
-	"/form-builder/": typeof FormBuilderIndexRoute;
+  __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/form-builder': typeof FormBuilderRouteWithChildren
+  '/table-builder': typeof TableBuilderRoute
+  '/form-builder/share': typeof FormBuilderShareRoute
+  '/form-builder/': typeof FormBuilderIndexRoute
 }
 export interface FileRouteTypes {
-	fileRoutesByFullPath: FileRoutesByFullPath;
-	fullPaths:
-		| "/"
-		| "/form-builder"
-		| "/table-builder"
-		| "/form-builder/share"
-		| "/form-builder/";
-	fileRoutesByTo: FileRoutesByTo;
-	to: "/" | "/table-builder" | "/form-builder/share" | "/form-builder";
-	id:
-		| "__root__"
-		| "/"
-		| "/form-builder"
-		| "/table-builder"
-		| "/form-builder/share"
-		| "/form-builder/";
-	fileRoutesById: FileRoutesById;
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths:
+    | '/'
+    | '/form-builder'
+    | '/table-builder'
+    | '/form-builder/share'
+    | '/form-builder/'
+  fileRoutesByTo: FileRoutesByTo
+  to: '/' | '/table-builder' | '/form-builder/share' | '/form-builder'
+  id:
+    | '__root__'
+    | '/'
+    | '/form-builder'
+    | '/table-builder'
+    | '/form-builder/share'
+    | '/form-builder/'
+  fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-	IndexRoute: typeof IndexRoute;
-	FormBuilderRoute: typeof FormBuilderRouteWithChildren;
-	TableBuilderRoute: typeof TableBuilderRoute;
+  IndexRoute: typeof IndexRoute
+  FormBuilderRoute: typeof FormBuilderRouteWithChildren
+  TableBuilderRoute: typeof TableBuilderRoute
 }
 
-declare module "@tanstack/react-router" {
-	interface FileRoutesByPath {
-		"/table-builder": {
-			id: "/table-builder";
-			path: "/table-builder";
-			fullPath: "/table-builder";
-			preLoaderRoute: typeof TableBuilderRouteImport;
-			parentRoute: typeof rootRouteImport;
-		};
-		"/form-builder": {
-			id: "/form-builder";
-			path: "/form-builder";
-			fullPath: "/form-builder";
-			preLoaderRoute: typeof FormBuilderRouteImport;
-			parentRoute: typeof rootRouteImport;
-		};
-		"/": {
-			id: "/";
-			path: "/";
-			fullPath: "/";
-			preLoaderRoute: typeof IndexRouteImport;
-			parentRoute: typeof rootRouteImport;
-		};
-		"/form-builder/": {
-			id: "/form-builder/";
-			path: "/";
-			fullPath: "/form-builder/";
-			preLoaderRoute: typeof FormBuilderIndexRouteImport;
-			parentRoute: typeof FormBuilderRoute;
-		};
-		"/form-builder/share": {
-			id: "/form-builder/share";
-			path: "/share";
-			fullPath: "/form-builder/share";
-			preLoaderRoute: typeof FormBuilderShareRouteImport;
-			parentRoute: typeof FormBuilderRoute;
-		};
-	}
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/table-builder': {
+      id: '/table-builder'
+      path: '/table-builder'
+      fullPath: '/table-builder'
+      preLoaderRoute: typeof TableBuilderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/form-builder': {
+      id: '/form-builder'
+      path: '/form-builder'
+      fullPath: '/form-builder'
+      preLoaderRoute: typeof FormBuilderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/form-builder/': {
+      id: '/form-builder/'
+      path: '/'
+      fullPath: '/form-builder/'
+      preLoaderRoute: typeof FormBuilderIndexRouteImport
+      parentRoute: typeof FormBuilderRoute
+    }
+    '/form-builder/share': {
+      id: '/form-builder/share'
+      path: '/share'
+      fullPath: '/form-builder/share'
+      preLoaderRoute: typeof FormBuilderShareRouteImport
+      parentRoute: typeof FormBuilderRoute
+    }
+  }
 }
 
 interface FormBuilderRouteChildren {
-	FormBuilderShareRoute: typeof FormBuilderShareRoute;
-	FormBuilderIndexRoute: typeof FormBuilderIndexRoute;
+  FormBuilderShareRoute: typeof FormBuilderShareRoute
+  FormBuilderIndexRoute: typeof FormBuilderIndexRoute
 }
 
 const FormBuilderRouteChildren: FormBuilderRouteChildren = {
-	FormBuilderShareRoute: FormBuilderShareRoute,
-	FormBuilderIndexRoute: FormBuilderIndexRoute,
-};
+  FormBuilderShareRoute: FormBuilderShareRoute,
+  FormBuilderIndexRoute: FormBuilderIndexRoute,
+}
 
 const FormBuilderRouteWithChildren = FormBuilderRoute._addFileChildren(
-	FormBuilderRouteChildren,
-);
+  FormBuilderRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
-	IndexRoute: IndexRoute,
-	FormBuilderRoute: FormBuilderRouteWithChildren,
-	TableBuilderRoute: TableBuilderRoute,
-};
+  IndexRoute: IndexRoute,
+  FormBuilderRoute: FormBuilderRouteWithChildren,
+  TableBuilderRoute: TableBuilderRoute,
+}
 export const routeTree = rootRouteImport
-	._addFileChildren(rootRouteChildren)
-	._addFileTypes<FileRouteTypes>();
+  ._addFileChildren(rootRouteChildren)
+  ._addFileTypes<FileRouteTypes>()
 
-import type { createStart } from "@tanstack/react-start";
-import type { getRouter } from "./router.tsx";
+import type { createStart } from '@tanstack/react-start'
+import type { getRouter } from './router.tsx'
 
-declare module "@tanstack/react-start" {
-	interface Register {
-		ssr: true;
-		router: Awaited<ReturnType<typeof getRouter>>;
-	}
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
 }
