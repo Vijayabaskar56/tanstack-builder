@@ -119,5 +119,6 @@
 		"vitest": "^3.2.4",
 		"web-vitals": "^5.1.0",
 		"wrangler": "^4.40.2"
-	}
+	},
+	"packageManager": "pnpm@10.16.1"
 }
