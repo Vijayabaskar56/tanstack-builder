@@ -7,34 +7,35 @@ import { routeTree } from "./routeTree.gen";
 
 // Create a new router instance
 export const getRouter = () => {
-  const rqContext = TanstackQuery.getContext();
+	const rqContext = TanstackQuery.getContext();
 
-  const router = createTanstackRouter({
-    routeTree,
-    context: { ...rqContext },
-    defaultPreload: "intent",
-    scrollRestoration: true,
-    isPrerendering: false,
-    Wrap: (props: { children: React.ReactNode }) => {
-      return (
-        <TanstackQuery.Provider {...rqContext}>
-          {props.children}
-        </TanstackQuery.Provider>
-      );
-    },
-  });
+	const router = createTanstackRouter({
+		routeTree,
+		context: { ...rqContext },
+		defaultPreload: "intent",
+		scrollRestoration: true,
+		isPrerendering: false,
+		notFoundMode: "fuzzy",
+		Wrap: (props: { children: React.ReactNode }) => {
+			return (
+				<TanstackQuery.Provider {...rqContext}>
+					{props.children}
+				</TanstackQuery.Provider>
+			);
+		},
+	});
 
-  setupRouterSsrQueryIntegration({
-    router,
-    queryClient: rqContext.queryClient,
-  });
+	setupRouterSsrQueryIntegration({
+		router,
+		queryClient: rqContext.queryClient,
+	});
 
-  return router;
+	return router;
 };
 
 // Register the router instance for type safety
 declare module "@tanstack/react-router" {
-  interface Register {
-    router: ReturnType<typeof getRouter>;
-  }
+	interface Register {
+		router: ReturnType<typeof getRouter>;
+	}
 }

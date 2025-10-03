@@ -1,5 +1,5 @@
 import { Button } from "./button";
-import React, { ReactElement, useRef } from "react";
+import React, { type ReactElement, useRef } from "react";
 
 interface IconHandle {
 	startAnimation: () => void;
@@ -21,6 +21,8 @@ interface AnimatedIconButtonProps {
 	className?: string;
 	iconPosition?: "start" | "end";
 	renderAs?: "button" | "span";
+	// Allow passing through additional props for better integration with other components
+	[key: string]: unknown;
 }
 
 export const AnimatedIconButton = ({
@@ -32,22 +34,24 @@ export const AnimatedIconButton = ({
 	className,
 	iconPosition = "start",
 	renderAs = "button",
+	...props
 }: AnimatedIconButtonProps) => {
 	const iconRef = useRef<IconHandle | null>(null);
 
 	const content = (
 		<>
 			{iconPosition === "start" &&
-				React.cloneElement(icon, { ref: iconRef } as any)}
+				React.cloneElement(icon, { ref: iconRef } as React.RefAttributes<IconHandle>)}
 			{text}
 			{iconPosition === "end" &&
-				React.cloneElement(icon, { ref: iconRef } as any)}
+				React.cloneElement(icon, { ref: iconRef } as React.RefAttributes<IconHandle>)}
 		</>
 	);
 
 	if (renderAs === "span") {
 		return (
-			<span
+			<button
+				type="button"
 				className={className}
 				onClick={onClick}
 				onMouseEnter={() => iconRef.current?.startAnimation()}
@@ -55,10 +59,9 @@ export const AnimatedIconButton = ({
 				onKeyDown={(e) => {
 					if (e.key === "Enter") onClick?.();
 				}}
-				tabIndex={0}
 			>
 				{content}
-			</span>
+			</button>
 		);
 	}
 
@@ -70,6 +73,7 @@ export const AnimatedIconButton = ({
 			onClick={onClick}
 			onMouseEnter={() => iconRef.current?.startAnimation()}
 			onMouseLeave={() => iconRef.current?.stopAnimation()}
+			{...props}
 		>
 			{content}
 		</Button>
@@ -94,7 +98,8 @@ export const AnimatedIconSpan = ({
 	const iconRef = useRef<IconHandle | null>(null);
 
 	return (
-		<span
+		<button
+			type="button"
 			className={className}
 			onClick={onClick}
 			onMouseEnter={() => iconRef.current?.startAnimation()}
@@ -102,11 +107,10 @@ export const AnimatedIconSpan = ({
 			onKeyDown={(e) => {
 				if (e.key === "Enter") onClick?.();
 			}}
-			tabIndex={0}
 			{...props}
 		>
-			{React.cloneElement(icon, { ref: iconRef } as any)}
+			{React.cloneElement(icon, { ref: iconRef } as React.RefAttributes<IconHandle>)}
 			<span className={textClassName}>{text}</span>
-		</span>
+		</button>
 	);
 };

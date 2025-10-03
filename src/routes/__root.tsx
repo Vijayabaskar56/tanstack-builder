@@ -15,12 +15,16 @@ import { settingsCollection } from "@/db-collections/settings.collections";
 import DevTools from "@/integrations/tanstack-query/devtools";
 import { ViteThemeProvider } from "@space-man/react-theme-animation";
 import type { QueryClient } from "@tanstack/react-query";
+import { ErrorBoundary } from "@/components/error-boundary";
+import { NotFound } from "@/components/not-found";
+
 interface MyRouterContext {
 	queryClient: QueryClient;
 }
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
 	head: () => ({
+		title: "TanStack Form Builder",
 		meta: [
 			{
 				charSet: "utf-8",
@@ -30,13 +34,43 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 				content: "width=device-width, initial-scale=1",
 			},
 			{
-				title: "TanStack Form Builder",
-			},
-			{
 				name: "description",
 				content:
-					"Help you Quickly Scafold a Form for your Tanstack  Using Tanstack Forms",
+					"Help you Quickly Scaffold a Form for your TanStack Using TanStack Forms",
 			},
+			// Open Graph meta tags
+			{ property: "og:title", content: "TanStack Form Builder" },
+			{
+				property: "og:description",
+				content:
+					"Help you Quickly Scaffold a Form for your TanStack Using TanStack Forms",
+			},
+			{ property: "og:type", content: "website" },
+			{ property: "og:image", content: "/assets/og-image.png" },
+			{ property: "og:image:width", content: "1200" },
+			{ property: "og:image:height", content: "630" },
+			{
+				property: "og:image:alt",
+				content: "TanStack Form Builder - Visual Form Builder for React",
+			},
+			{ property: "og:url", content: "https://tan-form-builder.baskar.dev/" },
+			{ property: "og:site_name", content: "TanStack Form Builder" },
+			// Twitter Card meta tags
+			{ name: "twitter:card", content: "summary_large_image" },
+			{ name: "twitter:title", content: "TanStack Form Builder" },
+			{
+				name: "twitter:description",
+				content:
+					"Help you Quickly Scaffold a Form for your TanStack Using TanStack Forms",
+			},
+			{ name: "twitter:image", content: "/assets/og-image.png" },
+			{
+				name: "twitter:image:alt",
+				content: "TanStack Form Builder - Visual Form Builder for React",
+			},
+			{ name: "twitter:url", content: "https://tan-form-builder.baskar.dev/" },
+			{ name: "twitter:site", content: "@vijayabaskar56" },
+			{ name: "twitter:creator", content: "@vijayabaskar56" },
 		],
 		links: [
 			{
@@ -50,7 +84,8 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 		],
 	}),
 	shellComponent: RootDocument,
-	notFoundComponent: () => <div>Page not found</div>,
+	errorComponent: ErrorBoundary,
+	notFoundComponent: NotFound,
 	beforeLoad: async () => {
 		if (
 			typeof window !== "undefined" &&
