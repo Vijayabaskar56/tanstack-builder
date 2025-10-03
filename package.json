@@ -1,5 +1,5 @@
 {
-	"name": "migration",
+	"name": "tanstack-form-builder",
 	"private": true,
 	"type": "module",
 	"scripts": {
