@@ -128,7 +128,7 @@ export const generateFormCode = ({
 }): { file: string; code: string }[] => {
 	const { componentName, variableName, schemaName } =
 		generateFormNames(formName);
-	const settings = useSettings()
+	const settings = useSettings();
 	const flattenedFormElements = isMS
 		? flattenFormSteps(formElements as FormStep[]).flat()
 		: formElements.flat();

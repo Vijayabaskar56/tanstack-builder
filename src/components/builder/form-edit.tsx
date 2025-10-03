@@ -1,15 +1,3 @@
-import { useListState } from "@/hooks/use-list-state";
-
-import { FormElementsDropdown } from "@/components/builder/form-elements-dropdown";
-import { RenderFormElement } from "@/components/builder/render-form-element";
-import { StepContainer } from "@/components/builder/step-container";
-import {
-	Accordion,
-	AccordionContent,
-	AccordionItem,
-	AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Button } from "@/components/ui/button";
 import {
 	Check,
 	CircleX,
@@ -20,13 +8,23 @@ import {
 } from "lucide-react";
 import { Reorder, useDragControls } from "motion/react";
 import { useEffect, useRef, useState } from "react";
-
+import { FormElementsDropdown } from "@/components/builder/form-elements-dropdown";
+import { RenderFormElement } from "@/components/builder/render-form-element";
+import { StepContainer } from "@/components/builder/step-container";
+import {
+	Accordion,
+	AccordionContent,
+	AccordionItem,
+	AccordionTrigger,
+} from "@/components/ui/accordion";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAppForm } from "@/components/ui/tanstack-form";
 import type { AppForm } from "@/hooks/use-form-builder";
-import { useFormStore, useIsMultiStep } from "@/hooks/use-form-store";
 import type { FormBuilderActions } from "@/hooks/use-form-store";
+import { useFormStore, useIsMultiStep } from "@/hooks/use-form-store";
+import { useListState } from "@/hooks/use-list-state";
 import { isStatic } from "@/lib/utils";
 import type {
 	FormArray,
@@ -958,7 +956,8 @@ export function FormEdit() {
 													element !== null &&
 													"arrayField" in element
 												) {
-													const formArrayElement = element as unknown as FormArray;
+													const formArrayElement =
+														element as unknown as FormArray;
 													return (
 														<Reorder.Item
 															key={formArrayElement.id}

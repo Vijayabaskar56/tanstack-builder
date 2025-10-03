@@ -154,48 +154,47 @@ describe("Zod Schema Generator - Multi-Step Form Support", () => {
 		expect(schemaString).toContain("email: z.email()");
 		expect(schemaString).not.toContain("stepSchemas");
 	});
-
 });
-	it("should generate both formSchema and stepSchemas for multi-step forms", () => {
-		const formElements = [
-			{
-				id: "step1",
-				stepFields: [
-					{
-						fieldType: "Input" as const,
-						id: "name",
-						name: "name",
-						label: "Name",
-						required: true,
-						type: "text",
-					},
-				],
-			},
-			{
-				id: "step2",
-				stepFields: [
-					{
-						fieldType: "Input" as const,
-						id: "email",
-						name: "email",
-						label: "Email",
-						required: true,
-						type: "email",
-					},
-				],
-			},
-		];
+it("should generate both formSchema and stepSchemas for multi-step forms", () => {
+	const formElements = [
+		{
+			id: "step1",
+			stepFields: [
+				{
+					fieldType: "Input" as const,
+					id: "name",
+					name: "name",
+					label: "Name",
+					required: true,
+					type: "text",
+				},
+			],
+		},
+		{
+			id: "step2",
+			stepFields: [
+				{
+					fieldType: "Input" as const,
+					id: "email",
+					name: "email",
+					label: "Email",
+					required: true,
+					type: "email",
+				},
+			],
+		},
+	];
 
-		const schemaString = getZodSchemaString(
-			formElements as any,
-			true, // isMultiStep
-		);
+	const schemaString = getZodSchemaString(
+		formElements as any,
+		true, // isMultiStep
+	);
 
-		expect(schemaString).toContain("export const formSchema = z.object");
-		expect(schemaString).toContain("export const stepSchemas = [");
-		expect(schemaString).toContain("// Step 1");
-		expect(schemaString).toContain("// Step 2");
-		expect(schemaString).toContain("formSchema.pick");
-		expect(schemaString).toContain("name: true");
-		expect(schemaString).toContain("email: true");
-	});
+	expect(schemaString).toContain("export const formSchema = z.object");
+	expect(schemaString).toContain("export const stepSchemas = [");
+	expect(schemaString).toContain("// Step 1");
+	expect(schemaString).toContain("// Step 2");
+	expect(schemaString).toContain("formSchema.pick");
+	expect(schemaString).toContain("name: true");
+	expect(schemaString).toContain("email: true");
+});

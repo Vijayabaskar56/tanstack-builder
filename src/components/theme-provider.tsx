@@ -1,5 +1,3 @@
-"use client";
-
 /*
   This file is adapted from next-themes to work with tanstack start.
   next-themes can be found at https://github.com/pacocoursey/next-themes under the MIT license.
@@ -349,7 +347,6 @@ const getSystemTheme = (
   next-themes can be found at https://github.com/pacocoursey/next-themes under the MIT license.
 */
 
-// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 export const script: (...args: any[]) => void = (
 	attribute,
 	storageKey,

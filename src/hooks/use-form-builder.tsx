@@ -1,12 +1,12 @@
+import { useMemo } from "react";
+import { toast } from "sonner";
+import type * as v from "valibot";
 import { revalidateLogic, useAppForm } from "@/components/ui/tanstack-form";
 import { useFormStore, useIsMultiStep } from "@/hooks/use-form-store";
 import { getDefaultFormElement } from "@/lib/form-code-generators/react/generate-default-value";
 import { flattenFormSteps } from "@/lib/form-elements-helpers";
 import { generateValiSchemaObject } from "@/lib/schema-generators/generate-valibot-schema";
 import type { FormElement, FormStep } from "@/types/form-types";
-import { useMemo } from "react";
-import { toast } from "sonner";
-import type * as v from "valibot";
 import useSettings from "./use-settings";
 
 interface DefaultValues {
@@ -93,7 +93,7 @@ export const useFormBuilder = (): {
 		onSubmit: async () => {
 			try {
 				// Simulate async submission
-				await new Promise(resolve => setTimeout(resolve, 1000));
+				await new Promise((resolve) => setTimeout(resolve, 1000));
 				toast.success("Form submitted successfully!");
 			} catch (error) {
 				toast.error("Failed to submit form. Please try again.");
@@ -119,7 +119,7 @@ export const useFormBuilder = (): {
 				}
 				firstInput?.focus();
 			} catch (error) {
-			console.log("🚀 ~ onSubmitInvalid ~ error:", error)
+				console.log("🚀 ~ onSubmitInvalid ~ error:", error);
 			}
 		},
 	});

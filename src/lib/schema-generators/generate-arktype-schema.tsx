@@ -1,7 +1,7 @@
-import { isStatic } from "@/lib/utils";
-import type { FormArray, FormElement } from "@/types/form-types";
 // generate-arktype-schema.tsx
 import { type } from "arktype";
+import { isStatic } from "@/lib/utils";
+import type { FormArray, FormElement } from "@/types/form-types";
 
 // Type definitions for ArkType schemas
 /** ArkType schema type - represents the return value of type() function */

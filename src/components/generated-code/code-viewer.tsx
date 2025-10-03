@@ -1,4 +1,5 @@
 import { useViteTheme } from "@space-man/react-theme-animation";
+import { useEffect } from "react";
 import {
 	CodeBlock,
 	CodeBlockCode,
@@ -8,27 +9,26 @@ import { CopyButton } from "@/components/ui/copy-button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
+	getSettingsCollection,
 	type SettingsCollection,
-	settingsCollection,
 } from "@/db-collections/settings.collections";
-import type {
-	FormElement,
-	FormElementOrList,
-	FormStep,
-} from "@/types/form-types";
 import { useFormStore, useIsMultiStep } from "@/hooks/use-form-store";
 import useSettings from "@/hooks/use-settings";
+import { generateFormCode } from "@/lib/form-code-generators/react/generate-form-code";
 import { flattenFormSteps } from "@/lib/form-elements-helpers";
 import { getArkTypeSchemaString } from "@/lib/schema-generators/generate-arktype-schema";
 import { getValiSchemaString } from "@/lib/schema-generators/generate-valibot-schema";
 import {
-	getZodSchemaString,
 	generateZodSchemaObject,
+	getZodSchemaString,
 } from "@/lib/schema-generators/generate-zod-schema";
-import type { FormArray } from "@/types/form-types";
 import { formatCode, generateFormNames } from "@/lib/utils";
-import { useEffect } from "react";
-import { generateFormCode } from "@/lib/form-code-generators/react/generate-form-code";
+import type {
+	FormArray,
+	FormElement,
+	FormElementOrList,
+	FormStep,
+} from "@/types/form-types";
 
 const Wrapper = ({
 	children,
@@ -101,6 +101,7 @@ const installableShadcnComponents: Partial<
 };
 //======================================
 export function CodeBlockPackagesInstallation() {
+	const settingsCollection = getSettingsCollection()!;
 	const { theme, systemTheme } = useViteTheme();
 	const { formElements } = useFormStore();
 	const isMS = useIsMultiStep();

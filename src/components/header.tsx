@@ -1,3 +1,8 @@
+// header.tsx
+import { useLocation } from "@tanstack/react-router";
+import { Brackets } from "lucide-react";
+import { useEffect, useId, useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -18,30 +23,26 @@ import {
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { settingsCollection } from "@/db-collections/settings.collections";
+import { getSettingsCollection } from "@/db-collections/settings.collections";
 import { useFormBuilder } from "@/hooks/use-form-builder";
 import { useFormStore } from "@/hooks/use-form-store";
 import useSettings from "@/hooks/use-settings";
-// header.tsx
-import { useLocation } from "@tanstack/react-router";
-import { Brackets } from "lucide-react";
-import { useEffect, useId, useState } from "react";
-import { toast } from "sonner";
 import type { Framework, ValidationSchema } from "./builder/types";
-import { LayersIcon } from "./ui/layers";
-import { TerminalIcon } from "./ui/terminal";
-import { HeartIcon } from "./ui/heart";
-import { ShareIcon } from "./ui/share";
-import { RotateCWIcon } from "./ui/rotate-cw";
-import { ChevronDownIcon } from "./ui/chevron-down";
-import { SettingsGearIcon } from "./ui/settings-gear";
-import { LayoutPanelTopIcon } from "./ui/layout-panel-top";
-import { BlocksIcon } from "./ui/blocks";
 import {
 	AnimatedIconButton,
 	AnimatedIconSpan,
 } from "./ui/animated-icon-button";
+import { BlocksIcon } from "./ui/blocks";
+import { ChevronDownIcon } from "./ui/chevron-down";
+import { HeartIcon } from "./ui/heart";
+import { LayersIcon } from "./ui/layers";
+import { LayoutPanelTopIcon } from "./ui/layout-panel-top";
+import { RotateCWIcon } from "./ui/rotate-cw";
+import { SettingsGearIcon } from "./ui/settings-gear";
+import { ShareIcon } from "./ui/share";
+import { TerminalIcon } from "./ui/terminal";
 export default function FormHeader() {
+	const settingsCollection = getSettingsCollection()!;
 	const location = useLocation();
 	const { activeTab, isCodeSidebarOpen, preferredFramework, preferredSchema } =
 		useSettings();
@@ -258,7 +259,7 @@ export default function FormHeader() {
 							icon={<RotateCWIcon className="w-4 h-4 mr-1" />}
 							text={<span className="hidden xl:block ml-1">Reset</span>}
 							onClick={() => {
-								resetForm()
+								resetForm();
 							}}
 						/>
 						<div className="h-4 w-px bg-border" />

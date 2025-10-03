@@ -1,7 +1,7 @@
+import { useQuery } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
 import { ModeToggle } from "@/components/mode-toggle";
 import { Button } from "@/components/ui/button";
-import { Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
 
 export default function NavBar() {
 	const { data: stars } = useQuery({

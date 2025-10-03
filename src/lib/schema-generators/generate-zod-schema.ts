@@ -1,9 +1,9 @@
 // generate-zod-schema.tsx
-import { flattenFormSteps, getStepFields } from "@/lib/form-elements-helpers";
-import type { FormStep } from "@/types/form-types";
+
 import { type ZodType, z } from "zod";
-import type { FormArray, FormElement } from "@/types/form-types";
+import { flattenFormSteps, getStepFields } from "@/lib/form-elements-helpers";
 import { isStatic } from "@/lib/utils";
+import type { FormArray, FormElement, FormStep } from "@/types/form-types";
 
 // Type guard to check if an element is a FormArray
 const isFormArray = (element: unknown): element is FormArray => {
