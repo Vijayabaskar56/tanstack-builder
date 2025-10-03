@@ -1,3 +1,7 @@
+// use-form-store.ts
+import { useStore } from "@tanstack/react-store";
+import { batch, Derived, Store } from "@tanstack/store";
+import { v4 as uuid } from "uuid";
 import type { Framework, ValidationSchema } from "@/components/builder/types";
 import { defaultFormElements } from "@/constants/default-form-element";
 import { templates } from "@/constants/templates";
@@ -15,10 +19,6 @@ import type {
 	ReorderElements,
 	SetTemplate,
 } from "@/types/form-types";
-// use-form-store.ts
-import { useStore } from "@tanstack/react-store";
-import { Derived, Store, batch } from "@tanstack/store";
-import { v4 as uuid } from "uuid";
 import {
 	dropAtIndex,
 	flattenFormSteps,

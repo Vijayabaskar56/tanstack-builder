@@ -1,5 +1,5 @@
-import { Button } from "@/components/ui/button";
 import type { ErrorComponentProps } from "@tanstack/react-router";
+import { Button } from "@/components/ui/button";
 
 export function ErrorBoundary({ error, reset }: ErrorComponentProps) {
 	return (

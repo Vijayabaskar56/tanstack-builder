@@ -1,9 +1,9 @@
 // generate-valibot-schema.tsx
-import type { FormStep } from "@/types/form-types";
-import { flattenFormSteps, getStepFields } from "@/lib/form-elements-helpers";
+
 import * as v from "valibot";
-import type { FormArray, FormElement } from "@/types/form-types";
+import { flattenFormSteps, getStepFields } from "@/lib/form-elements-helpers";
 import { isStatic } from "@/lib/utils";
+import type { FormArray, FormElement, FormStep } from "@/types/form-types";
 
 // Type definitions for Valibot schemas
 /** Valibot schema type - represents any Valibot schema */

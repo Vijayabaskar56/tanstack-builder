@@ -1,6 +1,5 @@
 import {
 	createCollection,
-	localOnlyCollectionOptions,
 	localStorageCollectionOptions,
 } from "@tanstack/react-db";
 import * as v from "valibot";
@@ -36,25 +35,26 @@ export const SettingsSchema = v.object({
 
 type SettingsCollection = v.InferInput<typeof SettingsSchema>;
 type PreferredSchema = v.InferInput<typeof SettingsSchema>["preferredSchema"];
-type PreferredFramework = v.InferInput<typeof SettingsSchema>["preferredFramework"];
+type PreferredFramework = v.InferInput<
+	typeof SettingsSchema
+>["preferredFramework"];
 type ValidationMethod = v.InferInput<typeof SettingsSchema>["validationMethod"];
 
-export type { SettingsCollection, PreferredSchema, PreferredFramework, ValidationMethod };
+export type {
+	SettingsCollection,
+	PreferredSchema,
+	PreferredFramework,
+	ValidationMethod,
+};
 
-
-export const settingsCollection =
-	typeof window !== "undefined"
-		? createCollection(
-				localStorageCollectionOptions({
-					storageKey: "settings",
-					getKey: (settings) => settings.id,
-					schema: SettingsSchema,
-					storage: window.localStorage,
-				}),
-			)
-		: createCollection(
-				localOnlyCollectionOptions({
-					schema: SettingsSchema,
-					getKey: (settings) => settings.id,
-				}),
-			);
+export const getSettingsCollection = () => {
+	if (typeof window === "undefined") return null;
+	return createCollection(
+		localStorageCollectionOptions({
+			storageKey: "settings",
+			getKey: (settings) => settings.id,
+			schema: SettingsSchema,
+			storage: window.localStorage,
+		}),
+	);
+};

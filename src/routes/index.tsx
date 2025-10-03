@@ -1,13 +1,4 @@
-import CTASection from "@/components/cta";
-import FAQSection from "@/components/faq";
-import FooterSection from "@/components/footer";
-import { Button } from "@/components/ui/button";
-import { Link, createFileRoute } from "@tanstack/react-router";
-import { ErrorBoundary } from "@/components/error-boundary";
-import { NotFound } from "@/components/not-found";
-import { useEffect, useMemo, useState } from "react";
-
-import { useViteTheme } from "@space-man/react-theme-animation";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import {
 	CheckCircle,
 	Circle,
@@ -19,6 +10,15 @@ import {
 	Palette,
 	Share2,
 } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import CTASection from "@/components/cta";
+import { ErrorBoundary } from "@/components/error-boundary";
+import FAQSection from "@/components/faq";
+import FooterSection from "@/components/footer";
+import { NotFound } from "@/components/not-found";
+
+import { useTheme } from "@/components/theme-provider";
+import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/")({
 	component: HomePage,
 	errorComponent: ErrorBoundary,
@@ -208,10 +208,14 @@ const roadmapItems = [
 function HomePage() {
 	const [activeCard, setActiveCard] = useState(0);
 	const [progress, setProgress] = useState(0);
-	const { theme, systemTheme } = useViteTheme();
+	const { theme, systemTheme } = useTheme();
 	const resolvedTheme = useMemo(
 		() =>
-			theme === "system" ? (systemTheme === "dark" ? "dark" : "light") : theme,
+			(theme === "system"
+				? systemTheme === "dark"
+					? "dark"
+					: "light"
+				: theme || "light") as "dark" | "light",
 		[theme, systemTheme],
 	);
 	useEffect(() => {

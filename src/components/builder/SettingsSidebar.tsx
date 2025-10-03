@@ -1,3 +1,6 @@
+import { Eye } from "lucide-react";
+import { useId } from "react";
+import type * as v from "valibot";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -10,15 +13,13 @@ import type {
 	ValidationMethod,
 } from "@/db-collections/settings.collections";
 import {
+	getSettingsCollection,
 	SettingsSchema,
-	settingsCollection,
 } from "@/db-collections/settings.collections";
 import useSettings from "@/hooks/use-settings";
-import { Eye } from "lucide-react";
-import { useId } from "react";
-import type * as v from "valibot";
 import { Separator } from "../ui/separator";
 export function SettingsSidebar() {
+	const settingsCollection = getSettingsCollection()!;
 	const focusOnErrorId = useId();
 	const validationMethodId = useId();
 	const asyncValidationId = useId();
@@ -307,17 +308,25 @@ export function SettingsSidebar() {
 																	: "hover:bg-accent hover:text-accent-foreground"
 															}
 															${
-																option.value === 'angular' || option.value === 'vue' || option.value === 'solid' ? 'opacity-35' : ''
+																option.value === "angular" ||
+																option.value === "vue" ||
+																option.value === "solid"
+																	? "opacity-35"
+																	: ""
 															}
 															`}
-															onClick={() =>{
-																if(option.value === 'angular' || option.value === 'vue'|| option.value === 'solid') {
-																}else {
+															onClick={() => {
+																if (
+																	option.value === "angular" ||
+																	option.value === "vue" ||
+																	option.value === "solid"
+																) {
+																} else {
 																	field.handleChange(
 																		option.value as PreferredFramework,
-																	)}
+																	);
 																}
-															}
+															}}
 															// biome-ignore lint/a11y/useSemanticElements: <explanation>
 															role="radio"
 															aria-checked={field.state.value === option.value}

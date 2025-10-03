@@ -1,6 +1,3 @@
-import { Button, type buttonVariants } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
 import { Slot } from "@radix-ui/react-slot";
 import {
 	createFormHook,
@@ -10,8 +7,12 @@ import {
 } from "@tanstack/react-form";
 import type { VariantProps } from "class-variance-authority";
 import * as React from "react";
+import { Button, type buttonVariants } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 import { Input } from "./input";
 import { Textarea } from "./textarea";
+
 const {
 	fieldContext,
 	formContext,

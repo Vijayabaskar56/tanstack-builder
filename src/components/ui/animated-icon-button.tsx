@@ -1,5 +1,5 @@
-import { Button } from "./button";
 import React, { type ReactElement, useRef } from "react";
+import { Button } from "./button";
 
 interface IconHandle {
 	startAnimation: () => void;
@@ -41,10 +41,14 @@ export const AnimatedIconButton = ({
 	const content = (
 		<>
 			{iconPosition === "start" &&
-				React.cloneElement(icon, { ref: iconRef } as React.RefAttributes<IconHandle>)}
+				React.cloneElement(icon, {
+					ref: iconRef,
+				} as React.RefAttributes<IconHandle>)}
 			{text}
 			{iconPosition === "end" &&
-				React.cloneElement(icon, { ref: iconRef } as React.RefAttributes<IconHandle>)}
+				React.cloneElement(icon, {
+					ref: iconRef,
+				} as React.RefAttributes<IconHandle>)}
 		</>
 	);
 
@@ -109,7 +113,9 @@ export const AnimatedIconSpan = ({
 			}}
 			{...props}
 		>
-			{React.cloneElement(icon, { ref: iconRef } as React.RefAttributes<IconHandle>)}
+			{React.cloneElement(icon, {
+				ref: iconRef,
+			} as React.RefAttributes<IconHandle>)}
 			<span className={textClassName}>{text}</span>
 		</button>
 	);

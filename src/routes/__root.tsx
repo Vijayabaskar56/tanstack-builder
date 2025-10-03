@@ -1,22 +1,20 @@
+import type { QueryClient } from "@tanstack/react-query";
 import {
+	createRootRouteWithContext,
 	HeadContent,
 	Outlet,
 	Scripts,
-	createRootRouteWithContext,
 	useRouterState,
 } from "@tanstack/react-router";
-
-import appCss from "../styles.css?url";
-
+import { ErrorBoundary } from "@/components/error-boundary";
 import Loader from "@/components/loader";
 import NavBar from "@/components/nav-bar";
-import { Toaster } from "@/components/ui/sonner";
-import { settingsCollection } from "@/db-collections/settings.collections";
-import DevTools from "@/integrations/tanstack-query/devtools";
-import { ViteThemeProvider } from "@space-man/react-theme-animation";
-import type { QueryClient } from "@tanstack/react-query";
-import { ErrorBoundary } from "@/components/error-boundary";
 import { NotFound } from "@/components/not-found";
+import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from "@/components/ui/sonner";
+import { getSettingsCollection } from "@/db-collections/settings.collections";
+import DevTools from "@/integrations/tanstack-query/devtools";
+import appCss from "../styles.css?url";
 
 interface MyRouterContext {
 	queryClient: QueryClient;
@@ -91,21 +89,24 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 			typeof window !== "undefined" &&
 			!window.localStorage.getItem("settings")
 		) {
-			settingsCollection.insert([
-				{
-					id: "user-settings",
-					activeTab: "builder",
-					defaultRequiredValidation: true,
-					numericInput: false,
-					focusOnError: true,
-					validationMethod: "onDynamic",
-					asyncValidation: 300,
-					preferredSchema: "zod",
-					preferredFramework: "react",
-					preferredPackageManager: "pnpm",
-					isCodeSidebarOpen: false,
-				},
-			]);
+			const settingsCollection = getSettingsCollection();
+			if (settingsCollection) {
+				settingsCollection.insert([
+					{
+						id: "user-settings",
+						activeTab: "builder",
+						defaultRequiredValidation: true,
+						numericInput: false,
+						focusOnError: true,
+						validationMethod: "onDynamic",
+						asyncValidation: 300,
+						preferredSchema: "zod",
+						preferredFramework: "react",
+						preferredPackageManager: "pnpm",
+						isCodeSidebarOpen: false,
+					},
+				]);
+			}
 		}
 	},
 });
@@ -121,7 +122,7 @@ function RootDocument() {
 				<HeadContent />
 			</head>
 			<body suppressHydrationWarning={true}>
-				<ViteThemeProvider
+				<ThemeProvider
 					defaultTheme="system"
 					attribute="class"
 					enableSystem={true}
@@ -133,7 +134,7 @@ function RootDocument() {
 					</div>
 					{import.meta.env.DEV && <DevTools />}
 					<Toaster richColors />
-				</ViteThemeProvider>
+				</ThemeProvider>
 				<Scripts />
 			</body>
 		</html>

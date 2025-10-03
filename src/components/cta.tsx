@@ -33,13 +33,13 @@ export default function CTASection() {
 					</div>
 					<div className="w-full max-w-[497px] flex flex-col justify-center items-center gap-12">
 						<div className="flex justify-start items-center gap-4">
-							<Button variant="default"
+							<Button
+								variant="default"
 								size="lg"
 								className="w-52 rounded-4xl"
-								asChild>
-								<Link to="/form-builder">
-									Start Building
-								</Link>
+								asChild
+							>
+								<Link to="/form-builder">Start Building</Link>
 							</Button>
 						</div>
 						<div className="text-muted-foreground text-sm font-normal leading-6 font-sans text-center">

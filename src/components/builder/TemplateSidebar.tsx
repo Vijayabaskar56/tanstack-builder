@@ -1,9 +1,9 @@
+import { Clock, FileStack, SquareStack, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { templates } from "@/constants/templates";
 import { useFormStore } from "@/hooks/use-form-store";
-import { Clock, FileStack, SquareStack, Trash2 } from "lucide-react";
-import { useEffect, useState } from "react";
 
 const formTemplates = Object.entries(templates).map((template) => ({
 	label: template[1].name,
@@ -46,14 +46,10 @@ export function TemplateSidebar() {
 
 	return (
 		<div className="flex flex-col h-full md:h-full max-h-[35vh] md:max-h-none">
-						<div className="mb-4 pb-2 px-4 border-b">
-        <h3 className="text-lg font-semibold text-primary">
-         Template
-        </h3>
-        <p className="text-sm text-muted-foreground">
-         Predefined Template's
-        </p>
-       </div>
+			<div className="mb-4 pb-2 px-4 border-b">
+				<h3 className="text-lg font-semibold text-primary">Template</h3>
+				<p className="text-sm text-muted-foreground">Predefined Template's</p>
+			</div>
 			<ScrollArea className="flex-1 overflow-auto max-h-[calc(35vh-8rem)] md:max-h-none">
 				<div className="p-3 sm:p-4 space-y-4 sm:space-y-6">
 					{/* Built-in Templates */}

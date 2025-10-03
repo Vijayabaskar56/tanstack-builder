@@ -1,11 +1,11 @@
 // apps/web/src/routes/form-builder/index.tsx
 
 import { createFileRoute } from "@tanstack/react-router";
-import { ErrorBoundary } from "@/components/error-boundary";
-import { NotFound } from "@/components/not-found";
 import { useEffect, useState } from "react";
 import { FormEdit } from "@/components/builder/form-edit";
 import { SingleStepFormPreview } from "@/components/builder/form-preview";
+import { ErrorBoundary } from "@/components/error-boundary";
+import { NotFound } from "@/components/not-found";
 import {
 	Drawer,
 	DrawerClose,
@@ -13,18 +13,18 @@ import {
 	DrawerHeader,
 	DrawerTitle,
 } from "@/components/ui/drawer";
+import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { XIcon } from "@/components/ui/x";
 import { type AppForm, useFormBuilder } from "@/hooks/use-form-builder";
+import { useFormStore } from "@/hooks/use-form-store";
 import { useIsMobile } from "@/hooks/use-mobile";
 import useSettings from "@/hooks/use-settings";
 import { FieldTab } from "../../components/builder/FieldLibrary";
 import { SettingsSidebar } from "../../components/builder/SettingsSidebar";
 import { TemplateSidebar } from "../../components/builder/TemplateSidebar";
 import { GeneratedFormCodeViewer } from "../../components/generated-code/code-viewer";
-import { settingsCollection } from "../../db-collections/settings.collections";
-import { Input } from "@/components/ui/input";
-import { useFormStore } from "@/hooks/use-form-store";
-import { XIcon } from "@/components/ui/x";
+import { getSettingsCollection } from "../../db-collections/settings.collections";
 
 export const Route = createFileRoute("/form-builder/")({
 	component: FormBuilderComponent,
@@ -33,6 +33,7 @@ export const Route = createFileRoute("/form-builder/")({
 });
 
 function FormBuilderComponent() {
+	const settingsCollection = getSettingsCollection()!;
 	const { form } = useFormBuilder();
 	const { formName, actions } = useFormStore();
 	const isMobile = useIsMobile();
