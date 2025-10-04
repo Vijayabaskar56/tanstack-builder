@@ -7,7 +7,14 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export const isStatic = (fieldType: string) => {
-	return ["Separator", "H1", "H2", "H3", "P"].includes(fieldType);
+	return [
+		"Separator",
+		"H1",
+		"H2",
+		"H3",
+		"FieldDescription",
+		"FieldLegend",
+	].includes(fieldType);
 };
 
 export function toPascalCase(str: string): string {

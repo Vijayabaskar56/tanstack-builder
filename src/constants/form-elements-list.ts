@@ -59,10 +59,19 @@ export const formElementsList = [
 		icon: Heading3,
 		static: true,
 	},
+
 	{
 		group: "display",
-		name: "paragraph",
-		fieldType: "P",
+		name: "description",
+		fieldType: "FieldDescription",
+		content: "Lorem ipsum dolor sit amet, consectetur adipisicing elit.",
+		icon: Type,
+		static: true,
+	},
+	{
+		group: "display",
+		name: "legend",
+		fieldType: "FieldLegend",
 		content: "Lorem ipsum dolor sit amet, consectetur adipisicing elit.",
 		icon: Type,
 		static: true,

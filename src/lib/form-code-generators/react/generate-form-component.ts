@@ -503,12 +503,12 @@ export const getFormElementCode = (
 			return `<h2 className="text-2xl font-bold">${field.content ?? ""}</h2>`;
 		case "H3":
 			return `<h3 className="text-xl font-bold">${field.content ?? ""}</h3>`;
-		case "P":
-			return `<p className="text-base">${field.content ?? ""}</p>`;
 		case "Separator":
-			return `<div className="py-3 w-full">
-                <Separator />
-              </div>`;
+			return `<FieldSeparator />;`;
+		case "FieldLegend":
+			return `<FieldLegend>{${field.content}}</FieldLegend>;`;
+		case "FieldDescription":
+			return `<FieldDescription>{${field.content}}</FieldDescription>;`;
 		default:
 			return null;
 	}

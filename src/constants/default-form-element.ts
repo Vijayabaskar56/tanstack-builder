@@ -98,12 +98,18 @@ export const defaultFormElements: Record<
 		content: "Heading 3",
 		static: true,
 	},
-	P: {
-		label: "Paragraph",
-		content: "E.g This is a note",
+
+	Separator: {
 		static: true,
 	},
-	Separator: {
+	FieldDescription: {
+		label: "Field Description",
+		content: "Additional Details About Form",
+		static: true,
+	},
+	FieldLegend: {
+		label: "Form Legend",
+		content: "Additional Heading",
 		static: true,
 	},
 };

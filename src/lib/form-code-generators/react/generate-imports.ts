@@ -70,7 +70,6 @@ export const generateImports = (
 			case "H1":
 			case "H2":
 			case "H3":
-			case "P":
 				break;
 			case "FormArray":
 				importSet.add('import { Separator } from "@/components/ui/separator"');

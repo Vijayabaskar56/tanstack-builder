@@ -9,6 +9,7 @@ import type {
 	ToggleGroupSingleProps,
 } from "@radix-ui/react-toggle-group";
 import type { OTPInputProps } from "input-otp";
+import { Label } from "@/components/ui/label";
 
 export type Option = { value: string; label: string };
 //------------------------------------------------------------
@@ -136,15 +137,6 @@ type H3 = {
 	static: true;
 	content: string;
 } & React.HTMLAttributes<HTMLHeadingElement>;
-type Paragraph = {
-	fieldType: "P";
-	/**
-	 * the name is used as a key to identify the field
-	 */
-	name: string;
-	static: true;
-	content: string;
-} & React.HTMLAttributes<HTMLParagraphElement>;
 
 type Divider = {
 	fieldType: "Separator";
@@ -154,6 +146,26 @@ type Divider = {
 	name: string;
 	static: true;
 } & SeparatorProps;
+
+type Description = {
+	fieldType: "FieldDescription";
+	/**
+	 * the name is used as a key to identify the field
+	 */
+	name: string;
+	static: true;
+	content: string;
+} & React.ComponentProps<"p">;
+
+type Legend = {
+	fieldType: "FieldLegend";
+	/**
+	 * the name is used as a key to identify the field
+	 */
+	name: string;
+	static: true;
+	content: string;
+} & React.ComponentProps<typeof Label>;
 
 /**
  * FormFieldType is a union type that represents all the possible form fields
@@ -177,7 +189,7 @@ type FormFieldElement =
  * StaticFormElement is a type that represents a static form element
  * that is not editable by the user
  */
-export type StaticFormElement = H1 | H2 | H3 | Paragraph | Divider;
+export type StaticFormElement = H1 | H2 | H3 | Divider | Description | Legend;
 
 export type FormElement =
 	| (FormFieldElement & { id: string })

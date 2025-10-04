@@ -874,7 +874,6 @@ const FormArrayItemContainer = ({
 export function FormEdit() {
 	const isMultiStep = useIsMultiStep();
 	const { formElements, actions } = useFormStore();
-	console.log("🚀 ~ FormEdit ~ formElements:", formElements);
 	const containerRef = useRef<HTMLDivElement>(null);
 	const [isLayoutTransitioning, setIsLayoutTransitioning] = useState(false);
 

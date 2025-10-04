@@ -26,6 +26,7 @@ import {
 	InputGroupInput,
 } from "@/components/ui/input-group";
 import { cn } from "@/lib/utils";
+import { Spinner } from "./spinner";
 
 const {
 	fieldContext,
@@ -193,9 +194,7 @@ function SubmitButton({
 					disabled={isSubmitting}
 					{...props}
 				>
-					{isSubmitting && (
-						<div className="w-4 h-4 border-2 border-secondary border-t-transparent rounded-full animate-spin" />
-					)}
+					{isSubmitting && <Spinner />}
 					{label}
 				</Button>
 			)}

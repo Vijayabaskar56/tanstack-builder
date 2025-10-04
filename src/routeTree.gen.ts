@@ -12,12 +12,18 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as FormBuilderRouteImport } from './routes/form-builder'
 import { Route as FormBuilderIndexRouteImport } from './routes/form-builder/index'
 import { Route as FormBuilderShareRouteImport } from './routes/form-builder/share'
+import { Route as FormExamplesRouteImport } from './routes/form-examples'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TableBuilderRouteImport } from './routes/table-builder'
 
 const TableBuilderRoute = TableBuilderRouteImport.update({
   id: '/table-builder',
   path: '/table-builder',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FormExamplesRoute = FormExamplesRouteImport.update({
+  id: '/form-examples',
+  path: '/form-examples',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FormBuilderRoute = FormBuilderRouteImport.update({
@@ -44,12 +50,14 @@ const FormBuilderShareRoute = FormBuilderShareRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/form-builder': typeof FormBuilderRouteWithChildren
+  '/form-examples': typeof FormExamplesRoute
   '/table-builder': typeof TableBuilderRoute
   '/form-builder/share': typeof FormBuilderShareRoute
   '/form-builder/': typeof FormBuilderIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/form-examples': typeof FormExamplesRoute
   '/table-builder': typeof TableBuilderRoute
   '/form-builder/share': typeof FormBuilderShareRoute
   '/form-builder': typeof FormBuilderIndexRoute
@@ -58,6 +66,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/form-builder': typeof FormBuilderRouteWithChildren
+  '/form-examples': typeof FormExamplesRoute
   '/table-builder': typeof TableBuilderRoute
   '/form-builder/share': typeof FormBuilderShareRoute
   '/form-builder/': typeof FormBuilderIndexRoute
@@ -67,15 +76,22 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/form-builder'
+    | '/form-examples'
     | '/table-builder'
     | '/form-builder/share'
     | '/form-builder/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/table-builder' | '/form-builder/share' | '/form-builder'
+  to:
+    | '/'
+    | '/form-examples'
+    | '/table-builder'
+    | '/form-builder/share'
+    | '/form-builder'
   id:
     | '__root__'
     | '/'
     | '/form-builder'
+    | '/form-examples'
     | '/table-builder'
     | '/form-builder/share'
     | '/form-builder/'
@@ -84,6 +100,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   FormBuilderRoute: typeof FormBuilderRouteWithChildren
+  FormExamplesRoute: typeof FormExamplesRoute
   TableBuilderRoute: typeof TableBuilderRoute
 }
 
@@ -94,6 +111,13 @@ declare module '@tanstack/react-router' {
       path: '/table-builder'
       fullPath: '/table-builder'
       preLoaderRoute: typeof TableBuilderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/form-examples': {
+      id: '/form-examples'
+      path: '/form-examples'
+      fullPath: '/form-examples'
+      preLoaderRoute: typeof FormExamplesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/form-builder': {
@@ -144,6 +168,7 @@ const FormBuilderRouteWithChildren = FormBuilderRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   FormBuilderRoute: FormBuilderRouteWithChildren,
+  FormExamplesRoute: FormExamplesRoute,
   TableBuilderRoute: TableBuilderRoute,
 }
 export const routeTree = rootRouteImport

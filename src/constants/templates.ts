@@ -19,7 +19,7 @@ export const templates: TemplateList = {
 			{
 				id: "signup-paragraph",
 				name: "paragraph",
-				fieldType: "P",
+				fieldType: "FieldDescription",
 				static: true,
 				content: "You need an account to get started",
 			},
@@ -81,7 +81,7 @@ export const templates: TemplateList = {
 			{
 				id: "sign-up-paragraph",
 				name: "paragraph",
-				fieldType: "P",
+				fieldType: "FieldDescription",
 				static: true,
 				content: "Login to create an account",
 			},
@@ -117,7 +117,7 @@ export const templates: TemplateList = {
 			{
 				id: "feedback-paragraph",
 				name: "paragraph",
-				fieldType: "P",
+				fieldType: "FieldDescription",
 				static: true,
 				content: "Please provide your feedback",
 			},
@@ -144,7 +144,7 @@ export const templates: TemplateList = {
 			{
 				id: "waitlist-paragraph",
 				name: "paragraph",
-				fieldType: "P",
+				fieldType: "FieldDescription",
 				static: true,
 				content: "Join our waitlist to get early access",
 			},
@@ -172,7 +172,7 @@ export const templates: TemplateList = {
 			{
 				id: "contact-paragraph",
 				name: "paragraph",
-				fieldType: "P",
+				fieldType: "FieldDescription",
 				static: true,
 				content: "Please fill the form below to contact us",
 			},
@@ -229,7 +229,7 @@ export const templates: TemplateList = {
 					{
 						id: "survey-personal-paragraph",
 						name: "paragraph",
-						fieldType: "P",
+						fieldType: "FieldDescription",
 						static: true,
 						content: "Please provide your personal details",
 					},
@@ -263,7 +263,7 @@ export const templates: TemplateList = {
 					{
 						name: "paragraph",
 						id: "survey-contact-paragraph",
-						fieldType: "P",
+						fieldType: "FieldDescription",
 						static: true,
 						content: "Please provide your contact information",
 					},
@@ -333,7 +333,7 @@ export const templates: TemplateList = {
 			{
 				id: "job-paragraph",
 				name: "paragraph",
-				fieldType: "P",
+				fieldType: "FieldDescription",
 				static: true,
 				content: "Please fill out the form below to apply for this position",
 			},
@@ -436,7 +436,7 @@ export const templates: TemplateList = {
 			{
 				id: "event-paragraph",
 				name: "paragraph",
-				fieldType: "P",
+				fieldType: "FieldDescription",
 				static: true,
 				content: "Register for our upcoming event",
 			},
@@ -511,7 +511,7 @@ export const templates: TemplateList = {
 			{
 				id: "order-paragraph",
 				name: "paragraph",
-				fieldType: "P",
+				fieldType: "FieldDescription",
 				static: true,
 				content: "Fill out the details below to complete your order",
 			},
@@ -599,7 +599,7 @@ export const templates: TemplateList = {
 			{
 				id: "support-paragraph",
 				name: "paragraph",
-				fieldType: "P",
+				fieldType: "FieldDescription",
 				static: true,
 				content: "We're here to help! Please describe your issue below.",
 			},

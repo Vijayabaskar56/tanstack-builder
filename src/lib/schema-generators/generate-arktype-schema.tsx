@@ -127,7 +127,6 @@ const FIELD_SCHEMA_MAP = new Map<
 	["H1", () => type("string")],
 	["H2", () => type("string")],
 	["H3", () => type("string")],
-	["P", () => type("string")],
 	["Separator", () => type("string")],
 ]);
 

@@ -33,7 +33,6 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
@@ -41,6 +40,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { cn } from "@/lib/utils";
 import type { FormElement } from "@/types/form-types";
 import type { AppForm } from "../../hooks/use-form-builder";
+import { FieldDescription, FieldLegend, FieldSeparator } from "../ui/field";
 export const RenderFormElement = ({
 	formElement,
 	form,
@@ -574,18 +574,12 @@ export const RenderFormElement = ({
 					{formElement.content} content
 				</h3>
 			);
-		case "P":
-			return (
-				<p className="tracking-wider text-foreground/60 pt-0 dark:text-foreground/60 mb-4 mt-0 text-wrap">
-					{formElement.content}
-				</p>
-			);
 		case "Separator":
-			return (
-				<div className="py-3 w-full">
-					<Separator {...formElement} />
-				</div>
-			);
+			return <FieldSeparator />;
+		case "FieldDescription":
+			return <FieldDescription>{formElement.content}</FieldDescription>;
+		case "FieldLegend":
+			return <FieldLegend>{formElement.content}</FieldLegend>;
 		default:
 			return <div>Invalid Form Element</div>;
 	}

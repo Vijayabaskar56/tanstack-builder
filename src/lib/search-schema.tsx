@@ -168,7 +168,7 @@ const baseFormElementSchemas = [
 	}),
 	v.object({
 		id: v.string(),
-		fieldType: v.literal("P"),
+		fieldType: v.literal("FieldDescription"),
 		name: v.string(),
 		content: v.string(),
 		static: v.literal(true),
