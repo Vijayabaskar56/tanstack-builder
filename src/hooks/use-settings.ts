@@ -1,8 +1,7 @@
 import { useLiveQuery } from "@tanstack/react-db";
-import { getSettingsCollection } from "@/db-collections/settings.collections";
+import { settingsCollection } from "@/db-collections/settings.collections";
 
 const useSettings = () => {
-	const settingsCollection = getSettingsCollection()!;
 	const { data } = useLiveQuery((q) =>
 		q.from({ settings: settingsCollection }).select(({ settings }) => ({
 			activeTab: settings.activeTab,

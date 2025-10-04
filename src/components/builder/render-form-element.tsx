@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, EyeIcon, EyeOffIcon } from "lucide-react";
 import type * as React from "react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -54,10 +54,10 @@ export const RenderFormElement = ({
 				<form.AppField name={formElement.name}>
 					{(field) => (
 						<field.FieldSet className="w-full">
-							<field.FieldLabel>
-								{formElement.label} {formElement.required ? " *" : ""}
-							</field.FieldLabel>
 							<field.Field>
+								<field.FieldLabel htmlFor={formElement.name}>
+									{formElement.label} {formElement.required ? " *" : ""}
+								</field.FieldLabel>
 								<Input
 									placeholder={formElement.placeholder}
 									disabled={formElement.disabled}
@@ -68,7 +68,7 @@ export const RenderFormElement = ({
 										field.handleChange(e.target.value);
 									}}
 									onBlur={field.handleBlur}
-									// aria-invalid
+									aria-invalid={!!field.state.meta.errors.length}
 								/>
 							</field.Field>
 							<field.FieldDescription>
@@ -84,20 +84,49 @@ export const RenderFormElement = ({
 				<form.AppField name={formElement.name}>
 					{(field) => (
 						<field.FieldSet className="w-full">
-							<field.FieldLabel>
+							<field.FieldLabel htmlFor={formElement.name}>
 								{formElement.label} {formElement.required && " *"}
 							</field.FieldLabel>
-							<field.Field>
-								<Input
-									placeholder={formElement.placeholder}
-									disabled={formElement.disabled}
-									type={"password"}
-									name={formElement.name}
-									value={(field.state.value as string | undefined) ?? ""}
-									onChange={(e) => field.handleChange(e.target.value)}
-									onBlur={field.handleBlur}
-									// aria-invalid
-								/>
+							<field.Field orientation="horizontal">
+								<field.InputGroup>
+									<field.InputGroupInput
+										id={formElement.name}
+										placeholder={formElement.placeholder}
+										disabled={formElement.disabled}
+										type={"password"}
+										name={formElement.name}
+										value={(field.state.value as string | undefined) ?? ""}
+										onChange={(e) => field.handleChange(e.target.value)}
+										onBlur={field.handleBlur}
+										aria-invalid={!!field.state.meta.errors.length}
+									/>
+									<field.InputGroupAddon align="inline-end">
+										<button
+											type="button"
+											className="cursor-pointer flex items-center justify-center p-1 hover:bg-gray-100 rounded transition-colors"
+											onClick={(e) => {
+												const input =
+													e.currentTarget.parentElement?.parentElement?.querySelector(
+														"input",
+													) as HTMLInputElement;
+												if (input) {
+													input.type =
+														input.type === "password" ? "text" : "password";
+													// Toggle the button's data attribute for icon switching
+													const button = e.currentTarget;
+													button.setAttribute(
+														"data-show",
+														input.type === "text" ? "true" : "false",
+													);
+												}
+											}}
+											data-show="false"
+										>
+											<EyeIcon className="size-3 data-[show=true]:hidden" />
+											<EyeOffIcon className="size-3 hidden data-[show=true]:block" />
+										</button>
+									</field.InputGroupAddon>
+								</field.InputGroup>
 							</field.Field>
 							<field.FieldDescription>
 								{formElement.description}
@@ -112,10 +141,10 @@ export const RenderFormElement = ({
 				<form.AppField name={formElement.name}>
 					{(field) => (
 						<field.FieldSet className="w-full">
-							<field.FieldLabel>
-								{formElement.label} {formElement.required && "*"}
-							</field.FieldLabel>
 							<field.Field>
+								<field.FieldLabel htmlFor={formElement.name}>
+									{formElement.label} {formElement.required && "*"}
+								</field.FieldLabel>
 								<InputOTP
 									maxLength={formElement.maxLength ?? 6}
 									name={formElement.name}
@@ -123,7 +152,7 @@ export const RenderFormElement = ({
 									onChange={field.handleChange}
 									required={formElement.required}
 									disabled={formElement.disabled}
-									// aria-invalid
+									aria-invalid={!!field.state.meta.errors.length}
 								>
 									<InputOTPGroup>
 										<InputOTPSlot index={0} />
@@ -151,10 +180,10 @@ export const RenderFormElement = ({
 				<form.AppField name={formElement.name}>
 					{(field) => (
 						<field.FieldSet className="w-full">
-							<field.FieldLabel>
-								{formElement.label} {formElement.required && "*"}
-							</field.FieldLabel>
 							<field.Field>
+								<field.FieldLabel htmlFor={formElement.name}>
+									{formElement.label} {formElement.required && "*"}
+								</field.FieldLabel>
 								<Textarea
 									placeholder={formElement.placeholder}
 									required={formElement.required}
@@ -164,12 +193,12 @@ export const RenderFormElement = ({
 									onChange={(e) => field.handleChange(e.target.value)}
 									onBlur={field.handleBlur}
 									className="resize-none"
-									// aria-invalid
+									aria-invalid={!!field.state.meta.errors.length}
 								/>
+								<field.FieldDescription>
+									{formElement.description}
+								</field.FieldDescription>
 							</field.Field>
-							<field.FieldDescription>
-								{formElement.description}
-							</field.FieldDescription>
 							<field.FieldError />
 						</field.FieldSet>
 					)}
@@ -185,7 +214,7 @@ export const RenderFormElement = ({
 									checked={Boolean(field.state.value)}
 									onCheckedChange={field.handleChange}
 									disabled={formElement.disabled}
-									// aria-invalid
+									aria-invalid={!!field.state.meta.errors.length}
 								/>
 								<field.FieldContent>
 									<field.FieldLabel
@@ -211,16 +240,21 @@ export const RenderFormElement = ({
 				<form.AppField name={formElement.name}>
 					{(field) => (
 						<field.FieldSet className="flex flex-col gap-2 w-full py-1">
-							<field.FieldLabel className="mt-0">
+							<field.FieldLabel className="mt-0" htmlFor={formElement.name}>
 								{formElement?.label} {formElement.required && " *"}
 							</field.FieldLabel>
+							{formElement.description && (
+								<field.FieldDescription>
+									{formElement.description}
+								</field.FieldDescription>
+							)}
 							<field.Field>
 								<RadioGroup
 									onValueChange={field.handleChange}
 									name={formElement.name}
 									value={(field.state.value as string | undefined) ?? ""}
 									disabled={formElement.disabled}
-									// aria-invalid
+									aria-invalid={!!field.state.meta.errors.length}
 								>
 									{formElement.options.map(({ label, value }) => (
 										<div key={value} className="flex items-center gap-x-2">
@@ -234,11 +268,6 @@ export const RenderFormElement = ({
 									))}
 								</RadioGroup>
 							</field.Field>
-							{formElement.description && (
-								<field.FieldDescription>
-									{formElement.description}
-								</field.FieldDescription>
-							)}
 							<field.FieldError />
 						</field.FieldSet>
 					)}
@@ -260,18 +289,18 @@ export const RenderFormElement = ({
 				<form.AppField name={formElement.name}>
 					{(field) => (
 						<field.FieldSet className="flex flex-col gap-2 w-full py-1">
-							<field.FieldLabel className="mt-0">
-								{formElement?.label} {formElement.required && "*"}
-							</field.FieldLabel>
 							<field.Field>
+								<field.FieldLabel className="mt-0" htmlFor={formElement.name}>
+									{formElement?.label} {formElement.required && "*"}
+								</field.FieldLabel>
 								{formElement.type === "single" ? (
 									<ToggleGroup
 										type="single"
 										variant="outline"
 										onValueChange={field.handleChange}
-										defaultValue={formElement.defaultValue}
+										defaultValue={formElement.defaultValue || ""}
 										className="flex justify-start items-center w-full"
-										// aria-invalid
+										aria-invalid={!!field.state.meta.errors.length}
 									>
 										{options}
 									</ToggleGroup>
@@ -285,11 +314,12 @@ export const RenderFormElement = ({
 												? formElement.defaultValue.filter(
 														(val) => val !== undefined,
 													)
-												: [formElement.defaultValue].filter(
-														(val) => val !== undefined,
-													)
+												: formElement.defaultValue
+													? [formElement.defaultValue]
+													: []
 										}
 										className="flex justify-start items-center w-full"
+										aria-invalid={!!field.state.meta.errors.length}
 									>
 										{options}
 									</ToggleGroup>
@@ -311,29 +341,29 @@ export const RenderFormElement = ({
 				<form.AppField name={formElement.name}>
 					{(field) => (
 						<field.FieldSet className="flex flex-col p-3 justify-center w-full border rounded">
-							<div className="flex items-center justify-between h-full">
-								<field.FieldLabel className="w-full grow">
-									{formElement.label}
-								</field.FieldLabel>
-								<field.Field>
-									<Switch
-										name={formElement.name}
-										checked={Boolean(field.state.value)}
-										onCheckedChange={(checked) => {
-											field.handleChange(checked);
-											// Trigger validation by simulating blur
-											field.handleBlur();
-										}}
-										disabled={formElement.disabled}
-										// aria-invalid
-									/>
-								</field.Field>
-							</div>
-							{formElement.description && (
-								<field.FieldDescription>
-									{formElement.description}
-								</field.FieldDescription>
-							)}
+							<field.Field orientation="horizontal">
+								<field.FieldContent>
+									<field.FieldLabel htmlFor={formElement.name}>
+										{formElement.label}
+									</field.FieldLabel>
+									{formElement.description && (
+										<field.FieldDescription>
+											{formElement.description}
+										</field.FieldDescription>
+									)}
+								</field.FieldContent>
+								<Switch
+									name={formElement.name}
+									checked={Boolean(field.state.value)}
+									onCheckedChange={(checked) => {
+										field.handleChange(checked);
+										// Trigger validation by simulating blur
+										field.handleBlur();
+									}}
+									disabled={formElement.disabled}
+									aria-invalid={!!field.state.meta.errors.length}
+								/>
+							</field.Field>
 						</field.FieldSet>
 					)}
 				</form.AppField>
@@ -353,13 +383,16 @@ export const RenderFormElement = ({
 
 						return (
 							<field.FieldSet className="w-full">
-								<field.FieldLabel className="flex justify-between items-center">
-									{formElement.label} {formElement.required ? " *" : ""}
-									<span className="text-sm text-muted-foreground">
-										{sliderValue[0] || min} / {max}
-									</span>
-								</field.FieldLabel>
 								<field.Field>
+									<field.FieldLabel
+										className="flex justify-between items-center"
+										htmlFor={formElement.name}
+									>
+										{formElement.label} {formElement.required ? " *" : ""}
+										<span className="text-sm text-muted-foreground">
+											{sliderValue[0] || min} / {max}
+										</span>
+									</field.FieldLabel>
 									<Slider
 										name={formElement.name}
 										min={min}
@@ -367,7 +400,7 @@ export const RenderFormElement = ({
 										disabled={formElement.disabled}
 										step={step}
 										value={sliderValue}
-										// aria-invalid
+										aria-invalid={!!field.state.meta.errors.length}
 										onValueChange={(newValue) => {
 											field.handleChange(newValue[0]);
 											// Trigger validation by simulating blur
@@ -389,16 +422,21 @@ export const RenderFormElement = ({
 				<form.AppField name={formElement.name}>
 					{(field) => (
 						<field.FieldSet className="w-full">
-							<field.FieldLabel>
-								{formElement.label} {formElement.required && " *"}
-							</field.FieldLabel>
+							<field.Field>
+								<field.FieldLabel
+									className="flex justify-between items-center"
+									htmlFor={formElement.name}
+								>
+									{formElement.label} {formElement.required && " *"}
+								</field.FieldLabel>
+							</field.Field>
 							<Select
 								name={formElement.name}
 								value={(field.state.value as string | undefined) ?? ""}
 								onValueChange={field.handleChange}
 								defaultValue={String(field?.state.value ?? "")}
 								disabled={formElement.disabled}
-								// aria-invalid
+								aria-invalid={!!field.state.meta.errors.length}
 							>
 								<field.Field>
 									<SelectTrigger className="w-full">
@@ -429,36 +467,38 @@ export const RenderFormElement = ({
 					{(field) => (
 						<>
 							<field.FieldSet className="w-full">
-								<field.FieldLabel>
-									{formElement.label} {formElement.required ? " *" : ""}
-								</field.FieldLabel>
-								<MultiSelect
-									// value={field.state.value as string[]}
-									disabled={formElement.disabled}
-									onValueChange={field.handleChange}
-									// aria-invalid
-								>
-									<field.Field>
-										<MultiSelectTrigger>
+								<field.Field>
+									<field.FieldLabel htmlFor={formElement.name}>
+										{formElement.label} {formElement.required ? " *" : ""}
+									</field.FieldLabel>
+									<MultiSelect
+										// value={field.state.value as string[]}
+										disabled={formElement.disabled}
+										onValueChange={field.handleChange}
+										aria-invalid={!!field.state.meta.errors.length}
+									>
+										<MultiSelectTrigger
+											aria-invalid={!!field.state.meta.errors.length}
+										>
 											<MultiSelectValue
 												placeholder={formElement.placeholder || "Select item"}
 											/>
 										</MultiSelectTrigger>
-									</field.Field>
-									<MultiSelectContent>
-										<MultiSelectList>
-											{formElement.options.map(({ label, value }) => (
-												<MultiSelectItem key={value} value={value}>
-													{label}
-												</MultiSelectItem>
-											))}
-										</MultiSelectList>
-									</MultiSelectContent>
-								</MultiSelect>
-								<field.FieldDescription>
-									{formElement.description}
-								</field.FieldDescription>
-								<field.FieldError />
+										<MultiSelectContent>
+											<MultiSelectList>
+												{formElement.options.map(({ label, value }) => (
+													<MultiSelectItem key={value} value={value}>
+														{label}
+													</MultiSelectItem>
+												))}
+											</MultiSelectList>
+										</MultiSelectContent>
+									</MultiSelect>
+									<field.FieldDescription>
+										{formElement.description}
+									</field.FieldDescription>
+									<field.FieldError />
+								</field.Field>
 							</field.FieldSet>
 						</>
 					)}
@@ -471,14 +511,16 @@ export const RenderFormElement = ({
 						const date = field.state.value;
 						return (
 							<field.FieldSet className="flex flex-col w-full">
-								<div>
-									<field.FieldLabel>
+								<field.Field>
+									<field.FieldLabel htmlFor={formElement.name}>
 										{formElement.label} {formElement.required ? " *" : ""}
 									</field.FieldLabel>
-								</div>
-								<field.Field>
 									<Popover>
-										<PopoverTrigger asChild disabled={formElement.disabled}>
+										<PopoverTrigger
+											asChild
+											disabled={formElement.disabled}
+											aria-invalid={!!field.state.meta.errors.length}
+										>
 											<Button
 												variant={"outline"}
 												className={cn(
@@ -499,17 +541,17 @@ export const RenderFormElement = ({
 												mode="single"
 												selected={field.state.value as Date | undefined}
 												onSelect={(newDate) => {
-													field.handleChange(newDate);
+													field.handleChange(newDate?.toISOString());
 												}}
-												// aria-invalid
+												aria-invalid={!!field.state.meta.errors.length}
 											/>
 										</PopoverContent>
 									</Popover>
+									<field.FieldDescription>
+										{formElement.description}
+									</field.FieldDescription>
+									<field.FieldError />
 								</field.Field>
-								<field.FieldDescription>
-									{formElement.description}
-								</field.FieldDescription>
-								<field.FieldError />
 							</field.FieldSet>
 						);
 					}}

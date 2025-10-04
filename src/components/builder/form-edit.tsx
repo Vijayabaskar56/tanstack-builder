@@ -34,6 +34,7 @@ import type {
 	Option,
 } from "@/types/form-types";
 import { DeleteIcon } from "../ui/delete";
+import NoFieldPlaceholder from "./no-field-placeholder";
 
 const getTransitionProps = (isLayoutTransitioning: boolean) => ({
 	transition: isLayoutTransitioning
@@ -869,21 +870,11 @@ const FormArrayItemContainer = ({
 		</Reorder.Item>
 	);
 };
-
-const NoStepsPlaceholder = () => {
-	const { actions } = useFormStore();
-	return (
-		<div className="flex flex-col items-center justify-center gap-4 text-muted-foreground">
-			<Button size="sm" onClick={() => actions.addFormStep(0)}>
-				Add first Step
-			</Button>
-		</div>
-	);
-};
 //======================================
 export function FormEdit() {
 	const isMultiStep = useIsMultiStep();
 	const { formElements, actions } = useFormStore();
+	console.log("🚀 ~ FormEdit ~ formElements:", formElements);
 	const containerRef = useRef<HTMLDivElement>(null);
 	const [isLayoutTransitioning, setIsLayoutTransitioning] = useState(false);
 
@@ -916,9 +907,6 @@ export function FormEdit() {
 
 	switch (isMultiStep) {
 		case true:
-			if (formElements.length === 0) {
-				return <NoStepsPlaceholder />;
-			}
 			return (
 				<div ref={containerRef} className="w-full">
 					<Reorder.Group
@@ -949,6 +937,12 @@ export function FormEdit() {
 											tabIndex={-1}
 											{...getTransitionProps(isLayoutTransitioning)}
 										>
+											{step.stepFields.length === 0 && (
+												<NoFieldPlaceholder
+													title="No Form Element For this Step Yet"
+													showbutton={false}
+												/>
+											)}
 											{step.stepFields.map((element, fieldIndex) => {
 												// Check if element is a FormArray
 												if (
@@ -1152,6 +1146,9 @@ export function FormEdit() {
 				</div>
 			);
 		default:
+			if (formElements.length === 0) {
+				return <NoFieldPlaceholder />;
+			}
 			return (
 				<div ref={containerRef} className="w-full">
 					<Reorder.Group

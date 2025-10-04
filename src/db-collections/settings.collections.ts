@@ -1,5 +1,6 @@
 import {
 	createCollection,
+	localOnlyCollectionOptions,
 	localStorageCollectionOptions,
 } from "@tanstack/react-db";
 import * as v from "valibot";
@@ -47,14 +48,19 @@ export type {
 	ValidationMethod,
 };
 
-export const getSettingsCollection = () => {
-	if (typeof window === "undefined") return null;
-	return createCollection(
-		localStorageCollectionOptions({
-			storageKey: "settings",
-			getKey: (settings) => settings.id,
-			schema: SettingsSchema,
-			storage: window.localStorage,
-		}),
-	);
-};
+export const settingsCollection =
+	typeof window !== "undefined"
+		? createCollection(
+				localStorageCollectionOptions({
+					storageKey: "settings",
+					getKey: (settings) => settings.id,
+					schema: SettingsSchema,
+					storage: window.localStorage,
+				}),
+			)
+		: createCollection(
+				localOnlyCollectionOptions({
+					schema: SettingsSchema,
+					getKey: (settings) => settings.id,
+				}),
+			);

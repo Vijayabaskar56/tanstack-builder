@@ -1,5 +1,3 @@
-// generate-valibot-schema.tsx
-
 import * as v from "valibot";
 import { flattenFormSteps, getStepFields } from "@/lib/form-elements-helpers";
 import { isStatic } from "@/lib/utils";
@@ -93,7 +91,17 @@ export const generateValiSchemaObject = (
 				elementSchema = v.boolean();
 				break;
 			case "Slider":
-				elementSchema = v.pipe(v.string(), v.transform(Number), v.number());
+				elementSchema = v.pipe(
+					v.number(),
+					v.minValue(
+						element?.min ?? 1,
+						`Must be at least ${element?.min ?? 1}`,
+					),
+					v.maxValue(
+						element?.max ?? 100,
+						`Must be at most ${element?.max ?? 100}`,
+					),
+				);
 				break;
 			case "Switch":
 				elementSchema = v.boolean();
@@ -378,7 +386,7 @@ export const getValiSchemaStringDirect = (
 
 					case "Slider": {
 						let sliderSchema =
-							"v.pipe(v.string(), v.transform(Number), v.number())";
+							'v.pipe(v.number(), v.minValue(${element.min}, "Must be at least ${element?.min ?? 1}"), v.maxValue(${element.max}, "Must be at most ${element?.max ?? 100}"))';
 						if (element.min !== undefined) {
 							sliderSchema = `v.pipe(${sliderSchema}, v.minValue(${element.min}, "Must be at least ${element.min}"))`;
 						}

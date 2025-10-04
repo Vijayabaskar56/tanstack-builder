@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Button } from "./ui/button";
 
 interface FAQItem {
 	question: string;
@@ -94,10 +95,11 @@ export default function FAQSection() {
 									key={index}
 									className="w-full border-b border-border overflow-hidden"
 								>
-									<button
+									<Button
 										onClick={() => toggleItem(index)}
 										className="w-full px-5 py-[18px] flex justify-between items-center gap-5 text-left hover:bg-muted/20 transition-colors duration-200"
 										type="button"
+										variant="ghost"
 										aria-expanded={isOpen}
 									>
 										<div className="flex-1 text-foreground text-base font-medium leading-6 font-sans">
@@ -110,7 +112,7 @@ export default function FAQSection() {
 												}`}
 											/>
 										</div>
-									</button>
+									</Button>
 
 									<div
 										className={`overflow-hidden transition-all duration-300 ease-in-out ${

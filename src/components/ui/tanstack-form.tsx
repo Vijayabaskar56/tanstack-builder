@@ -1,4 +1,3 @@
-import { Slot } from "@radix-ui/react-slot";
 import {
 	createFormHook,
 	createFormHookContexts,
@@ -21,10 +20,12 @@ import {
 	FieldTitle,
 	fieldVariants,
 } from "@/components/ui/field";
-import { Label } from "@/components/ui/label";
+import {
+	InputGroup,
+	InputGroupAddon,
+	InputGroupInput,
+} from "@/components/ui/input-group";
 import { cn } from "@/lib/utils";
-import { Input } from "./input";
-import { Textarea } from "./textarea";
 
 const {
 	fieldContext,
@@ -37,13 +38,9 @@ const { useAppForm, withForm, withFieldGroup } = createFormHook({
 	fieldContext,
 	formContext,
 	fieldComponents: {
-		FormLabel,
 		Field,
-		FormDescription,
 		FieldError,
 		FieldSet,
-		FormInput,
-		FormTextarea,
 		FieldContent,
 		FieldDescription,
 		FieldGroup,
@@ -51,6 +48,9 @@ const { useAppForm, withForm, withFieldGroup } = createFormHook({
 		FieldLegend,
 		FieldSeparator,
 		FieldTitle,
+		InputGroup,
+		InputGroupAddon,
+		InputGroupInput,
 	},
 	formComponents: {
 		SubmitButton,
@@ -104,23 +104,6 @@ const useFieldContext = () => {
 	};
 };
 
-function FormLabel({
-	className,
-	...props
-}: React.ComponentProps<typeof Label>) {
-	const { formItemId, errors } = useFieldContext();
-
-	return (
-		<Label
-			data-slot="form-label"
-			data-error={!!errors.length}
-			className={cn("data-[error=true]:text-destructive", className)}
-			htmlFor={formItemId}
-			{...props}
-		/>
-	);
-}
-
 function Field({
 	children,
 	...props
@@ -130,7 +113,7 @@ function Field({
 
 	return (
 		<DefaultField
-			// data-invalid
+			data-invalid={!!errors.length}
 			id={formItemId}
 			aria-describedby={
 				!errors.length
@@ -145,19 +128,6 @@ function Field({
 	);
 }
 
-function FormDescription({ className, ...props }: React.ComponentProps<"p">) {
-	const { formDescriptionId } = useFieldContext();
-
-	return (
-		<p
-			data-slot="form-description"
-			id={formDescriptionId}
-			className={cn("text-muted-foreground text-sm", className)}
-			{...props}
-		/>
-	);
-}
-
 function FieldError({ className, ...props }: React.ComponentProps<"p">) {
 	const { errors, formMessageId } = useFieldContext();
 	const body = errors.length ? String(errors.at(0)?.message ?? "") : "";
@@ -169,71 +139,6 @@ function FieldError({ className, ...props }: React.ComponentProps<"p">) {
 			className={cn("text-destructive text-sm", className)}
 			{...props}
 			errors={body ? [{ message: body }] : []}
-		/>
-	);
-}
-
-function FormInput({
-	...props
-}: Omit<React.ComponentProps<typeof Input>, "onChange" | "onBlur">) {
-	const {
-		errors,
-		formItemId,
-		formDescriptionId,
-		formMessageId,
-		name,
-		handleBlur,
-		handleChange,
-		store,
-	} = useFieldContext();
-	return (
-		<Input
-			{...props}
-			id={formItemId}
-			name={props.name || name}
-			placeholder={props.placeholder || ""}
-			type={props.type || "text"}
-			onBlur={handleBlur}
-			value={store.state.value as string}
-			onChange={(e) => handleChange(e.target.value)}
-			aria-describedby={
-				!errors.length
-					? `${formDescriptionId}`
-					: `${formDescriptionId} ${formMessageId}`
-			}
-			aria-invalid={!!errors.length}
-		/>
-	);
-}
-
-function FormTextarea({
-	...props
-}: Omit<React.ComponentProps<typeof Textarea>, "onChange" | "onBlur">) {
-	const {
-		errors,
-		formItemId,
-		formDescriptionId,
-		formMessageId,
-		name,
-		handleBlur,
-		handleChange,
-		store,
-	} = useFieldContext();
-	return (
-		<Textarea
-			{...props}
-			id={formItemId}
-			name={props.name || name}
-			placeholder={props.placeholder || ""}
-			onBlur={handleBlur}
-			value={store.state.value as string}
-			onChange={(e) => handleChange(e.target.value)}
-			aria-describedby={
-				!errors.length
-					? `${formDescriptionId}`
-					: `${formDescriptionId} ${formMessageId}`
-			}
-			aria-invalid={!!errors.length}
 		/>
 	);
 }
@@ -321,10 +226,10 @@ function StepButton({
 }
 
 export {
-	useAppForm,
-	useFormContext,
-	useFieldContext,
-	withForm,
-	withFieldGroup,
 	revalidateLogic,
+	useAppForm,
+	useFieldContext,
+	useFormContext,
+	withFieldGroup,
+	withForm,
 };

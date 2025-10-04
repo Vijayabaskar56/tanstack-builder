@@ -1,4 +1,4 @@
-// use-form-store.ts
+import { createClientOnlyFn } from "@tanstack/react-start";
 import { useStore } from "@tanstack/react-store";
 import { batch, Derived, Store } from "@tanstack/store";
 import { v4 as uuid } from "uuid";
@@ -25,6 +25,14 @@ import {
 	insertAtIndex,
 	transformToStepFormList,
 } from "../lib/form-elements-helpers";
+
+const getShared = createClientOnlyFn(() => {
+	return localStorage.getItem("share");
+});
+
+const removeShared = createClientOnlyFn(() => {
+	return localStorage.removeItem("share");
+});
 
 // Core state type without actions
 type FormBuilderCoreState = {
@@ -142,12 +150,12 @@ const isFormArrayForm = (
 ): formElements is FormArray[] => {
 	return formElements.length > 0 && isFormArray(formElements[0]);
 };
-const shared = localStorage.getItem("share");
+const shared = getShared();
 if (shared) {
-	localStorage.removeItem("share");
+	removeShared();
 }
 const initialFormElements = templates.contactUs.template as FormElementOrList[];
-const initialCoreState: FormBuilderCoreState = {
+export const initialCoreState: FormBuilderCoreState = {
 	formElements: shared ? JSON.parse(shared) : initialFormElements,
 	isMS: shared
 		? isMultiStepForm(JSON.parse(shared))

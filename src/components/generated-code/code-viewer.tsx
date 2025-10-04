@@ -1,5 +1,5 @@
-import { useViteTheme } from "@space-man/react-theme-animation";
 import { useEffect } from "react";
+import { useTheme } from "@/components/theme-provider";
 import {
 	CodeBlock,
 	CodeBlockCode,
@@ -9,8 +9,8 @@ import { CopyButton } from "@/components/ui/copy-button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-	getSettingsCollection,
 	type SettingsCollection,
+	settingsCollection,
 } from "@/db-collections/settings.collections";
 import { useFormStore, useIsMultiStep } from "@/hooks/use-form-store";
 import useSettings from "@/hooks/use-settings";
@@ -18,11 +18,9 @@ import { generateFormCode } from "@/lib/form-code-generators/react/generate-form
 import { flattenFormSteps } from "@/lib/form-elements-helpers";
 import { getArkTypeSchemaString } from "@/lib/schema-generators/generate-arktype-schema";
 import { getValiSchemaString } from "@/lib/schema-generators/generate-valibot-schema";
-import {
-	generateZodSchemaObject,
-	getZodSchemaString,
-} from "@/lib/schema-generators/generate-zod-schema";
+import { getZodSchemaString } from "@/lib/schema-generators/generate-zod-schema";
 import { formatCode, generateFormNames } from "@/lib/utils";
+
 import type {
 	FormArray,
 	FormElement,
@@ -39,7 +37,7 @@ const Wrapper = ({
 	children: string;
 	title: string;
 }) => {
-	const { theme, systemTheme } = useViteTheme();
+	const { theme, systemTheme } = useTheme();
 	const codeTheme =
 		theme === "system"
 			? systemTheme === "dark"
@@ -66,10 +64,8 @@ const Wrapper = ({
 
 export const JsonViewer = ({
 	json,
-	isMS,
 }: {
 	json: FormElementOrList[] | FormStep[] | Record<string, unknown>;
-	isMS: boolean;
 }) => {
 	if (!Array.isArray(json)) {
 		json = [json] as FormStep[];
@@ -101,8 +97,7 @@ const installableShadcnComponents: Partial<
 };
 //======================================
 export function CodeBlockPackagesInstallation() {
-	const settingsCollection = getSettingsCollection()!;
-	const { theme, systemTheme } = useViteTheme();
+	const { theme, systemTheme } = useTheme();
 	const { formElements } = useFormStore();
 	const isMS = useIsMultiStep();
 	const codeTheme =
@@ -159,7 +154,7 @@ export function CodeBlockPackagesInstallation() {
 	const updatePreference = (
 		value: SettingsCollection["preferredPackageManager"],
 	) => {
-		settingsCollection.update("user-settings", (draft) => {
+		settingsCollection?.update("user-settings", (draft: SettingsCollection) => {
 			draft.preferredPackageManager = value;
 		});
 	};
@@ -269,34 +264,11 @@ const CodeBlockTSX = () => {
 		console.log("Form elements changed, regenerating TSX code:", formElements);
 	}, [formElements]);
 
-	// Generate the actual schema object based on validationSchema type
-	let schemaObject = null;
-	try {
-		if (validationSchema === "zod") {
-			// For multi-step forms, flatten the formElements first
-			const elementsToProcess = isMS
-				? flattenFormSteps(formElements as FormStep[]).flat()
-				: formElements;
-			schemaObject = generateZodSchemaObject(
-				elementsToProcess as (FormElement | FormArray)[],
-			);
-		} else if (validationSchema === "valibot") {
-			// For now, just pass null for valibot - can be extended later
-			schemaObject = null;
-		} else if (validationSchema === "arktype") {
-			// For now, just pass null for arktype - can be extended later
-			schemaObject = null;
-		}
-	} catch (error) {
-		console.error("Failed to generate schema object:", error);
-		schemaObject = null;
-	}
-
 	const generatedCode = generateFormCode({
 		formElements: formElements as FormElementOrList[],
 		isMS,
-		validationSchema: schemaObject,
-		settings,
+		validationSchema,
+		settingss: settings,
 		formName,
 	});
 	const formattedCode = generatedCode.map((item) => ({

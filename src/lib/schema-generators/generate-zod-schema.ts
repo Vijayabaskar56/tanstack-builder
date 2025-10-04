@@ -1,5 +1,3 @@
-// generate-zod-schema.tsx
-
 import { type ZodType, z } from "zod";
 import { flattenFormSteps, getStepFields } from "@/lib/form-elements-helpers";
 import { isStatic } from "@/lib/utils";
@@ -67,7 +65,7 @@ const FIELD_SCHEMA_MAP = new Map<
 					return z.coerce.number();
 				}
 			}
-			return z.string().min(1, "This Field is Required");
+			return z.string({ error: "This field is required" });
 		},
 	],
 	[
@@ -81,7 +79,7 @@ const FIELD_SCHEMA_MAP = new Map<
 					return z.coerce.number();
 				}
 			}
-			return z.string().min(1, "This Field is Required");
+			return z.string({ error: "This field is required" });
 		},
 	],
 	[
@@ -91,15 +89,12 @@ const FIELD_SCHEMA_MAP = new Map<
 				? element.maxLength || 6
 				: 6;
 			return z
-				.string()
+				.string({ error: "This field is required" })
 				.min(maxLength, `OTP must be at least ${maxLength} characters`);
 		},
 	],
 	["DatePicker", () => z.date()],
-	[
-		"Checkbox",
-		() => z.boolean().refine((v) => v, { message: "This Field is Required" }),
-	],
+	["Checkbox", () => z.boolean({ error: "This field is required" })],
 	[
 		"Slider",
 		(element) => {
@@ -116,27 +111,46 @@ const FIELD_SCHEMA_MAP = new Map<
 		},
 	],
 	["Switch", () => z.boolean()],
-	["Select", () => z.string().min(1, "Please Select an item")],
+	[
+		"Select",
+		() =>
+			z
+				.string({ error: "This field is required" })
+				.min(1, "Please Select an item"),
+	],
 	[
 		"ToggleGroup",
 		(element) => {
 			if (hasTypeProperty(element) && element.type === "single") {
-				return z.string().min(1, "Please select an item");
+				return z
+					.string({ error: "This field is required" })
+					.min(1, "Please select an item");
 			}
-			return z.array(z.string()).nonempty("Please select at least one item");
+			return z
+				.array(z.string({ error: "This field is required" }))
+				.nonempty("Please select at least one item");
 		},
 	],
 	[
 		"MultiSelect",
-		() => z.array(z.string()).nonempty("Please select at least one item"),
+		() =>
+			z
+				.array(z.string({ error: "This field is required" }))
+				.nonempty("Please select at least one item"),
 	],
-	["RadioGroup", () => z.string().min(1, "Please select an item")],
+	[
+		"RadioGroup",
+		() =>
+			z
+				.string({ error: "Please select an item" })
+				.min(1, "Please select an item"),
+	],
 	[
 		"Textarea",
 		() =>
 			z
-				.string()
-				.nonempty("This Field is Required")
+				.string({ error: "This field is required" })
+				.nonempty("This field is required")
 				.min(10, "Minimum Value Should be 10"),
 	],
 	// Static elements - should not reach here due to isStatic check
@@ -240,7 +254,7 @@ export const generateZodSchemaString = (schema: ZodType): string => {
 	}
 
 	if (schema instanceof z.ZodEmail) {
-		return "z.email()";
+		return `z.email()`;
 	}
 
 	if (schema instanceof z.ZodNumber) {
@@ -359,7 +373,7 @@ export const generateZodSchemaString = (schema: ZodType): string => {
 	}
 
 	if (schema instanceof z.ZodDate) {
-		return "z.date()";
+		return "z.string({error : 'This field is required'})";
 	}
 
 	if (schema instanceof z.ZodArray) {

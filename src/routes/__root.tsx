@@ -12,7 +12,6 @@ import NavBar from "@/components/nav-bar";
 import { NotFound } from "@/components/not-found";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
-import { getSettingsCollection } from "@/db-collections/settings.collections";
 import DevTools from "@/integrations/tanstack-query/devtools";
 import appCss from "../styles.css?url";
 
@@ -84,31 +83,6 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 	shellComponent: RootDocument,
 	errorComponent: ErrorBoundary,
 	notFoundComponent: NotFound,
-	beforeLoad: async () => {
-		if (
-			typeof window !== "undefined" &&
-			!window.localStorage.getItem("settings")
-		) {
-			const settingsCollection = getSettingsCollection();
-			if (settingsCollection) {
-				settingsCollection.insert([
-					{
-						id: "user-settings",
-						activeTab: "builder",
-						defaultRequiredValidation: true,
-						numericInput: false,
-						focusOnError: true,
-						validationMethod: "onDynamic",
-						asyncValidation: 300,
-						preferredSchema: "zod",
-						preferredFramework: "react",
-						preferredPackageManager: "pnpm",
-						isCodeSidebarOpen: false,
-					},
-				]);
-			}
-		}
-	},
 });
 
 function RootDocument() {

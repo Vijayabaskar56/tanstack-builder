@@ -2,7 +2,6 @@ import { Eye } from "lucide-react";
 import { useId } from "react";
 import type * as v from "valibot";
 import { Badge } from "@/components/ui/badge";
-import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
@@ -13,13 +12,12 @@ import type {
 	ValidationMethod,
 } from "@/db-collections/settings.collections";
 import {
-	getSettingsCollection,
 	SettingsSchema,
+	settingsCollection,
 } from "@/db-collections/settings.collections";
 import useSettings from "@/hooks/use-settings";
 import { Separator } from "../ui/separator";
 export function SettingsSidebar() {
-	const settingsCollection = getSettingsCollection()!;
 	const focusOnErrorId = useId();
 	const validationMethodId = useId();
 	const asyncValidationId = useId();
@@ -42,7 +40,7 @@ export function SettingsSidebar() {
 		listeners: {
 			onChangeDebounceMs: 1000,
 			onChange: ({ formApi }) => {
-				settingsCollection.update("user-settings", (draft) => {
+				settingsCollection?.update("user-settings", (draft) => {
 					draft.defaultRequiredValidation =
 						formApi.baseStore.state.values.defaultRequiredValidation;
 					draft.numericInput = formApi.baseStore.state.values.numericInput;
@@ -88,9 +86,12 @@ export function SettingsSidebar() {
 												<div className="flex items-center justify-between p-3">
 													<div className="flex items-center gap-2">
 														<Eye className="w-4 h-4 text-muted-foreground" />
-														<Label htmlFor={focusOnErrorId} className="text-sm">
+														<field.FieldLabel
+															htmlFor={focusOnErrorId}
+															className="text-sm"
+														>
 															Focus on Error Fields
-														</Label>
+														</field.FieldLabel>
 													</div>
 													<Switch
 														id={focusOnErrorId}
@@ -100,7 +101,7 @@ export function SettingsSidebar() {
 													/>
 												</div>
 												<Separator className="my-2" />
-												<field.FormDescription className="pb-2">
+												<field.FieldDescription className="pb-2">
 													Focus The First Input on Error,For More Info Check The
 													Docs:{" "}
 													<a
@@ -111,19 +112,19 @@ export function SettingsSidebar() {
 													>
 														Focus Management
 													</a>
-												</field.FormDescription>
+												</field.FieldDescription>
 											</div>
 										)}
 									</form.AppField>
 									<form.AppField name="validationMethod" mode="value">
 										{(field) => (
 											<div className="p-3 border-b mx-2">
-												<Label
+												<field.FieldLabel
 													htmlFor={validationMethodId}
 													className="text-sm font-medium mb-3 block"
 												>
 													Validation Method
-												</Label>
+												</field.FieldLabel>
 												<div className="flex flex-wrap gap-2">
 													{[
 														{ value: "onChange", label: "On Change" },
@@ -147,7 +148,7 @@ export function SettingsSidebar() {
 																	option.value as ValidationMethod,
 																)
 															}
-															// biome-ignore lint/a11y/useSemanticElements: <explanation>
+															// biome-ignore lint/a11y/useSemanticElements: Badge used as a radio button for custom styling
 															role="radio"
 															aria-checked={field.state.value === option.value}
 															tabIndex={0}
@@ -165,7 +166,7 @@ export function SettingsSidebar() {
 													))}
 												</div>
 												<Separator className="my-2" />
-												<field.FormDescription>
+												<field.FieldDescription>
 													Validation Method For Form Generation, For More Info
 													Check The Docs:{" "}
 													<a
@@ -176,8 +177,8 @@ export function SettingsSidebar() {
 													>
 														Dynamic Validation
 													</a>
-												</field.FormDescription>
-												<field.FormMessage />
+												</field.FieldDescription>
+												<field.FieldError />
 											</div>
 										)}
 									</form.AppField>
@@ -185,12 +186,12 @@ export function SettingsSidebar() {
 									<form.AppField name="asyncValidation" mode="value">
 										{(field) => (
 											<div className="p-3 border-b mx-2">
-												<Label
+												<field.FieldLabel
 													htmlFor={asyncValidationId}
 													className="text-sm font-medium mb-3 block"
 												>
 													Async Validation Delay: {field.state.value}ms
-												</Label>
+												</field.FieldLabel>
 												<div className="px-2">
 													<Slider
 														id={asyncValidationId}
@@ -209,7 +210,7 @@ export function SettingsSidebar() {
 													<span>1000ms</span>
 												</div>
 												<Separator className="my-2" />
-												<field.FormDescription>
+												<field.FieldDescription>
 													Validation Method For Form Generation, For More Info
 													Check The Docs:{" "}
 													<a
@@ -220,7 +221,7 @@ export function SettingsSidebar() {
 													>
 														Form Validation
 													</a>
-												</field.FormDescription>
+												</field.FieldDescription>
 											</div>
 										)}
 									</form.AppField>
@@ -228,12 +229,12 @@ export function SettingsSidebar() {
 									<form.AppField name="preferredSchema" mode="value">
 										{(field) => (
 											<div className="p-3 border-b mx-2">
-												<Label
+												<field.FieldLabel
 													htmlFor={preferredSchemaId}
 													className="text-sm font-medium mb-3 block"
 												>
 													Preferred Schema
-												</Label>
+												</field.FieldLabel>
 												<div className="flex flex-wrap gap-2">
 													{[
 														{ value: "zod", label: "Zod" },
@@ -257,7 +258,7 @@ export function SettingsSidebar() {
 																	option.value as PreferredSchema,
 																)
 															}
-															// biome-ignore lint/a11y/useSemanticElements: <explanation>
+															// biome-ignore lint/a11y/useSemanticElements: Badge used as a radio button for custom styling
 															role="radio"
 															aria-checked={field.state.value === option.value}
 															tabIndex={0}
@@ -274,7 +275,7 @@ export function SettingsSidebar() {
 														</Badge>
 													))}
 												</div>
-												<field.FormMessage />
+												<field.FieldError />
 											</div>
 										)}
 									</form.AppField>
@@ -282,12 +283,12 @@ export function SettingsSidebar() {
 									<form.AppField name="preferredFramework" mode="value">
 										{(field) => (
 											<div className="p-3 border-b mx-2">
-												<Label
+												<field.FieldLabel
 													htmlFor={preferredFrameworkId}
 													className="text-sm font-medium mb-3 block"
 												>
 													Preferred Framework
-												</Label>
+												</field.FieldLabel>
 												<div className="flex flex-wrap gap-2">
 													{[
 														{ value: "react", label: "React" },
@@ -327,7 +328,7 @@ export function SettingsSidebar() {
 																	);
 																}
 															}}
-															// biome-ignore lint/a11y/useSemanticElements: <explanation>
+															// biome-ignore lint/a11y/useSemanticElements: Badge used as a radio button for custom styling
 															role="radio"
 															aria-checked={field.state.value === option.value}
 															tabIndex={0}
@@ -345,7 +346,7 @@ export function SettingsSidebar() {
 													))}
 												</div>
 												<Separator className="my-2" />
-												<field.FormDescription>
+												<field.FieldDescription>
 													Although Form Builder Helps You Build Forms Quickly,
 													It's Important to understand the basic concepts of Tan
 													Stack Form. So Check Out The Docs:{" "}
@@ -357,8 +358,8 @@ export function SettingsSidebar() {
 													>
 														Tan Stack Form
 													</a>
-												</field.FormDescription>
-												<field.FormMessage />
+												</field.FieldDescription>
+												<field.FieldError />
 											</div>
 										)}
 									</form.AppField>

@@ -6,6 +6,7 @@ import { FormEdit } from "@/components/builder/form-edit";
 import { SingleStepFormPreview } from "@/components/builder/form-preview";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { NotFound } from "@/components/not-found";
+import { Button } from "@/components/ui/button";
 import {
 	Drawer,
 	DrawerClose,
@@ -16,6 +17,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { XIcon } from "@/components/ui/x";
+import {
+	SettingsCollection,
+	settingsCollection,
+} from "@/db-collections/settings.collections";
 import { type AppForm, useFormBuilder } from "@/hooks/use-form-builder";
 import { useFormStore } from "@/hooks/use-form-store";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -24,7 +29,6 @@ import { FieldTab } from "../../components/builder/FieldLibrary";
 import { SettingsSidebar } from "../../components/builder/SettingsSidebar";
 import { TemplateSidebar } from "../../components/builder/TemplateSidebar";
 import { GeneratedFormCodeViewer } from "../../components/generated-code/code-viewer";
-import { getSettingsCollection } from "../../db-collections/settings.collections";
 
 export const Route = createFileRoute("/form-builder/")({
 	component: FormBuilderComponent,
@@ -33,14 +37,12 @@ export const Route = createFileRoute("/form-builder/")({
 });
 
 function FormBuilderComponent() {
-	const settingsCollection = getSettingsCollection()!;
 	const { form } = useFormBuilder();
 	const { formName, actions } = useFormStore();
 	const isMobile = useIsMobile();
 	const settings = useSettings();
 	const activeTab = settings?.activeTab;
 	const isCodeSidebarOpen = settings?.isCodeSidebarOpen ?? false;
-
 	// Custom hook to detect desktop (lg breakpoint - 1024px+)
 	const [isDesktop, setIsDesktop] = useState<boolean>(false);
 
@@ -71,14 +73,17 @@ function FormBuilderComponent() {
 	};
 
 	return (
-		<main className="h-[calc(100vh-8rem)] bg-gradient-to-br from-background via-background to-muted/20 w-full">
+		<main className="h-[calc(100vh-8rem)] w-full">
 			{!isDesktop && (
 				<Drawer
 					open={isCodeSidebarOpen}
 					onOpenChange={(open) =>
-						settingsCollection.update("user-settings", (draft) => {
-							draft.isCodeSidebarOpen = open;
-						})
+						settingsCollection?.update(
+							"user-settings",
+							(draft: SettingsCollection) => {
+								draft.isCodeSidebarOpen = open;
+							},
+						)
 					}
 				>
 					<DrawerContent className="max-h-[80vh] flex flex-col">
@@ -88,16 +93,17 @@ function FormBuilderComponent() {
 									Code
 								</DrawerTitle>
 								<p className="text-sm text-muted-foreground">
-									Design your form elements
+									Copy Code and Build Awesome Stuffs
 								</p>
 							</div>
 							<DrawerClose asChild>
-								<button
+								<Button
 									type="button"
+									variant="ghost"
 									className="absolute right-4 top-4 text-muted-foreground hover:text-foreground transition-colors duration-200"
 								>
 									✕
-								</button>
+								</Button>
 							</DrawerClose>
 						</DrawerHeader>
 						<ScrollArea className="flex-1">
@@ -117,7 +123,7 @@ function FormBuilderComponent() {
 								{renderSidebarContent()}
 							</div>
 
-							<div className="bg-gradient-to-br from-background via-background to-muted/10 p-4 border-t">
+							<div className="p-4 border-t">
 								<div className="mb-4 pb-2 border-b">
 									<h3 className="text-lg font-semibold text-primary">Editor</h3>
 									<p className="text-sm text-muted-foreground">
@@ -127,7 +133,7 @@ function FormBuilderComponent() {
 								<FormEdit />
 							</div>
 
-							<div className="bg-gradient-to-br from-background via-background to-muted/10 p-4 border-t">
+							<div className="p-4 border-t">
 								<div className="mb-4 pb-2 border-b">
 									<h3 className="text-lg font-semibold text-primary">
 										Preview
@@ -155,7 +161,7 @@ function FormBuilderComponent() {
 						{/* Tablet Form Edit and Preview - Side by side below */}
 						<div className="flex flex-1">
 							{/* Tablet Form Edit - Grows and shrinks */}
-							<div className="flex-1 bg-gradient-to-br from-background via-background to-muted/10 border-r">
+							<div className="flex-1  border-r">
 								<ScrollArea className="h-full">
 									<div className="p-4">
 										<div className="mb-4 pb-2 border-b">
@@ -172,7 +178,7 @@ function FormBuilderComponent() {
 							</div>
 
 							{/* Tablet Preview - Grows and shrinks */}
-							<div className="flex-1 bg-gradient-to-br from-background via-background to-muted/10">
+							<div className="flex-1 ">
 								<ScrollArea className="h-full">
 									<div className="p-4">
 										<div className="mb-4 pb-2 border-b">
@@ -205,7 +211,7 @@ function FormBuilderComponent() {
 						</div>
 
 						{/* Desktop Form Edit Section */}
-						<div className="bg-gradient-to-br from-background via-background to-muted/10 relative border-b lg:border-b-0 lg:border-r h-full">
+						<div className="relative border-b lg:border-b-0 lg:border-r h-full">
 							<div className="p-4">
 								<div className="mb-4 pb-2 border-b">
 									<h3 className="text-lg font-semibold text-primary">Editor</h3>
@@ -219,7 +225,7 @@ function FormBuilderComponent() {
 							</div>
 						</div>
 						{/* Desktop Preview Section */}
-						<div className="bg-gradient-to-br from-background via-background to-muted/10 relative h-full">
+						<div className="relative h-full">
 							<div className="p-4">
 								<div className="mb-4 pb-2 border-b">
 									<h3 className="text-lg font-semibold text-primary">
@@ -249,17 +255,21 @@ function FormBuilderComponent() {
 												Copy Code and Build Awesome Stuffs
 											</p>
 										</div>
-										<button
+										<Button
 											type="button"
-											onClick={() =>
-												settingsCollection.update("user-settings", (draft) => {
+											onClick={() => {
+												console.log("Close code sidebar");
+												settingsCollection?.update("user-settings", (draft) => {
 													draft.isCodeSidebarOpen = false;
-												})
-											}
+												});
+											}}
+											asChild={true}
+											variant="ghost"
+											aria-label="Close code sidebar"
 											className="text-muted-foreground hover:text-foreground transition-colors duration-200"
 										>
 											<XIcon size={20} />
-										</button>
+										</Button>
 									</div>
 									<div className="p-4">
 										<Input

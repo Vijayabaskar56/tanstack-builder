@@ -1,4 +1,3 @@
-// header.tsx
 import { useLocation } from "@tanstack/react-router";
 import { Brackets } from "lucide-react";
 import { useEffect, useId, useState } from "react";
@@ -23,7 +22,7 @@ import {
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getSettingsCollection } from "@/db-collections/settings.collections";
+import { settingsCollection } from "@/db-collections/settings.collections";
 import { useFormBuilder } from "@/hooks/use-form-builder";
 import { useFormStore } from "@/hooks/use-form-store";
 import useSettings from "@/hooks/use-settings";
@@ -42,7 +41,6 @@ import { SettingsGearIcon } from "./ui/settings-gear";
 import { ShareIcon } from "./ui/share";
 import { TerminalIcon } from "./ui/terminal";
 export default function FormHeader() {
-	const settingsCollection = getSettingsCollection()!;
 	const location = useLocation();
 	const { activeTab, isCodeSidebarOpen, preferredFramework, preferredSchema } =
 		useSettings();
@@ -52,13 +50,13 @@ export default function FormHeader() {
 	const isFormBuilder = location.pathname.startsWith("/form-builder");
 
 	const handleSubTabChange = (newSubTab: string) => {
-		settingsCollection.update("user-settings", (draft) => {
+		settingsCollection?.update("user-settings", (draft) => {
 			draft.activeTab = newSubTab as "builder" | "template" | "settings";
 		});
 	};
 
 	const handleToggleCodeSidebar = () => {
-		settingsCollection.update("user-settings", (draft) => {
+		settingsCollection?.update("user-settings", (draft) => {
 			draft.isCodeSidebarOpen = !draft.isCodeSidebarOpen;
 		});
 	};
@@ -69,14 +67,14 @@ export default function FormHeader() {
 	const { resetForm } = useFormBuilder();
 
 	// Sync form store with preferred settings on initial load or when settings change
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	// biome-ignore lint/correctness/useExhaustiveDependencies: Avoid overriding user selections by excluding framework from deps
 	useEffect(() => {
 		if (preferredFramework && preferredFramework !== framework) {
 			actions.setFramework(preferredFramework as Framework);
 		}
 	}, [preferredFramework, actions]); // Remove framework from deps to avoid overriding user selections
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	// biome-ignore lint/correctness/useExhaustiveDependencies: Avoid overriding user selections by excluding validationSchema from deps
 	useEffect(() => {
 		if (preferredSchema && preferredSchema !== validationSchema) {
 			actions.setValidationSchema(preferredSchema as ValidationSchema);

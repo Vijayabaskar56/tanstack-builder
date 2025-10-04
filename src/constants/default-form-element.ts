@@ -70,7 +70,7 @@ export const defaultFormElements: Record<
 	Slider: {
 		label: "Set Range",
 		description: "Adjust the range by sliding.",
-		min: 0,
+		min: 1,
 		max: 100,
 		step: 5,
 	},

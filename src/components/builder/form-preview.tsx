@@ -1,12 +1,20 @@
-//form-preview.tsx
 import { FormArrayPreview } from "@/components/builder/form-array-preview";
 import { MultiStepFormPreview } from "@/components/builder/multi-step-preview";
 import { RenderFormElement } from "@/components/builder/render-form-element";
 import { Button } from "@/components/ui/button";
-
+import {
+	Empty,
+	EmptyContent,
+	EmptyDescription,
+	EmptyHeader,
+	EmptyMedia,
+	EmptyTitle,
+} from "@/components/ui/empty";
 import type { AppForm } from "@/hooks/use-form-builder";
 import { useFormStore, useIsMultiStep } from "@/hooks/use-form-store";
 import type { FormArray, FormElement, FormStep } from "@/types/form-types";
+import { FrownIcon } from "../ui/frown";
+import { FormElementsDropdown } from "./form-elements-dropdown";
 
 interface FormPreviewProps {
 	form: AppForm;
@@ -18,9 +26,23 @@ export function SingleStepFormPreview({ form }: FormPreviewProps) {
 	if (formElements.length < 1)
 		return (
 			<div className="h-full py-10 px-3">
-				<p className="text-center text-lg text-balance font-medium">
-					Nothing to preview. Add form elements to preview
-				</p>
+				<Empty>
+					<EmptyHeader>
+						<EmptyMedia variant="icon">
+							<FrownIcon size={40} />
+						</EmptyMedia>
+						<EmptyTitle>No Field To Preview Yet</EmptyTitle>
+						<EmptyDescription>
+							You haven&apos;t added any form elements yet. Get started by
+							creating your first form element.
+						</EmptyDescription>
+					</EmptyHeader>
+					<EmptyContent>
+						<div className="flex gap-2">
+							<FormElementsDropdown />
+						</div>
+					</EmptyContent>
+				</Empty>
 			</div>
 		);
 	return (

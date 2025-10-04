@@ -1,4 +1,3 @@
-// generat-imports.ts
 import type { FormArray, FormElement } from "@/types/form-types";
 
 export const generateImports = (
@@ -52,12 +51,16 @@ export const generateImports = (
 				);
 				break;
 			case "Password":
-				importSet.add("import { Input } from '@/components/ui/input'");
+				importSet.add(
+					"import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'",
+				);
+				importSet.add("import { EyeIcon, EyeOffIcon } from 'lucide-react'");
 				break;
 			case "RadioGroup":
 				importSet.add(
 					"import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'",
 				);
+				importSet.add("import { Label } from '@/components/ui/label'");
 				break;
 			case "ToggleGroup":
 				importSet.add(
