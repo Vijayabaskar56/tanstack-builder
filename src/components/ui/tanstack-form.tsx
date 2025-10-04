@@ -8,6 +8,19 @@ import {
 import type { VariantProps } from "class-variance-authority";
 import * as React from "react";
 import { Button, type buttonVariants } from "@/components/ui/button";
+import {
+	Field as DefaultField,
+	FieldError as DefaultFieldError,
+	FieldSet as DefaultFieldSet,
+	FieldContent,
+	FieldDescription,
+	FieldGroup,
+	FieldLabel,
+	FieldLegend,
+	FieldSeparator,
+	FieldTitle,
+	fieldVariants,
+} from "@/components/ui/field";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { Input } from "./input";
@@ -25,12 +38,19 @@ const { useAppForm, withForm, withFieldGroup } = createFormHook({
 	formContext,
 	fieldComponents: {
 		FormLabel,
-		FormControl,
+		Field,
 		FormDescription,
-		FormMessage,
-		FormItem,
+		FieldError,
+		FieldSet,
 		FormInput,
 		FormTextarea,
+		FieldContent,
+		FieldDescription,
+		FieldGroup,
+		FieldLabel,
+		FieldLegend,
+		FieldSeparator,
+		FieldTitle,
 	},
 	formComponents: {
 		SubmitButton,
@@ -47,16 +67,18 @@ const FormItemContext = React.createContext<FormItemContextValue>(
 	{} as FormItemContextValue,
 );
 
-function FormItem({ className, ...props }: React.ComponentProps<"div">) {
+function FieldSet({
+	className,
+	children,
+	...props
+}: React.ComponentProps<"fieldset">) {
 	const id = React.useId();
 
 	return (
 		<FormItemContext.Provider value={{ id }}>
-			<div
-				data-slot="form-item"
-				className={cn("grid gap-1", className)}
-				{...props}
-			/>
+			<DefaultFieldSet className={cn("grid gap-1", className)} {...props}>
+				{children}
+			</DefaultFieldSet>
 		</FormItemContext.Provider>
 	);
 }
@@ -99,13 +121,16 @@ function FormLabel({
 	);
 }
 
-function FormControl({ ...props }: React.ComponentProps<typeof Slot>) {
+function Field({
+	children,
+	...props
+}: React.ComponentProps<"div"> & VariantProps<typeof fieldVariants>) {
 	const { errors, formItemId, formDescriptionId, formMessageId } =
 		useFieldContext();
 
 	return (
-		<Slot
-			data-slot="form-control"
+		<DefaultField
+			// data-invalid
 			id={formItemId}
 			aria-describedby={
 				!errors.length
@@ -114,7 +139,9 @@ function FormControl({ ...props }: React.ComponentProps<typeof Slot>) {
 			}
 			aria-invalid={!!errors.length}
 			{...props}
-		/>
+		>
+			{children}
+		</DefaultField>
 	);
 }
 
@@ -131,21 +158,18 @@ function FormDescription({ className, ...props }: React.ComponentProps<"p">) {
 	);
 }
 
-function FormMessage({ className, ...props }: React.ComponentProps<"p">) {
+function FieldError({ className, ...props }: React.ComponentProps<"p">) {
 	const { errors, formMessageId } = useFieldContext();
-	const body = errors.length
-		? String(errors.at(0)?.message ?? "")
-		: props.children;
+	const body = errors.length ? String(errors.at(0)?.message ?? "") : "";
 	if (!body) return null;
 	return (
-		<p
+		<DefaultFieldError
 			data-slot="form-message"
 			id={formMessageId}
 			className={cn("text-destructive text-sm", className)}
 			{...props}
-		>
-			{body}
-		</p>
+			errors={body ? [{ message: body }] : []}
+		/>
 	);
 }
 

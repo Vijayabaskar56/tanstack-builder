@@ -53,11 +53,11 @@ export const RenderFormElement = ({
 			return (
 				<form.AppField name={formElement.name}>
 					{(field) => (
-						<field.FormItem className="w-full">
-							<field.FormLabel>
+						<field.FieldSet className="w-full">
+							<field.FieldLabel>
 								{formElement.label} {formElement.required ? " *" : ""}
-							</field.FormLabel>
-							<field.FormControl>
+							</field.FieldLabel>
+							<field.Field>
 								<Input
 									placeholder={formElement.placeholder}
 									disabled={formElement.disabled}
@@ -68,13 +68,14 @@ export const RenderFormElement = ({
 										field.handleChange(e.target.value);
 									}}
 									onBlur={field.handleBlur}
+									// aria-invalid
 								/>
-							</field.FormControl>
-							<field.FormDescription>
+							</field.Field>
+							<field.FieldDescription>
 								{formElement.description}
-							</field.FormDescription>
-							<field.FormMessage />
-						</field.FormItem>
+							</field.FieldDescription>
+							<field.FieldError />
+						</field.FieldSet>
 					)}
 				</form.AppField>
 			);
@@ -82,11 +83,11 @@ export const RenderFormElement = ({
 			return (
 				<form.AppField name={formElement.name}>
 					{(field) => (
-						<field.FormItem className="w-full">
-							<field.FormLabel>
+						<field.FieldSet className="w-full">
+							<field.FieldLabel>
 								{formElement.label} {formElement.required && " *"}
-							</field.FormLabel>
-							<field.FormControl>
+							</field.FieldLabel>
+							<field.Field>
 								<Input
 									placeholder={formElement.placeholder}
 									disabled={formElement.disabled}
@@ -95,13 +96,14 @@ export const RenderFormElement = ({
 									value={(field.state.value as string | undefined) ?? ""}
 									onChange={(e) => field.handleChange(e.target.value)}
 									onBlur={field.handleBlur}
+									// aria-invalid
 								/>
-							</field.FormControl>
-							<field.FormDescription>
+							</field.Field>
+							<field.FieldDescription>
 								{formElement.description}
-							</field.FormDescription>
-							<field.FormMessage />
-						</field.FormItem>
+							</field.FieldDescription>
+							<field.FieldError />
+						</field.FieldSet>
 					)}
 				</form.AppField>
 			);
@@ -109,11 +111,11 @@ export const RenderFormElement = ({
 			return (
 				<form.AppField name={formElement.name}>
 					{(field) => (
-						<field.FormItem className="w-full">
-							<field.FormLabel>
+						<field.FieldSet className="w-full">
+							<field.FieldLabel>
 								{formElement.label} {formElement.required && "*"}
-							</field.FormLabel>
-							<field.FormControl>
+							</field.FieldLabel>
+							<field.Field>
 								<InputOTP
 									maxLength={formElement.maxLength ?? 6}
 									name={formElement.name}
@@ -121,6 +123,7 @@ export const RenderFormElement = ({
 									onChange={field.handleChange}
 									required={formElement.required}
 									disabled={formElement.disabled}
+									// aria-invalid
 								>
 									<InputOTPGroup>
 										<InputOTPSlot index={0} />
@@ -134,12 +137,12 @@ export const RenderFormElement = ({
 										<InputOTPSlot index={5} />
 									</InputOTPGroup>
 								</InputOTP>
-							</field.FormControl>
-							<field.FormDescription>
+							</field.Field>
+							<field.FieldDescription>
 								{formElement.description}
-							</field.FormDescription>
-							<field.FormMessage />
-						</field.FormItem>
+							</field.FieldDescription>
+							<field.FieldError />
+						</field.FieldSet>
 					)}
 				</form.AppField>
 			);
@@ -147,11 +150,11 @@ export const RenderFormElement = ({
 			return (
 				<form.AppField name={formElement.name}>
 					{(field) => (
-						<field.FormItem className="w-full">
-							<field.FormLabel>
+						<field.FieldSet className="w-full">
+							<field.FieldLabel>
 								{formElement.label} {formElement.required && "*"}
-							</field.FormLabel>
-							<field.FormControl>
+							</field.FieldLabel>
+							<field.Field>
 								<Textarea
 									placeholder={formElement.placeholder}
 									required={formElement.required}
@@ -161,13 +164,14 @@ export const RenderFormElement = ({
 									onChange={(e) => field.handleChange(e.target.value)}
 									onBlur={field.handleBlur}
 									className="resize-none"
+									// aria-invalid
 								/>
-							</field.FormControl>
-							<field.FormDescription>
+							</field.Field>
+							<field.FieldDescription>
 								{formElement.description}
-							</field.FormDescription>
-							<field.FormMessage />
-						</field.FormItem>
+							</field.FieldDescription>
+							<field.FieldError />
+						</field.FieldSet>
 					)}
 				</form.AppField>
 			);
@@ -175,26 +179,30 @@ export const RenderFormElement = ({
 			return (
 				<form.AppField name={formElement.name}>
 					{(field) => (
-						<field.FormItem className="flex items-start gap-2 w-full py-1 space-y-0">
-							<field.FormControl>
+						<field.FieldSet>
+							<field.Field orientation="horizontal">
 								<Checkbox
 									checked={Boolean(field.state.value)}
 									onCheckedChange={field.handleChange}
 									disabled={formElement.disabled}
+									// aria-invalid
 								/>
-							</field.FormControl>
-							<div>
-								<field.FormLabel className="space-y-1 leading-none">
-									{formElement.label} {formElement.required && " *"}
-								</field.FormLabel>
-								{formElement.description ? (
-									<field.FormDescription>
-										{formElement.description}
-									</field.FormDescription>
-								) : null}
-								<field.FormMessage />
-							</div>
-						</field.FormItem>
+								<field.FieldContent>
+									<field.FieldLabel
+										className="space-y-1 leading-none"
+										htmlFor={formElement.name}
+									>
+										{formElement.label} {formElement.required && " *"}
+									</field.FieldLabel>
+									{formElement.description ? (
+										<field.FieldDescription>
+											{formElement.description}
+										</field.FieldDescription>
+									) : null}
+									<field.FieldError />
+								</field.FieldContent>
+							</field.Field>
+						</field.FieldSet>
 					)}
 				</form.AppField>
 			);
@@ -202,16 +210,17 @@ export const RenderFormElement = ({
 			return (
 				<form.AppField name={formElement.name}>
 					{(field) => (
-						<field.FormItem className="flex flex-col gap-2 w-full py-1">
-							<field.FormLabel className="mt-0">
+						<field.FieldSet className="flex flex-col gap-2 w-full py-1">
+							<field.FieldLabel className="mt-0">
 								{formElement?.label} {formElement.required && " *"}
-							</field.FormLabel>
-							<field.FormControl>
+							</field.FieldLabel>
+							<field.Field>
 								<RadioGroup
 									onValueChange={field.handleChange}
 									name={formElement.name}
 									value={(field.state.value as string | undefined) ?? ""}
 									disabled={formElement.disabled}
+									// aria-invalid
 								>
 									{formElement.options.map(({ label, value }) => (
 										<div key={value} className="flex items-center gap-x-2">
@@ -224,14 +233,14 @@ export const RenderFormElement = ({
 										</div>
 									))}
 								</RadioGroup>
-							</field.FormControl>
+							</field.Field>
 							{formElement.description && (
-								<field.FormDescription>
+								<field.FieldDescription>
 									{formElement.description}
-								</field.FormDescription>
+								</field.FieldDescription>
 							)}
-							<field.FormMessage />
-						</field.FormItem>
+							<field.FieldError />
+						</field.FieldSet>
 					)}
 				</form.AppField>
 			);
@@ -250,11 +259,11 @@ export const RenderFormElement = ({
 			return (
 				<form.AppField name={formElement.name}>
 					{(field) => (
-						<field.FormItem className="flex flex-col gap-2 w-full py-1">
-							<field.FormLabel className="mt-0">
+						<field.FieldSet className="flex flex-col gap-2 w-full py-1">
+							<field.FieldLabel className="mt-0">
 								{formElement?.label} {formElement.required && "*"}
-							</field.FormLabel>
-							<field.FormControl>
+							</field.FieldLabel>
+							<field.Field>
 								{formElement.type === "single" ? (
 									<ToggleGroup
 										type="single"
@@ -262,6 +271,7 @@ export const RenderFormElement = ({
 										onValueChange={field.handleChange}
 										defaultValue={formElement.defaultValue}
 										className="flex justify-start items-center w-full"
+										// aria-invalid
 									>
 										{options}
 									</ToggleGroup>
@@ -284,14 +294,14 @@ export const RenderFormElement = ({
 										{options}
 									</ToggleGroup>
 								)}
-							</field.FormControl>
+							</field.Field>
 							{formElement.description && (
-								<field.FormDescription>
+								<field.FieldDescription>
 									{formElement.description}
-								</field.FormDescription>
+								</field.FieldDescription>
 							)}
-							<field.FormMessage />
-						</field.FormItem>
+							<field.FieldError />
+						</field.FieldSet>
 					)}
 				</form.AppField>
 			);
@@ -300,12 +310,12 @@ export const RenderFormElement = ({
 			return (
 				<form.AppField name={formElement.name}>
 					{(field) => (
-						<field.FormItem className="flex flex-col p-3 justify-center w-full border rounded">
+						<field.FieldSet className="flex flex-col p-3 justify-center w-full border rounded">
 							<div className="flex items-center justify-between h-full">
-								<field.FormLabel className="w-full grow">
+								<field.FieldLabel className="w-full grow">
 									{formElement.label}
-								</field.FormLabel>
-								<field.FormControl>
+								</field.FieldLabel>
+								<field.Field>
 									<Switch
 										name={formElement.name}
 										checked={Boolean(field.state.value)}
@@ -315,15 +325,16 @@ export const RenderFormElement = ({
 											field.handleBlur();
 										}}
 										disabled={formElement.disabled}
+										// aria-invalid
 									/>
-								</field.FormControl>
+								</field.Field>
 							</div>
 							{formElement.description && (
-								<field.FormDescription>
+								<field.FieldDescription>
 									{formElement.description}
-								</field.FormDescription>
+								</field.FieldDescription>
 							)}
-						</field.FormItem>
+						</field.FieldSet>
 					)}
 				</form.AppField>
 			);
@@ -341,14 +352,14 @@ export const RenderFormElement = ({
 							: [currentValue || defaultSliderValue];
 
 						return (
-							<field.FormItem className="w-full">
-								<field.FormLabel className="flex justify-between items-center">
+							<field.FieldSet className="w-full">
+								<field.FieldLabel className="flex justify-between items-center">
 									{formElement.label} {formElement.required ? " *" : ""}
 									<span className="text-sm text-muted-foreground">
 										{sliderValue[0] || min} / {max}
 									</span>
-								</field.FormLabel>
-								<field.FormControl>
+								</field.FieldLabel>
+								<field.Field>
 									<Slider
 										name={formElement.name}
 										min={min}
@@ -356,18 +367,19 @@ export const RenderFormElement = ({
 										disabled={formElement.disabled}
 										step={step}
 										value={sliderValue}
+										// aria-invalid
 										onValueChange={(newValue) => {
 											field.handleChange(newValue[0]);
 											// Trigger validation by simulating blur
 											field.handleBlur();
 										}}
 									/>
-								</field.FormControl>
-								<field.FormDescription className="py-1">
+								</field.Field>
+								<field.FieldDescription className="py-1">
 									{formElement.description}
-								</field.FormDescription>
-								<field.FormMessage />
-							</field.FormItem>
+								</field.FieldDescription>
+								<field.FieldError />
+							</field.FieldSet>
 						);
 					}}
 				</form.AppField>
@@ -376,24 +388,25 @@ export const RenderFormElement = ({
 			return (
 				<form.AppField name={formElement.name}>
 					{(field) => (
-						<field.FormItem className="w-full">
-							<field.FormLabel>
+						<field.FieldSet className="w-full">
+							<field.FieldLabel>
 								{formElement.label} {formElement.required && " *"}
-							</field.FormLabel>
+							</field.FieldLabel>
 							<Select
 								name={formElement.name}
 								value={(field.state.value as string | undefined) ?? ""}
 								onValueChange={field.handleChange}
 								defaultValue={String(field?.state.value ?? "")}
 								disabled={formElement.disabled}
+								// aria-invalid
 							>
-								<field.FormControl>
+								<field.Field>
 									<SelectTrigger className="w-full">
 										<SelectValue
 											placeholder={formElement.placeholder || "Select item"}
 										/>
 									</SelectTrigger>
-								</field.FormControl>
+								</field.Field>
 								<SelectContent>
 									{formElement.options.map(({ label, value }) => (
 										<SelectItem key={value} value={value}>
@@ -402,11 +415,11 @@ export const RenderFormElement = ({
 									))}
 								</SelectContent>
 							</Select>
-							<field.FormDescription>
+							<field.FieldDescription>
 								{formElement.description}
-							</field.FormDescription>
-							<field.FormMessage />
-						</field.FormItem>
+							</field.FieldDescription>
+							<field.FieldError />
+						</field.FieldSet>
 					)}
 				</form.AppField>
 			);
@@ -415,22 +428,23 @@ export const RenderFormElement = ({
 				<form.AppField name={formElement.name}>
 					{(field) => (
 						<>
-							<field.FormItem className="w-full">
-								<field.FormLabel>
+							<field.FieldSet className="w-full">
+								<field.FieldLabel>
 									{formElement.label} {formElement.required ? " *" : ""}
-								</field.FormLabel>
+								</field.FieldLabel>
 								<MultiSelect
 									// value={field.state.value as string[]}
 									disabled={formElement.disabled}
 									onValueChange={field.handleChange}
+									// aria-invalid
 								>
-									<field.FormControl>
+									<field.Field>
 										<MultiSelectTrigger>
 											<MultiSelectValue
 												placeholder={formElement.placeholder || "Select item"}
 											/>
 										</MultiSelectTrigger>
-									</field.FormControl>
+									</field.Field>
 									<MultiSelectContent>
 										<MultiSelectList>
 											{formElement.options.map(({ label, value }) => (
@@ -441,11 +455,11 @@ export const RenderFormElement = ({
 										</MultiSelectList>
 									</MultiSelectContent>
 								</MultiSelect>
-								<field.FormDescription>
+								<field.FieldDescription>
 									{formElement.description}
-								</field.FormDescription>
-								<field.FormMessage />
-							</field.FormItem>
+								</field.FieldDescription>
+								<field.FieldError />
+							</field.FieldSet>
 						</>
 					)}
 				</form.AppField>
@@ -456,13 +470,13 @@ export const RenderFormElement = ({
 					{(field) => {
 						const date = field.state.value;
 						return (
-							<field.FormItem className="flex flex-col w-full">
+							<field.FieldSet className="flex flex-col w-full">
 								<div>
-									<field.FormLabel>
+									<field.FieldLabel>
 										{formElement.label} {formElement.required ? " *" : ""}
-									</field.FormLabel>
+									</field.FieldLabel>
 								</div>
-								<field.FormControl>
+								<field.Field>
 									<Popover>
 										<PopoverTrigger asChild disabled={formElement.disabled}>
 											<Button
@@ -487,15 +501,16 @@ export const RenderFormElement = ({
 												onSelect={(newDate) => {
 													field.handleChange(newDate);
 												}}
+												// aria-invalid
 											/>
 										</PopoverContent>
 									</Popover>
-								</field.FormControl>
-								<field.FormDescription>
+								</field.Field>
+								<field.FieldDescription>
 									{formElement.description}
-								</field.FormDescription>
-								<field.FormMessage />
-							</field.FormItem>
+								</field.FieldDescription>
+								<field.FieldError />
+							</field.FieldSet>
 						);
 					}}
 				</form.AppField>
