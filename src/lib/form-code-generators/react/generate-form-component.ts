@@ -152,7 +152,9 @@ export const getFormElementCode = (
               <field.Field orientation="horizontal">
                 <Checkbox
                   checked={Boolean(field.state.value)}
-                  onCheckedChange={field.handleChange}
+                  onCheckedChange={(checked) =>
+											field.handleChange(checked as boolean)
+										}
                   disabled={${field.disabled ?? false}}
                   aria-invalid={!!field.state.meta.errors.length}
                 />
@@ -506,9 +508,9 @@ export const getFormElementCode = (
 		case "Separator":
 			return `<FieldSeparator />;`;
 		case "FieldLegend":
-			return `<FieldLegend>{${field.content}}</FieldLegend>;`;
+			return `<FieldLegend>"${field.content}"</FieldLegend>;`;
 		case "FieldDescription":
-			return `<FieldDescription>{${field.content}}</FieldDescription>;`;
+			return `<FieldDescription>"${field.content}"</FieldDescription>;`;
 		default:
 			return null;
 	}

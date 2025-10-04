@@ -25,7 +25,10 @@ const FORM_ELEMENT_DEFAULTS: Record<
 	string,
 	(field: FormElement) => DefaultValue
 > = {
-	Input: () => "",
+	Input: (field: FormElement) => {
+		const inputField = field as FormElement & { type?: string };
+		return inputField.type === "number" ? 0 : "";
+	},
 	Password: () => "",
 	Textarea: () => "",
 	OTP: () => "",

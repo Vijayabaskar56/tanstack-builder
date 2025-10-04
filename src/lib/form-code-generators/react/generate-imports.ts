@@ -75,6 +75,12 @@ export const generateImports = (
 				importSet.add('import { Separator } from "@/components/ui/separator"');
 				importSet.add('import { Plus, Trash2 } from "lucide-react"');
 				break;
+			case "FieldDescription":
+			case "FieldLegend":
+				importSet.add(
+					'import { FieldDescription , FieldLegend} from "@/components/ui/field"',
+				);
+				break;
 			default:
 				importSet.add(
 					`import { ${field.fieldType} } from "@/components/ui/${field.fieldType.toLowerCase()}"`,
