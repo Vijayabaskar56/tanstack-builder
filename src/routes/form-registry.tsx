@@ -1,11 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import ComponentCli from "@/components/cli-commands";
-import { ClientOnly } from "@/components/client-only";
-import CodeBlock from "@/components/code-block";
 import ComponentCard from "@/components/component-card";
 import ComponentDetails from "@/components/component-details";
 import { Wrapper } from "@/components/generated-code/code-viewer";
 import { Button } from "@/components/ui/button";
+import { CodeBlock, CodeBlockCode } from "@/components/ui/code-block";
+import CopyButton from "@/components/ui/copy-button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SettingsCollection } from "@/db-collections/settings.collections";
+import useSettings from "@/hooks/use-settings";
+import { updatePreferredPackageManager } from "@/lib/utils";
 import { BookingForm as BookingFormComp } from "../../registry/default/booking-form";
 import { CheckboxForm } from "../../registry/default/checkbox-field";
 import { ContacUsForm } from "../../registry/default/contactu-form";
@@ -219,9 +222,9 @@ export function DraftForm() {
   <div>
     <draftForm.AppForm>
       <draftForm.Form>
-         <h1 className="text-3xl font-bold">Waitlist</h1>
-<FieldDescription>"Join our waitlist to get early access"</FieldDescription>;
-<draftForm.AppField name={"email"}>
+          <h1 className="text-3xl font-bold">Waitlist</h1>
+ <FieldDescription>"Join our waitlist to get early access"</FieldDescription>;
+ <draftForm.AppField name={"email"}>
                 {(field) => (
                     <field.FieldSet className="w-full">
                       <field.Field>
@@ -243,19 +246,282 @@ export function DraftForm() {
                   )}
               </draftForm.AppField>
               
-         <div className="flex justify-end items-center w-full pt-3">
-         <draftForm.SubmitButton label="Submit" />
+          <div className="flex justify-end items-center w-full pt-3">
+          <draftForm.SubmitButton label="Submit" />
         </div>
       </draftForm.Form>
     </draftForm.AppForm>
   </div>
-)}`;
+  )}`;
+
+const manualCode = `import {
+	createFormHook,
+	createFormHookContexts,
+	revalidateLogic,
+	useStore,
+} from "@tanstack/react-form";
+import type { VariantProps } from "class-variance-authority";
+import * as React from "react";
+import { Button, type buttonVariants } from "@/components/ui/button";
+import {
+	Field as DefaultField,
+	FieldError as DefaultFieldError,
+	FieldSet as DefaultFieldSet,
+	FieldContent,
+	FieldDescription,
+	FieldGroup,
+	FieldLabel,
+	FieldLegend,
+	FieldSeparator,
+	FieldTitle,
+	fieldVariants,
+} from "@/components/ui/field";
+import {
+	InputGroup,
+	InputGroupAddon,
+	InputGroupInput,
+} from "@/components/ui/input-group";
+import { Spinner } from "@/components/ui/spinner";
+import { cn } from "@/lib/utils";
+
+const {
+	fieldContext,
+	formContext,
+	useFieldContext: _useFieldContext,
+	useFormContext,
+} = createFormHookContexts();
+
+const { useAppForm, withForm, withFieldGroup } = createFormHook({
+	fieldContext,
+	formContext,
+	fieldComponents: {
+		Field,
+		FieldError,
+		FieldSet,
+		FieldContent,
+		FieldDescription,
+		FieldGroup,
+		FieldLabel,
+		FieldLegend,
+		FieldSeparator,
+		FieldTitle,
+		InputGroup,
+		InputGroupAddon,
+		InputGroupInput,
+	},
+	formComponents: {
+		SubmitButton,
+		StepButton,
+		FieldLegend,
+		FieldDescription,
+		FieldSeparator,
+		Form,
+	},
+});
+
+type FormItemContextValue = {
+	id: string;
+};
+
+const FormItemContext = React.createContext<FormItemContextValue>(
+	{} as FormItemContextValue,
+);
+
+function FieldSet({
+	className,
+	children,
+	...props
+}: React.ComponentProps<"fieldset">) {
+	const id = React.useId();
+
+	return (
+		<FormItemContext.Provider value={{ id }}>
+			<DefaultFieldSet className={cn("grid gap-1", className)} {...props}>
+				{children}
+			</DefaultFieldSet>
+		</FormItemContext.Provider>
+	);
+}
+
+const useFieldContext = () => {
+	const { id } = React.useContext(FormItemContext);
+	const { name, store, ...fieldContext } = _useFieldContext();
+
+	const errors = useStore(store, (state) => state.meta.errors);
+	if (!fieldContext) {
+		throw new Error("useFieldContext should be used within <FormItem>");
+	}
+
+	return {
+		id,
+		name,
+		formItemId: \`\${id}-form-item\`,
+		formDescriptionId: \`\${id}-form-item-description\`,
+		formMessageId: \`\${id}-form-item-message\`,
+		errors,
+		store,
+		...fieldContext,
+	};
+};
+
+function Field({
+	children,
+	...props
+}: React.ComponentProps<"div"> & VariantProps<typeof fieldVariants>) {
+	const { errors, formItemId, formDescriptionId, formMessageId } =
+		useFieldContext();
+
+	return (
+		<DefaultField
+			data-invalid={!!errors.length}
+			id={formItemId}
+			aria-describedby={
+				!errors.length
+					? \`\${formDescriptionId}\`
+					: \`\${formDescriptionId} \${formMessageId}\`
+			}
+			aria-invalid={!!errors.length}
+			{...props}
+		>
+			{children}
+		</DefaultField>
+	);
+}
+
+function FieldError({ className, ...props }: React.ComponentProps<"p">) {
+	const { errors, formMessageId } = useFieldContext();
+	const body = errors.length ? String(errors.at(0)?.message ?? "") : "";
+	if (!body) return null;
+	return (
+		<DefaultFieldError
+			data-slot="form-message"
+			id={formMessageId}
+			className={cn("text-destructive text-sm", className)}
+			{...props}
+			errors={body ? [{ message: body }] : []}
+		/>
+	);
+}
+
+function Form({
+	children,
+	...props
+}: Omit<React.ComponentPropsWithoutRef<"form">, "onSubmit" & "noValidate"> & {
+	children?: React.ReactNode;
+}) {
+	const form = useFormContext();
+	const handleSubmit = React.useCallback(
+		(e: React.FormEvent<HTMLFormElement>) => {
+			e.preventDefault();
+			e.stopPropagation();
+			form.handleSubmit();
+		},
+		[form],
+	);
+	return (
+		<form
+			onSubmit={handleSubmit}
+			className={cn(
+				"flex flex-col p-2 md:p-5 w-full mx-auto gap-2",
+				props.className,
+			)}
+			noValidate
+			{...props}
+		>
+			{children}
+		</form>
+	);
+}
+
+function SubmitButton({
+	label,
+	className,
+	size,
+	...props
+}: React.ComponentProps<"button"> &
+	VariantProps<typeof buttonVariants> & {
+		label: string;
+	}) {
+	const form = useFormContext();
+	return (
+		<form.Subscribe selector={(state) => state.isSubmitting}>
+			{(isSubmitting) => (
+				<Button
+					className={className}
+					size={size}
+					type="submit"
+					disabled={isSubmitting}
+					{...props}
+				>
+					{isSubmitting && <Spinner />}
+					{label}
+				</Button>
+			)}
+		</form.Subscribe>
+	);
+}
+
+function StepButton({
+	label,
+	handleMovement,
+	...props
+}: React.ComponentProps<"button"> &
+	VariantProps<typeof buttonVariants> & {
+		label: React.ReactNode | string;
+		handleMovement: () => void;
+	}) {
+	return (
+		<Button
+			size="sm"
+			variant="ghost"
+			type="button"
+			onClick={handleMovement}
+			{...props}
+		>
+			{label}
+		</Button>
+	);
+}
+
+export {
+	revalidateLogic,
+	useAppForm,
+	useFieldContext,
+	useFormContext,
+	withFieldGroup,
+	withForm,
+};`;
 
 export const Route = createFileRoute("/form-registry")({
 	component: RouteComponent,
 });
 
 function RouteComponent() {
+	const settings = useSettings();
+	const preferredPackageManager = settings?.preferredPackageManager || "pnpm";
+	const tabsData = [
+		{
+			value: "pnpm",
+			registery:
+				"pnpm dlx shadcn@canary add https://tan-form-builder.baskar.dev/r/tanstack-form.json",
+		},
+		{
+			value: "npm",
+			registery:
+				"npx shadcn@canary add https://tan-form-builder.baskar.dev/r/tanstack-form.json",
+		},
+		{
+			value: "yarn",
+			registery:
+				"yarn shadcn@canary add https://tan-form-builder.baskar.dev/r/tanstack-form.json",
+		},
+		{
+			value: "bun",
+			registery:
+				"bunx --bun shadcn@canary add https://tan-form-builder.baskar.dev/r/tanstack-form.json",
+		},
+	];
+
 	return (
 		<div className="container mx-auto p-8">
 			<div className="flex justify-between flex-col lg:flex-row mb-8">
@@ -265,15 +531,59 @@ function RouteComponent() {
 				</Button>
 			</div>
 			<h2 className="text-2xl font-semibold mb-4">Installation</h2>
-			<p className="mb-4">
-				Add the tanstack-form component to your project using the shadcn CLI.
-			</p>
+			<Tabs defaultValue="cli" className="w-full mt-2 rounded-md">
+				<TabsList>
+					<TabsTrigger value="cli">CLI</TabsTrigger>
+					<TabsTrigger value="manual">Manual</TabsTrigger>
+				</TabsList>
+				<TabsContent value="cli">
+					<Tabs
+						value={preferredPackageManager}
+						onValueChange={(value) =>
+							updatePreferredPackageManager(
+								value as SettingsCollection["preferredPackageManager"],
+							)
+						}
+						className="w-full mt-2 rounded-md"
+					>
+						<TabsList>
+							{tabsData.map((item) => (
+								<TabsTrigger key={item.value} value={item.value}>
+									{item.value}
+								</TabsTrigger>
+							))}
+						</TabsList>
+						{tabsData.map((item) => (
+							<TabsContent key={item.value} value={item.value}>
+								<div className="relative">
+									<CodeBlock>
+										<CodeBlockCode
+											code={item.registery}
+											language="bash"
+											// theme={codeTheme}
+										/>
+									</CodeBlock>
+									<div className="absolute top-2 right-2">
+										<CopyButton text={item.registery} />
+									</div>
+								</div>
+							</TabsContent>
+						))}
+					</Tabs>
+					<p className="mb-4">
+						Add the tanstack-form component to your project using the shadcn
+						CLI.
+					</p>
+				</TabsContent>
+				<TabsContent value="manual">
+					<Wrapper
+						children={manualCode}
+						language="tsx"
+						title="Manual Installation"
+					/>
+				</TabsContent>
+			</Tabs>
 			{/* <ComponentDetails component={tanstackRegistry} /> */}
-			<div className="relative mb-4">
-				<ClientOnly>
-					<ComponentCli name={tanstackRegistry.name} />
-				</ClientOnly>
-			</div>
 			<h2 className="text-2xl font-semibold mb-4">Usage</h2>
 			<p className="mb-4">
 				This tanstack-form registry component provides a comprehensive set of
@@ -283,7 +593,7 @@ function RouteComponent() {
 			<p className="mb-4">Here's a basic example of how to use it:</p>
 			<Wrapper children={exampleCode} language="tsx" title="Example Usage" />
 
-			<h2 className="text-2xl font-semibold mb-4">Anatomy</h2>
+			<h2 className="text-2xl font-semibold my-4">Anatomy</h2>
 			<p className="mb-4">
 				The tanstack-form has Super Cool Form Composition Feature that allow
 				Breaking Large and Complex Form into Composable Field, The Registry Uses

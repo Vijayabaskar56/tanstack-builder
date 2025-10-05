@@ -8,10 +8,7 @@ import {
 import CopyButton from "@/components/ui/copy-button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-	type SettingsCollection,
-	settingsCollection,
-} from "@/db-collections/settings.collections";
+import { type SettingsCollection } from "@/db-collections/settings.collections";
 import { useFormStore, useIsMultiStep } from "@/hooks/use-form-store";
 import useSettings from "@/hooks/use-settings";
 import { generateFormCode } from "@/lib/form-code-generators/react/generate-form-code";
@@ -160,7 +157,7 @@ export function CodeBlockPackagesInstallation() {
 		<div className="w-full py-5 max-w-full">
 			<h2 className="font-sembold text-start">Install base packages</h2>
 			<Tabs
-				value={preferredPackageManager}
+				value={settings?.preferredPackageManager}
 				onValueChange={(value) =>
 					updatePreferredPackageManager(
 						value as SettingsCollection["preferredPackageManager"],
@@ -177,13 +174,18 @@ export function CodeBlockPackagesInstallation() {
 				</TabsList>
 				{tabsData.map((item) => (
 					<TabsContent key={item.value} value={item.value}>
-						<CodeBlock>
-							<CodeBlockCode
-								code={item.base}
-								language="bash"
-								theme={codeTheme}
-							/>
-						</CodeBlock>
+						<div className="relative">
+							<CodeBlock>
+								<CodeBlockCode
+									code={item.base}
+									language="bash"
+									theme={codeTheme}
+								/>
+							</CodeBlock>
+							<div className="absolute top-2 right-2">
+								<CopyButton text={item.base} />
+							</div>
+						</div>
 					</TabsContent>
 				))}
 			</Tabs>
@@ -191,7 +193,7 @@ export function CodeBlockPackagesInstallation() {
 				Install required shadcn components
 			</h2>
 			<Tabs
-				value={preferredPackageManager}
+				value={settings?.preferredPackageManager}
 				onValueChange={(value) =>
 					updatePreferredPackageManager(
 						value as SettingsCollection["preferredPackageManager"],
@@ -208,13 +210,18 @@ export function CodeBlockPackagesInstallation() {
 				</TabsList>
 				{tabsData.map((item) => (
 					<TabsContent key={item.value} value={item.value}>
-						<CodeBlock>
-							<CodeBlockCode
-								code={item.shadcn}
-								language="bash"
-								theme={codeTheme}
-							/>
-						</CodeBlock>
+						<div className="relative">
+							<CodeBlock>
+								<CodeBlockCode
+									code={item.shadcn}
+									language="bash"
+									theme={codeTheme}
+								/>
+							</CodeBlock>
+							<div className="absolute top-2 right-2">
+								<CopyButton text={item.shadcn} />
+							</div>
+						</div>
 					</TabsContent>
 				))}
 			</Tabs>
@@ -239,13 +246,18 @@ export function CodeBlockPackagesInstallation() {
 				</TabsList>
 				{tabsData.map((item) => (
 					<TabsContent key={item.value} value={item.value}>
-						<CodeBlock>
-							<CodeBlockCode
-								code={item.registery}
-								language="bash"
-								theme={codeTheme}
-							/>
-						</CodeBlock>
+						<div className="relative">
+							<CodeBlock>
+								<CodeBlockCode
+									code={item.registery}
+									language="bash"
+									theme={codeTheme}
+								/>
+							</CodeBlock>
+							<div className="absolute top-2 right-2">
+								<CopyButton text={item.registery} />
+							</div>
+						</div>
 					</TabsContent>
 				))}
 			</Tabs>
