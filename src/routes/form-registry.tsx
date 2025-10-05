@@ -4,6 +4,7 @@ import { ClientOnly } from "@/components/client-only";
 import CodeBlock from "@/components/code-block";
 import ComponentCard from "@/components/component-card";
 import ComponentDetails from "@/components/component-details";
+import { Wrapper } from "@/components/generated-code/code-viewer";
 import { Button } from "@/components/ui/button";
 import { BookingForm as BookingFormComp } from "../../registry/default/booking-form";
 import { CheckboxForm } from "../../registry/default/checkbox-field";
@@ -14,7 +15,6 @@ import { EventRegistrationForm } from "../../registry/default/eventRegistration-
 import { DraftForm as FeedbackForm } from "../../registry/default/feedback-form";
 import { InputForm } from "../../registry/default/input-field";
 import { JobApplicationForm } from "../../registry/default/jobapplication-form";
-
 import { MultiSelectForm } from "../../registry/default/multi-select-field";
 import { OTPForm } from "../../registry/default/otp-field";
 import { PasswordForm } from "../../registry/default/password-field";
@@ -258,7 +258,7 @@ export const Route = createFileRoute("/form-registry")({
 function RouteComponent() {
 	return (
 		<div className="container mx-auto p-8">
-			<div className="flex justify-between">
+			<div className="flex justify-between flex-col lg:flex-row mb-8">
 				<h1 className="text-4xl font-bold mb-8">TanStack Form Registry</h1>
 				<Button variant="default" size="lg" className="w-32 rounded" asChild>
 					<Link to="/form-builder">Start Building</Link>
@@ -281,7 +281,7 @@ function RouteComponent() {
 				form validation, field management, and UI components.
 			</p>
 			<p className="mb-4">Here's a basic example of how to use it:</p>
-			<CodeBlock code={exampleCode} lang="tsx" />
+			<Wrapper children={exampleCode} language="tsx" title="Example Usage" />
 
 			<h2 className="text-2xl font-semibold mb-4">Anatomy</h2>
 			<p className="mb-4">
@@ -291,7 +291,7 @@ function RouteComponent() {
 			</p>
 			<div className="flex lg:flex-row flex-col gap-3 content-center items-center">
 				<img src="/assets/anotomy-of-form.png" alt="anotomy-of-form" />
-				<ul className="list-disc list-inside mb-8 flex lg:flex-col gap-1">
+				<ul className="list-disc list-inside mb-8 flex flex-col gap-1">
 					<li>
 						<strong>AppForm:</strong> The main form instance created with
 						useAppForm, providing form state and methods.

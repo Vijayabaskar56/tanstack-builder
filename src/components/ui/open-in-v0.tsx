@@ -40,7 +40,7 @@ const OpenInV0 = ({ componentSource }: { componentSource: string }) => {
 						</svg>
 					</a>
 				</TooltipTrigger>
-				<TooltipContent className="text-muted-foreground px-2 py-1 text-xs">
+				<TooltipContent className="text-muted px-2 py-1 text-xs">
 					Open in v0
 				</TooltipContent>
 			</Tooltip>

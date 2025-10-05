@@ -36,7 +36,7 @@ function CopyButton({ text }: { text: string }) {
 						)}
 					</Button>
 				</TooltipTrigger>
-				<TooltipContent className="text-muted-foreground px-2 py-1 text-xs">
+				<TooltipContent className="text-muted px-2 py-1 text-xs">
 					Copy Registry URL
 				</TooltipContent>
 			</Tooltip>

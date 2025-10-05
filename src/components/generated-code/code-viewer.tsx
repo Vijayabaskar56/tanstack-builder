@@ -32,7 +32,7 @@ import type {
 	FormStep,
 } from "@/types/form-types";
 
-const Wrapper = ({
+export const Wrapper = ({
 	children,
 	language,
 	title,
