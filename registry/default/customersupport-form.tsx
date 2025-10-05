@@ -1,7 +1,7 @@
 import { revalidateLogic } from "@tanstack/react-form";
 import { toast } from "sonner";
 import * as z from "zod";
-import { FieldDescription } from "@/components/ui/field";
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -63,11 +63,13 @@ export function BookingForm() {
 		<div>
 			<bookingForm.AppForm>
 				<bookingForm.Form>
-					<h1 className="text-3xl font-bold">Customer Support Request</h1>
-					<FieldDescription>
-						"We're here to help! Please describe your issue below."
-					</FieldDescription>
-					;
+					<bookingForm.FieldLegend className="text-3xl font-bold">
+						Customer Support Request
+					</bookingForm.FieldLegend>
+					<bookingForm.FieldDescription>
+						We're here to help! Please describe your issue below.
+					</bookingForm.FieldDescription>
+					<bookingForm.FieldSeparator />
 					<div className="flex items-center justify-between flex-wrap sm:flex-nowrap w-full gap-2">
 						<bookingForm.AppField name={"firstName"}>
 							{(field) => (

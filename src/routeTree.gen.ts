@@ -12,7 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as FormBuilderRouteImport } from './routes/form-builder'
 import { Route as FormBuilderIndexRouteImport } from './routes/form-builder/index'
 import { Route as FormBuilderShareRouteImport } from './routes/form-builder/share'
-import { Route as FormExamplesRouteImport } from './routes/form-examples'
+import { Route as FormRegistryRouteImport } from './routes/form-registry'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TableBuilderRouteImport } from './routes/table-builder'
 
@@ -21,9 +21,9 @@ const TableBuilderRoute = TableBuilderRouteImport.update({
   path: '/table-builder',
   getParentRoute: () => rootRouteImport,
 } as any)
-const FormExamplesRoute = FormExamplesRouteImport.update({
-  id: '/form-examples',
-  path: '/form-examples',
+const FormRegistryRoute = FormRegistryRouteImport.update({
+  id: '/form-registry',
+  path: '/form-registry',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FormBuilderRoute = FormBuilderRouteImport.update({
@@ -50,14 +50,14 @@ const FormBuilderShareRoute = FormBuilderShareRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/form-builder': typeof FormBuilderRouteWithChildren
-  '/form-examples': typeof FormExamplesRoute
+  '/form-registry': typeof FormRegistryRoute
   '/table-builder': typeof TableBuilderRoute
   '/form-builder/share': typeof FormBuilderShareRoute
   '/form-builder/': typeof FormBuilderIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/form-examples': typeof FormExamplesRoute
+  '/form-registry': typeof FormRegistryRoute
   '/table-builder': typeof TableBuilderRoute
   '/form-builder/share': typeof FormBuilderShareRoute
   '/form-builder': typeof FormBuilderIndexRoute
@@ -66,7 +66,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/form-builder': typeof FormBuilderRouteWithChildren
-  '/form-examples': typeof FormExamplesRoute
+  '/form-registry': typeof FormRegistryRoute
   '/table-builder': typeof TableBuilderRoute
   '/form-builder/share': typeof FormBuilderShareRoute
   '/form-builder/': typeof FormBuilderIndexRoute
@@ -76,14 +76,14 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/form-builder'
-    | '/form-examples'
+    | '/form-registry'
     | '/table-builder'
     | '/form-builder/share'
     | '/form-builder/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/form-examples'
+    | '/form-registry'
     | '/table-builder'
     | '/form-builder/share'
     | '/form-builder'
@@ -91,7 +91,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/form-builder'
-    | '/form-examples'
+    | '/form-registry'
     | '/table-builder'
     | '/form-builder/share'
     | '/form-builder/'
@@ -100,7 +100,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   FormBuilderRoute: typeof FormBuilderRouteWithChildren
-  FormExamplesRoute: typeof FormExamplesRoute
+  FormRegistryRoute: typeof FormRegistryRoute
   TableBuilderRoute: typeof TableBuilderRoute
 }
 
@@ -113,11 +113,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TableBuilderRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/form-examples': {
-      id: '/form-examples'
-      path: '/form-examples'
-      fullPath: '/form-examples'
-      preLoaderRoute: typeof FormExamplesRouteImport
+    '/form-registry': {
+      id: '/form-registry'
+      path: '/form-registry'
+      fullPath: '/form-registry'
+      preLoaderRoute: typeof FormRegistryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/form-builder': {
@@ -168,7 +168,7 @@ const FormBuilderRouteWithChildren = FormBuilderRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   FormBuilderRoute: FormBuilderRouteWithChildren,
-  FormExamplesRoute: FormExamplesRoute,
+  FormRegistryRoute: FormRegistryRoute,
   TableBuilderRoute: TableBuilderRoute,
 }
 export const routeTree = rootRouteImport

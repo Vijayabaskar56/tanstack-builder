@@ -1,6 +1,10 @@
 import { type ClassValue, clsx } from "clsx";
 import js_beautify from "js-beautify";
 import { twMerge } from "tailwind-merge";
+import {
+	SettingsCollection,
+	settingsCollection,
+} from "@/db-collections/settings.collections";
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
@@ -141,3 +145,11 @@ export function formatCode(code: string): string {
 
 	return result;
 }
+
+export const updatePreferredPackageManager = (
+	value: SettingsCollection["preferredPackageManager"],
+) => {
+	settingsCollection?.update("user-settings", (draft: SettingsCollection) => {
+		draft.preferredPackageManager = value;
+	});
+};

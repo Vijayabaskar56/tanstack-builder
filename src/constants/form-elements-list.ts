@@ -62,7 +62,7 @@ export const formElementsList = [
 
 	{
 		group: "display",
-		name: "description",
+		name: "Description",
 		fieldType: "FieldDescription",
 		content: "Lorem ipsum dolor sit amet, consectetur adipisicing elit.",
 		icon: Type,
@@ -70,7 +70,7 @@ export const formElementsList = [
 	},
 	{
 		group: "display",
-		name: "legend",
+		name: "Legend",
 		fieldType: "FieldLegend",
 		content: "Lorem ipsum dolor sit amet, consectetur adipisicing elit.",
 		icon: Type,

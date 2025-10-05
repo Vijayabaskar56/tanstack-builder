@@ -2,7 +2,7 @@ import { revalidateLogic } from "@tanstack/react-form";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { toast } from "sonner";
 import * as z from "zod";
-import { FieldDescription } from "@/components/ui/field";
+
 import { Input } from "@/components/ui/input";
 import { useAppForm } from "@/components/ui/tanstack-form";
 
@@ -22,7 +22,7 @@ export function DraftForm() {
 			onDynamic: draftFormSchema,
 			onDynamicAsyncDebounceMs: 300,
 		},
-		onSubmit: ({ value }) => {
+		onSubmit: ({}) => {
 			toast.success("success");
 		},
 		onSubmitInvalid({ formApi }) {
@@ -44,8 +44,13 @@ export function DraftForm() {
 		<div>
 			<draftForm.AppForm>
 				<draftForm.Form>
-					<h1 className="text-3xl font-bold">Login</h1>
-					<FieldDescription>"Login to create an account"</FieldDescription>;
+					<draftForm.FieldLegend className="text-3xl font-bold">
+						Login
+					</draftForm.FieldLegend>
+					<draftForm.FieldDescription>
+						Login to create an account
+					</draftForm.FieldDescription>
+					<draftForm.FieldSeparator />
 					<draftForm.AppField name={"email"}>
 						{(field) => (
 							<field.FieldSet className="w-full">

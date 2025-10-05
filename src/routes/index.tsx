@@ -261,7 +261,7 @@ function HomePage() {
 									</div>
 								</div>
 
-								<div className="w-full max-w-[497px] lg:w-[497px] flex flex-col justify-center items-center gap-6 sm:gap-8 md:gap-10 lg:gap-12 relative z-10 mt-6 sm:mt-8 md:mt-10 lg:mt-12">
+								<div className="w-full max-w-[497px] lg:w-[497px] flex justify-center items-center gap-6 sm:gap-8 md:gap-10 lg:gap-12 relative z-10 mt-6 sm:mt-8 md:mt-10 lg:mt-12">
 									<Button
 										variant="default"
 										size="lg"
@@ -269,6 +269,14 @@ function HomePage() {
 										asChild
 									>
 										<Link to="/form-builder">Start Building</Link>
+									</Button>
+									<Button
+										variant="default"
+										size="lg"
+										className="w-32 rounded"
+										asChild
+									>
+										<Link to="/form-registry">Form Registry</Link>
 									</Button>
 								</div>
 

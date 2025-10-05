@@ -3,16 +3,16 @@ import { useState } from "react";
 import type { FormStep } from "@/types/form-types";
 
 type UseFormStepsProps = {
-	initialSteps: Record<number, string[]>;
-	onStepValidation?: (step: string[]) => Promise<boolean> | boolean;
+	initialSteps: FormStep[];
+	onStepValidation?: (step: FormStep) => Promise<boolean> | boolean;
 };
 
 export type UseMultiFormStepsReturn = {
-	steps: Record<number, string[]>;
+	steps: FormStep[];
 
 	currentStep: number;
 
-	currentStepData: string[];
+	currentStepData: FormStep;
 
 	progress: number;
 
@@ -35,13 +35,11 @@ export function useMultiStepForm({
 		const currentStepData = initialSteps[currentStep - 1];
 
 		if (onStepValidation) {
-			const isValid = await onStepValidation(
-				currentStepData as unknown as string[],
-			);
+			const isValid = await onStepValidation(currentStepData);
 			if (!isValid) return false;
 		}
 
-		if (currentStep < Object.keys(currentStepData).length + 1) {
+		if (currentStep < steps.length) {
 			setCurrentStep((prev) => prev + 1);
 			return true;
 		}
@@ -57,10 +55,10 @@ export function useMultiStepForm({
 	return {
 		steps,
 		currentStep,
-		currentStepData: steps[currentStep - 1] as string[],
-		progress: (currentStep / Object.keys(steps).length) * 100,
+		currentStepData: steps[currentStep - 1],
+		progress: (currentStep / steps.length) * 100,
 		isFirstStep: currentStep === 1,
-		isLastStep: currentStep === Object.keys(steps).length,
+		isLastStep: currentStep === steps.length,
 		goToNext,
 		goToPrevious,
 	};

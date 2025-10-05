@@ -13,6 +13,7 @@ export default function NavBar() {
 			const data = await res.json();
 			return data.stargazers_count;
 		},
+		enabled: import.meta.env.PROD,
 	});
 
 	return (
@@ -22,12 +23,7 @@ export default function NavBar() {
 				<div className="flex flex-1 items-center gap-2">
 					<div className="mr-4 flex">
 						<Link to="/">
-							<h1 className="text-lg font-semibold">
-								TanStack Form Builder{" "}
-								<span className="text-sm absolute top-3 text-primary">
-									Beta
-								</span>
-							</h1>
+							<h1 className="text-lg font-semibold">TanStack Form Builder</h1>
 						</Link>
 					</div>
 				</div>
@@ -60,7 +56,7 @@ export default function NavBar() {
 									fill="currentColor"
 								/>
 							</svg>
-							{/* {stars && <span className="ml-1 font-extrabold">{stars}</span>} */}
+							{stars && <span className="ml-1 font-bold">{stars}</span>}
 						</a>
 					</Button>
 					<Button

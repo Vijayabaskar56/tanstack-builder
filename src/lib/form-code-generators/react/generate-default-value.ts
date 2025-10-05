@@ -164,7 +164,7 @@ const valueToLiteralString = (value: unknown): string => {
 	}
 	if (Array.isArray(value)) {
 		if (value.length === 0) {
-			return "[]";
+			return "[] as string[]";
 		}
 		const arrayItems = value.map((item) => valueToLiteralString(item));
 		return `[\n  ${arrayItems.join(",\n  ")}\n]`;

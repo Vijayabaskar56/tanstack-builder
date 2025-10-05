@@ -2,15 +2,16 @@ import { revalidateLogic } from "@tanstack/react-form";
 import { AnimatePresence, motion } from "motion/react";
 import { toast } from "sonner";
 import * as z from "zod";
-import { FieldDescription, FieldLegend } from "@/components/ui/field";
+
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
+import { Separator } from "@/components/ui/separator";
 import { useAppForm, withFieldGroup } from "@/components/ui/tanstack-form";
 import { Textarea } from "@/components/ui/textarea";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useFormStepper } from "@/hooks/use-stepper";
 
-export const surveyFormFormSchema = z.object({
+export const draftFormSchema = z.object({
 	name: z.string().min(1, "This field is required"),
 	lastName: z.string().min(1, "This field is required"),
 	yourEmail: z.email(),
@@ -20,22 +21,21 @@ export const surveyFormFormSchema = z.object({
 });
 export const stepSchemas = [
 	// Step 1
-	surveyFormFormSchema.pick({
+	draftFormSchema.pick({
 		name: true,
 		lastName: true,
 	}),
 	// Step 2
-	surveyFormFormSchema.pick({
+	draftFormSchema.pick({
 		yourEmail: true,
 		phoneNumber: true,
 	}),
 	// Step 3
-	surveyFormFormSchema.pick({
+	draftFormSchema.pick({
 		preferences: true,
 		comment: true,
 	}),
 ];
-
 const Step1Group = withFieldGroup({
 	defaultValues: {
 		name: "",
@@ -44,12 +44,13 @@ const Step1Group = withFieldGroup({
 	render: function Step1Render({ group }) {
 		return (
 			<div>
-				<h2 className="text-2xl font-bold">Step 1</h2>
-				<h2 className="text-2xl font-bold">Personal Details</h2>
-				<FieldDescription>
-					"Please provide your personal details"
-				</FieldDescription>
-				;
+				<group.FieldLegend className="text-3xl font-bold">
+					Personal Details
+				</group.FieldLegend>
+				<group.FieldDescription>
+					Please provide your personal details
+				</group.FieldDescription>
+				<group.FieldSeparator />
 				<group.AppField name={"name"}>
 					{(field) => (
 						<field.FieldSet className="w-full">
@@ -72,6 +73,7 @@ const Step1Group = withFieldGroup({
 						</field.FieldSet>
 					)}
 				</group.AppField>
+
 				<group.AppField name={"lastName"}>
 					{(field) => (
 						<field.FieldSet className="w-full">
@@ -106,12 +108,13 @@ const Step2Group = withFieldGroup({
 	render: function Step2Render({ group }) {
 		return (
 			<div>
-				<h2 className="text-2xl font-bold">Step 2</h2>
-				<h2 className="text-2xl font-bold">Contact Information</h2>
-				<FieldDescription>
-					"Please provide your contact information"
-				</FieldDescription>
-				;
+				<group.FieldLegend className="text-3xl font-bold">
+					Contact Information
+				</group.FieldLegend>
+				<group.FieldDescription>
+					Please provide your contact information
+				</group.FieldDescription>
+				<group.FieldSeparator />
 				<group.AppField name={"yourEmail"}>
 					{(field) => (
 						<field.FieldSet className="w-full">
@@ -134,6 +137,7 @@ const Step2Group = withFieldGroup({
 						</field.FieldSet>
 					)}
 				</group.AppField>
+
 				<group.AppField name={"phoneNumber"}>
 					{(field) => (
 						<field.FieldSet className="w-full">
@@ -146,7 +150,7 @@ const Step2Group = withFieldGroup({
 									placeholder="Enter your phone number"
 									type="number"
 									inputMode="decimal"
-									value={(field.state.value as string | undefined) ?? ""}
+									value={field.state.value}
 									onBlur={field.handleBlur}
 									onChange={(e) => field.handleChange(e.target.valueAsNumber)}
 									aria-invalid={!!field.state.meta.errors.length}
@@ -169,8 +173,13 @@ const Step3Group = withFieldGroup({
 	render: function Step3Render({ group }) {
 		return (
 			<div>
-				<h2 className="text-2xl font-bold">Step 3</h2>
-				<h2 className="text-2xl font-bold">Your Preferences</h2>
+				<group.FieldLegend className="text-3xl font-bold">
+					Your Preferences
+				</group.FieldLegend>
+				<group.FieldDescription>
+					Tell us about your interests and preferences.
+				</group.FieldDescription>
+				<group.FieldSeparator />
 				<group.AppField name={"preferences"}>
 					{(field) => {
 						const options = [
@@ -183,7 +192,7 @@ const Step3Group = withFieldGroup({
 							<field.FieldSet className="flex flex-col gap-2 w-full py-1">
 								<field.Field>
 									<field.FieldLabel className="mt-0" htmlFor={"preferences"}>
-										Tell us about your interests and preferences.
+										Preferences *
 									</field.FieldLabel>
 
 									<ToggleGroup
@@ -240,7 +249,7 @@ const Step3Group = withFieldGroup({
 		);
 	},
 });
-export function SurveyFormForm() {
+export function DraftForm() {
 	const {
 		currentValidator,
 		step,
@@ -249,18 +258,18 @@ export function SurveyFormForm() {
 		handleCancelOrBack,
 		handleNextStepOrSubmit,
 	} = useFormStepper(stepSchemas);
-	const surveyFormForm = useAppForm({
+	const draftForm = useAppForm({
 		defaultValues: {
 			name: "",
 			lastName: "",
 			yourEmail: "",
 			phoneNumber: 0,
-			preferences: [],
+			preferences: [] as string[],
 			comment: "",
-		} as z.input<typeof surveyFormFormSchema>,
+		} as z.input<typeof draftFormSchema>,
 		validationLogic: revalidateLogic(),
 		validators: {
-			onDynamic: currentValidator as typeof surveyFormFormSchema,
+			onDynamic: currentValidator as typeof draftFormSchema,
 			onDynamicAsyncDebounceMs: 300,
 		},
 		onSubmit: ({ value }) => {
@@ -270,25 +279,25 @@ export function SurveyFormForm() {
 	const groups: Record<number, React.ReactNode> = {
 		1: (
 			<Step1Group
-				form={surveyFormForm}
+				form={draftForm}
 				fields={{ name: "name", lastName: "lastName" }}
 			/>
 		),
 		2: (
 			<Step2Group
-				form={surveyFormForm}
+				form={draftForm}
 				fields={{ yourEmail: "yourEmail", phoneNumber: "phoneNumber" }}
 			/>
 		),
 		3: (
 			<Step3Group
-				form={surveyFormForm}
+				form={draftForm}
 				fields={{ preferences: "preferences", comment: "comment" }}
 			/>
 		),
 	};
 	const handleNext = async () => {
-		await handleNextStepOrSubmit(surveyFormForm);
+		await handleNextStepOrSubmit(draftForm);
 	};
 	const handlePrevious = () => {
 		handleCancelOrBack({
@@ -298,8 +307,13 @@ export function SurveyFormForm() {
 	const current = groups[currentStep];
 	return (
 		<div>
-			<surveyFormForm.AppForm>
-				<surveyFormForm.Form>
+			<draftForm.AppForm>
+				<draftForm.Form>
+					<draftForm.FieldLegend>Survey Form</draftForm.FieldLegend>
+					<draftForm.FieldDescription>
+						Multi-Step Form Examples
+					</draftForm.FieldDescription>
+					<draftForm.FieldSeparator />
 					<div className="flex flex-col gap-2 pt-3">
 						<div className="flex flex-col items-center justify-start gap-1">
 							<span>
@@ -322,7 +336,7 @@ export function SurveyFormForm() {
 							</motion.div>
 						</AnimatePresence>
 						<div className="flex items-center justify-between gap-3 w-full pt-3">
-							<surveyFormForm.StepButton
+							<draftForm.StepButton
 								label="Previous"
 								disabled={isFirstStep}
 								handleMovement={() =>
@@ -332,20 +346,20 @@ export function SurveyFormForm() {
 								}
 							/>
 							{step.isCompleted ? (
-								<surveyFormForm.SubmitButton
+								<draftForm.SubmitButton
 									label="Submit"
-									onClick={() => handleNextStepOrSubmit(surveyFormForm)}
+									onClick={() => handleNextStepOrSubmit(draftForm)}
 								/>
 							) : (
-								<surveyFormForm.StepButton
+								<draftForm.StepButton
 									label="Next"
 									handleMovement={handleNext}
 								/>
 							)}
 						</div>
 					</div>
-				</surveyFormForm.Form>
-			</surveyFormForm.AppForm>
+				</draftForm.Form>
+			</draftForm.AppForm>
 		</div>
 	);
 }

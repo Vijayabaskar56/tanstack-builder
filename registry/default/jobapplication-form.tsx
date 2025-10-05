@@ -1,7 +1,7 @@
 import { revalidateLogic } from "@tanstack/react-form";
 import { toast } from "sonner";
 import * as z from "zod";
-import { FieldDescription, FieldLegend } from "@/components/ui/field";
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -43,7 +43,7 @@ export function JobApplicationForm() {
 			onDynamic: jobApplicationFormSchema,
 			onDynamicAsyncDebounceMs: 300,
 		},
-		onSubmit: ({ value }) => {
+		onSubmit: ({}) => {
 			toast.success("success");
 		},
 		onSubmitInvalid({ formApi }) {
@@ -65,11 +65,13 @@ export function JobApplicationForm() {
 		<div>
 			<jobApplicationForm.AppForm>
 				<jobApplicationForm.Form>
-					<h1 className="text-3xl font-bold">Job Application</h1>
-					<FieldDescription>
-						"Please fill out the form below to apply for this position"
-					</FieldDescription>
-					;
+					<jobApplicationForm.FieldLegend className="text-3xl font-bold">
+						Job Application
+					</jobApplicationForm.FieldLegend>
+					<jobApplicationForm.FieldDescription>
+						Please fill out the form below to apply for this position
+					</jobApplicationForm.FieldDescription>
+					<jobApplicationForm.FieldSeparator />
 					<div className="flex items-center justify-between flex-wrap sm:flex-nowrap w-full gap-2">
 						<jobApplicationForm.AppField name={"firstName"}>
 							{(field) => (

@@ -9,6 +9,14 @@
 			"type": "registry:ui",
 			"description": "TanStack Form",
 			"tags": ["form", "tanstack"],
+			"dependencies": ["@tanstack/react-form", "class-variance-authority"],
+			"registryDependencies": [
+				"button",
+				"field",
+				"input-group",
+				"spinner",
+				"button-group"
+			],
 			"files": [
 				{
 					"path": "src/components/ui/tanstack-form.tsx",
@@ -17,6 +25,397 @@
 				{
 					"path": "src/hooks/use-stepper.tsx",
 					"type": "registry:hook"
+				}
+			]
+		},
+		{
+			"name": "booking-form",
+			"type": "registry:block",
+			"title": "Booking Form",
+			"description": "A booking form for placing orders with product selection, personal details, and payment.",
+			"tags": ["form", "tanstack"],
+			"dependencies": ["@tanstack/react-form", "sonner", "zod"],
+			"registryDependencies": [
+				"checkbox",
+				"field",
+				"input",
+				"label",
+				"radio-group",
+				"select",
+				"textarea"
+			],
+			"files": [
+				{
+					"path": "registry/default/booking-form.tsx",
+					"type": "registry:component"
+				}
+			]
+		},
+		{
+			"name": "contact-us-form",
+			"type": "registry:block",
+			"title": "Contact Us Form",
+			"description": "A contact form for users to send messages.",
+			"tags": ["form", "tanstack"],
+			"dependencies": ["@tanstack/react-form", "sonner", "zod"],
+			"registryDependencies": ["checkbox", "field", "input", "textarea"],
+			"files": [
+				{
+					"path": "registry/default/contactu-form.tsx",
+					"type": "registry:component"
+				}
+			]
+		},
+		{
+			"name": "customer-support-form",
+			"type": "registry:block",
+			"title": "Customer Support Form",
+			"description": "A form for submitting customer support requests.",
+			"tags": ["form", "tanstack"],
+			"dependencies": ["@tanstack/react-form", "sonner", "zod"],
+			"registryDependencies": [
+				"field",
+				"input",
+				"label",
+				"radio-group",
+				"select",
+				"textarea"
+			],
+			"files": [
+				{
+					"path": "registry/default/customersupport-form.tsx",
+					"type": "registry:component"
+				}
+			]
+		},
+		{
+			"name": "event-registration-form",
+			"type": "registry:block",
+			"title": "Event Registration Form",
+			"description": "A form for registering for events.",
+			"tags": ["form", "tanstack"],
+			"dependencies": ["@tanstack/react-form", "sonner", "zod"],
+			"registryDependencies": [
+				"field",
+				"input",
+				"label",
+				"radio-group",
+				"textarea"
+			],
+			"files": [
+				{
+					"path": "registry/default/eventRegistration-form.tsx",
+					"type": "registry:component"
+				}
+			]
+		},
+		{
+			"name": "feedback-form",
+			"type": "registry:block",
+			"title": "Feedback Form",
+			"description": "A simple feedback form.",
+			"tags": ["form", "tanstack"],
+			"dependencies": ["@tanstack/react-form", "sonner", "zod"],
+			"registryDependencies": ["field", "textarea"],
+			"files": [
+				{
+					"path": "registry/default/feedback-form.tsx",
+					"type": "registry:component"
+				}
+			]
+		},
+		{
+			"name": "job-application-form",
+			"type": "registry:block",
+			"title": "Job Application Form",
+			"description": "A form for job applications.",
+			"tags": ["form", "tanstack"],
+			"dependencies": ["@tanstack/react-form", "sonner", "zod"],
+			"registryDependencies": [
+				"field",
+				"input",
+				"label",
+				"radio-group",
+				"select",
+				"textarea"
+			],
+			"files": [
+				{
+					"path": "registry/default/jobapplication-form.tsx",
+					"type": "registry:component"
+				}
+			]
+		},
+		{
+			"name": "login-form",
+			"type": "registry:block",
+			"title": "Login Form",
+			"description": "A login form with email and password.",
+			"tags": ["form", "tanstack"],
+			"dependencies": ["@tanstack/react-form", "sonner", "zod", "lucide-react"],
+			"registryDependencies": ["field", "input"],
+			"files": [
+				{
+					"path": "registry/default/login-form.tsx",
+					"type": "registry:component"
+				}
+			]
+		},
+		{
+			"name": "signup-form",
+			"type": "registry:block",
+			"title": "Signup Form",
+			"description": "A signup form with name, email, password, and confirmation.",
+			"tags": ["form", "tanstack"],
+			"dependencies": ["@tanstack/react-form", "sonner", "zod", "lucide-react"],
+			"registryDependencies": ["checkbox", "field", "input"],
+			"files": [
+				{
+					"path": "registry/default/signup-form.tsx",
+					"type": "registry:component"
+				}
+			]
+		},
+		{
+			"name": "survey-form",
+			"type": "registry:block",
+			"title": "Survey Form",
+			"description": "A multi-step survey form.",
+			"tags": ["form", "tanstack"],
+			"dependencies": ["@tanstack/react-form", "sonner", "zod", "motion"],
+			"registryDependencies": [
+				"field",
+				"input",
+				"progress",
+				"textarea",
+				"toggle-group"
+			],
+			"files": [
+				{
+					"path": "registry/default/surve-formy.tsx",
+					"type": "registry:component"
+				}
+			]
+		},
+		{
+			"name": "waitlist-form",
+			"type": "registry:block",
+			"title": "Waitlist Form",
+			"description": "A waitlist form for email signup.",
+			"tags": ["form", "tanstack"],
+			"dependencies": ["@tanstack/react-form", "sonner", "zod"],
+			"registryDependencies": ["field", "input"],
+			"files": [
+				{
+					"path": "registry/default/waitlist-form.tsx",
+					"type": "registry:component"
+				}
+			]
+		},
+		{
+			"name": "checkbox-field",
+			"type": "registry:block",
+			"title": "Checkbox Field",
+			"description": "A checkbox field form.",
+			"tags": ["form", "field", "tanstack"],
+			"dependencies": ["@tanstack/react-form", "sonner", "zod"],
+			"registryDependencies": ["checkbox", "field"],
+			"files": [
+				{
+					"path": "registry/default/checkbox-field.tsx",
+					"type": "registry:component"
+				}
+			]
+		},
+		{
+			"name": "input-field",
+			"type": "registry:block",
+			"title": "Input Field",
+			"description": "An input field form.",
+			"tags": ["form", "field", "tanstack"],
+			"dependencies": ["@tanstack/react-form", "sonner", "zod"],
+			"registryDependencies": ["field", "input"],
+			"files": [
+				{
+					"path": "registry/default/input-field.tsx",
+					"type": "registry:component"
+				}
+			]
+		},
+		{
+			"name": "password-field",
+			"type": "registry:block",
+			"title": "Password Field",
+			"description": "A password field form with visibility toggle.",
+			"tags": ["form", "field", "tanstack"],
+			"dependencies": ["@tanstack/react-form", "sonner", "zod", "lucide-react"],
+			"registryDependencies": ["field", "input-group"],
+			"files": [
+				{
+					"path": "registry/default/password-field.tsx",
+					"type": "registry:component"
+				}
+			]
+		},
+		{
+			"name": "otp-field",
+			"type": "registry:block",
+			"title": "OTP Field",
+			"description": "An OTP field form.",
+			"tags": ["form", "field", "tanstack"],
+			"dependencies": ["@tanstack/react-form", "sonner", "zod"],
+			"registryDependencies": ["field", "input-otp"],
+			"files": [
+				{
+					"path": "registry/default/otp-field.tsx",
+					"type": "registry:component"
+				}
+			]
+		},
+		{
+			"name": "textarea-field",
+			"type": "registry:block",
+			"title": "Textarea Field",
+			"description": "A textarea field form.",
+			"tags": ["form", "field", "tanstack"],
+			"dependencies": ["@tanstack/react-form", "sonner", "zod"],
+			"registryDependencies": ["field", "textarea"],
+			"files": [
+				{
+					"path": "registry/default/textarea-field.tsx",
+					"type": "registry:component"
+				}
+			]
+		},
+		{
+			"name": "radio-group-field",
+			"type": "registry:block",
+			"title": "Radio Group Field",
+			"description": "A radio group field form.",
+			"tags": ["form", "field", "tanstack"],
+			"dependencies": ["@tanstack/react-form", "sonner", "zod"],
+			"registryDependencies": ["field", "label", "radio-group"],
+			"files": [
+				{
+					"path": "registry/default/radio-group-field.tsx",
+					"type": "registry:component"
+				}
+			]
+		},
+		{
+			"name": "toggle-group-field",
+			"type": "registry:block",
+			"title": "Toggle Group Field",
+			"description": "A toggle group field form.",
+			"tags": ["form", "field", "tanstack"],
+			"dependencies": ["@tanstack/react-form", "sonner", "zod"],
+			"registryDependencies": ["field", "toggle-group"],
+			"files": [
+				{
+					"path": "registry/default/toggle-group-field.tsx",
+					"type": "registry:component"
+				}
+			]
+		},
+		{
+			"name": "switch-field",
+			"type": "registry:block",
+			"title": "Switch Field",
+			"description": "A switch field form.",
+			"tags": ["form", "field", "tanstack"],
+			"dependencies": ["@tanstack/react-form", "sonner", "zod"],
+			"registryDependencies": ["field", "switch"],
+			"files": [
+				{
+					"path": "registry/default/switch-field.tsx",
+					"type": "registry:component"
+				}
+			]
+		},
+		{
+			"name": "slider-field",
+			"type": "registry:block",
+			"title": "Slider Field",
+			"description": "A slider field form.",
+			"tags": ["form", "field", "tanstack"],
+			"dependencies": ["@tanstack/react-form", "sonner", "zod"],
+			"registryDependencies": ["field", "slider"],
+			"files": [
+				{
+					"path": "registry/default/slider-field.tsx",
+					"type": "registry:component"
+				}
+			]
+		},
+		{
+			"name": "select-field",
+			"type": "registry:block",
+			"title": "Select Field",
+			"description": "A select field form.",
+			"tags": ["form", "field", "tanstack"],
+			"dependencies": ["@tanstack/react-form", "sonner", "zod"],
+			"registryDependencies": ["field", "select"],
+			"files": [
+				{
+					"path": "registry/default/select-field.tsx",
+					"type": "registry:component"
+				}
+			]
+		},
+		{
+			"name": "multi-select-field",
+			"type": "registry:block",
+			"title": "Multi Select Field",
+			"description": "A multi-select field form.",
+			"tags": ["form", "field", "tanstack"],
+			"dependencies": ["@tanstack/react-form", "sonner", "zod"],
+			"registryDependencies": ["field", "multi-select"],
+			"files": [
+				{
+					"path": "registry/default/multi-select-field.tsx",
+					"type": "registry:component"
+				}
+			]
+		},
+		{
+			"name": "date-picker-field",
+			"type": "registry:block",
+			"title": "Date Picker Field",
+			"description": "A date picker field form.",
+			"tags": ["form", "field", "tanstack"],
+			"dependencies": [
+				"@tanstack/react-form",
+				"sonner",
+				"zod",
+				"date-fns",
+				"lucide-react"
+			],
+			"registryDependencies": ["field", "button", "calendar", "popover"],
+			"files": [
+				{
+					"path": "registry/default/date-picker-field.tsx",
+					"type": "registry:component"
+				}
+			]
+		},
+		{
+			"name": "purchase-order-form",
+			"type": "registry:block",
+			"title": "Purchase Order Form",
+			"description": "A purchase order form with multiple items.",
+			"tags": ["form", "tanstack"],
+			"dependencies": ["@tanstack/react-form", "sonner", "zod", "lucide-react"],
+			"registryDependencies": [
+				"field",
+				"separator",
+				"input",
+				"button",
+				"slider"
+			],
+			"files": [
+				{
+					"path": "registry/default/purchase-order-form.tsx",
+					"type": "registry:component"
 				}
 			]
 		}

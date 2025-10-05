@@ -64,11 +64,13 @@ export function BookingForm() {
 		<div>
 			<bookingForm.AppForm>
 				<bookingForm.Form>
-					<h1 className="text-3xl font-bold">Place Your Order</h1>
-					<FieldDescription>
-						"Fill out the details below to complete your order"
-					</FieldDescription>
-					;
+					<bookingForm.FieldLegend className="text-3xl font-bold">
+						Place Your Order
+					</bookingForm.FieldLegend>
+					<bookingForm.FieldDescription>
+						Fill out the details below to complete your order
+					</bookingForm.FieldDescription>
+					<bookingForm.FieldSeparator />
 					<bookingForm.AppField name={"product"}>
 						{(field) => {
 							const options = [

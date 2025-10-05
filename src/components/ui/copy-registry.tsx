@@ -1,24 +1,18 @@
-import * as React from "react";
+"use client";
+
+import { CheckIcon, CopyIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
 	Tooltip,
 	TooltipContent,
 	TooltipProvider,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Button } from "./button";
-import { CheckIcon } from "./check";
-import { CopyIcon } from "./copy";
+import { useCopy } from "@/hooks/use-copy";
 
-//======================================
-function CopyButton({ text }: { text: string }) {
-	const [copied, setCopied] = React.useState(false);
-	const handleCopy = () => {
-		navigator.clipboard.writeText(text);
-		setCopied(true);
-		setTimeout(() => {
-			setCopied(false);
-		}, 2000);
-	};
+const CopyButton = ({ url }: { url: string | null }) => {
+	const { copied, copy } = useCopy();
+
 	return (
 		<TooltipProvider delayDuration={0}>
 			<Tooltip>
@@ -26,8 +20,10 @@ function CopyButton({ text }: { text: string }) {
 					<Button
 						variant="ghost"
 						size="icon"
-						className="size-8"
-						onClick={handleCopy}
+						className="text-muted-foreground/80 hover:text-foreground transition-none hover:bg-transparent disabled:opacity-100 lg:opacity-0 lg:group-focus-within/item:opacity-100 lg:group-hover/item:opacity-100"
+						onClick={() => copy(url || "")}
+						aria-label={copied ? "Copied" : "Copy component source"}
+						disabled={copied}
 					>
 						{copied ? (
 							<CheckIcon className="size-4 text-green-500" />
@@ -42,6 +38,6 @@ function CopyButton({ text }: { text: string }) {
 			</Tooltip>
 		</TooltipProvider>
 	);
-}
+};
 
 export default CopyButton;

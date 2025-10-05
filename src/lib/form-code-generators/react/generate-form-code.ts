@@ -61,9 +61,9 @@ const renderFields = (
 		.map((formElement) => {
 			if (Array.isArray(formElement)) {
 				return `
-          <div className="flex items-center justify-between flex-wrap sm:flex-nowrap w-full gap-2">
-            ${formElement.map((field) => getFormElementCode(field, isInGroup, formVariableName)).join("")}
-          </div>`;
+				<div className="flex items-center justify-between flex-wrap sm:flex-nowrap w-full gap-2">
+				${formElement.map((field) => getFormElementCode(field, isInGroup, formVariableName)).join("")}
+				</div>`;
 			}
 			// Check if it's a FormArray
 			if ("arrayField" in formElement) {
@@ -75,7 +75,7 @@ const renderFields = (
 					actualFields as FormElementOrList[],
 				);
 				const pushValueStr = objectToLiteralString(defaultEntry);
-				const fieldPrefix = isInGroup ? "group" : "form";
+				const fieldPrefix = isInGroup ? "group" : formVariableName;
 				return `{${fieldPrefix}.AppField({
   name: "${formArray.name}",
   mode: "array",
@@ -89,6 +89,7 @@ const renderFields = (
 							modifyElement(el, `\`${formArray.name}[\${index}].`),
 						),
 						isInGroup, // Pass the correct group context
+						formVariableName,
 					)}
         </div>
       ))}

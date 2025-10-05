@@ -5,13 +5,10 @@ import {
 	CodeBlockCode,
 	CodeBlockGroup,
 } from "@/components/ui/code-block";
-import { CopyButton } from "@/components/ui/copy-button";
+import CopyButton from "@/components/ui/copy-button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-	type SettingsCollection,
-	settingsCollection,
-} from "@/db-collections/settings.collections";
+import { type SettingsCollection } from "@/db-collections/settings.collections";
 import { useFormStore, useIsMultiStep } from "@/hooks/use-form-store";
 import useSettings from "@/hooks/use-settings";
 import { generateFormCode } from "@/lib/form-code-generators/react/generate-form-code";
@@ -19,7 +16,11 @@ import { flattenFormSteps } from "@/lib/form-elements-helpers";
 import { getArkTypeSchemaString } from "@/lib/schema-generators/generate-arktype-schema";
 import { getValiSchemaString } from "@/lib/schema-generators/generate-valibot-schema";
 import { getZodSchemaString } from "@/lib/schema-generators/generate-zod-schema";
-import { formatCode, generateFormNames } from "@/lib/utils";
+import {
+	formatCode,
+	generateFormNames,
+	updatePreferredPackageManager,
+} from "@/lib/utils";
 
 import type {
 	FormArray,
@@ -151,21 +152,13 @@ export function CodeBlockPackagesInstallation() {
 				"bunx --bun shadcn@canary add https://tan-form-builder.baskar.dev/r/tanstack-form.json",
 		},
 	];
-	const updatePreference = (
-		value: SettingsCollection["preferredPackageManager"],
-	) => {
-		settingsCollection?.update("user-settings", (draft: SettingsCollection) => {
-			draft.preferredPackageManager = value;
-		});
-	};
-
 	return (
 		<div className="w-full py-5 max-w-full">
 			<h2 className="font-sembold text-start">Install base packages</h2>
 			<Tabs
 				value={preferredPackageManager}
 				onValueChange={(value) =>
-					updatePreference(
+					updatePreferredPackageManager(
 						value as SettingsCollection["preferredPackageManager"],
 					)
 				}
@@ -196,7 +189,7 @@ export function CodeBlockPackagesInstallation() {
 			<Tabs
 				value={preferredPackageManager}
 				onValueChange={(value) =>
-					updatePreference(
+					updatePreferredPackageManager(
 						value as SettingsCollection["preferredPackageManager"],
 					)
 				}
@@ -227,7 +220,7 @@ export function CodeBlockPackagesInstallation() {
 			<Tabs
 				value={preferredPackageManager}
 				onValueChange={(value) =>
-					updatePreference(
+					updatePreferredPackageManager(
 						value as SettingsCollection["preferredPackageManager"],
 					)
 				}

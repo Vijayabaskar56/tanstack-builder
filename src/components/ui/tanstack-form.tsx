@@ -25,8 +25,8 @@ import {
 	InputGroupAddon,
 	InputGroupInput,
 } from "@/components/ui/input-group";
+import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
-import { Spinner } from "./spinner";
 
 const {
 	fieldContext,
@@ -56,6 +56,9 @@ const { useAppForm, withForm, withFieldGroup } = createFormHook({
 	formComponents: {
 		SubmitButton,
 		StepButton,
+		FieldLegend,
+		FieldDescription,
+		FieldSeparator,
 		Form,
 	},
 });
@@ -208,7 +211,7 @@ function StepButton({
 	...props
 }: React.ComponentProps<"button"> &
 	VariantProps<typeof buttonVariants> & {
-		label: string;
+		label: React.ReactNode | string;
 		handleMovement: () => void;
 	}) {
 	return (

@@ -1,7 +1,7 @@
 import { revalidateLogic } from "@tanstack/react-form";
 import { toast } from "sonner";
 import * as z from "zod";
-import { FieldDescription, FieldLegend } from "@/components/ui/field";
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -54,9 +54,13 @@ export function EventRegistrationForm() {
 		<div>
 			<eventRegistrationForm.AppForm>
 				<eventRegistrationForm.Form>
-					<h1 className="text-3xl font-bold">Event Registration</h1>
-					<FieldDescription>"Register for our upcoming event"</FieldDescription>
-					;
+					<eventRegistrationForm.FieldLegend className="text-3xl font-bold">
+						Event Registration
+					</eventRegistrationForm.FieldLegend>
+					<eventRegistrationForm.FieldDescription>
+						Register for our upcoming event
+					</eventRegistrationForm.FieldDescription>
+					<eventRegistrationForm.FieldSeparator />
 					<div className="flex items-center justify-between flex-wrap sm:flex-nowrap w-full gap-2">
 						<eventRegistrationForm.AppField name={"firstName"}>
 							{(field) => (

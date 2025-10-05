@@ -2,7 +2,7 @@ import { revalidateLogic } from "@tanstack/react-form";
 import { toast } from "sonner";
 import * as z from "zod";
 import { Checkbox } from "@/components/ui/checkbox";
-import { FieldDescription, FieldLegend } from "@/components/ui/field";
+
 import { Input } from "@/components/ui/input";
 import { useAppForm } from "@/components/ui/tanstack-form";
 import { Textarea } from "@/components/ui/textarea";
@@ -48,11 +48,13 @@ export function ContacUsForm() {
 		<div>
 			<contacUsForm.AppForm>
 				<contacUsForm.Form>
-					<h2 className="text-2xl font-bold">Contact us</h2>
-					<FieldDescription>
-						"Please fill the form below to contact us"
-					</FieldDescription>
-					;
+					<contacUsForm.FieldLegend className="text-3xl font-bold">
+						Contact us
+					</contacUsForm.FieldLegend>
+					<contacUsForm.FieldDescription>
+						Please fill the form below to contact us
+					</contacUsForm.FieldDescription>
+					<contacUsForm.FieldSeparator />
 					<div className="flex items-center justify-between flex-wrap sm:flex-nowrap w-full gap-2">
 						<contacUsForm.AppField name={"name"}>
 							{(field) => (

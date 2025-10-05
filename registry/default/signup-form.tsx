@@ -50,8 +50,13 @@ export function SignUp() {
 		<div>
 			<draftForm.AppForm>
 				<draftForm.Form>
-					<h1 className="text-3xl font-bold">Sign Up</h1>
-					<p className="text-base">You need an account to get started</p>
+					<draftForm.FieldLegend className="text-3xl font-bold">
+						Sign Up
+					</draftForm.FieldLegend>
+					<draftForm.FieldDescription>
+						You need an account to get started
+					</draftForm.FieldDescription>
+					<draftForm.FieldSeparator />
 					<draftForm.AppField name={"name"}>
 						{(field) => (
 							<field.FieldSet className="w-full">

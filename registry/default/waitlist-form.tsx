@@ -1,25 +1,25 @@
 import { revalidateLogic } from "@tanstack/react-form";
 import { toast } from "sonner";
 import * as z from "zod";
-import { FieldDescription } from "@/components/ui/field";
+
+import { Input } from "@/components/ui/input";
 import { useAppForm } from "@/components/ui/tanstack-form";
-import { Textarea } from "@/components/ui/textarea";
 
 const draftFormSchema = z.object({
-	comment: z.string().min(1, "This field is required"),
+	email: z.email(),
 });
 
 export function DraftForm() {
 	const draftForm = useAppForm({
 		defaultValues: {
-			comment: "",
+			email: "",
 		} as z.input<typeof draftFormSchema>,
 		validationLogic: revalidateLogic(),
 		validators: {
 			onDynamic: draftFormSchema,
 			onDynamicAsyncDebounceMs: 300,
 		},
-		onSubmit: ({ value }) => {
+		onSubmit: ({}) => {
 			toast.success("success");
 		},
 		onSubmitInvalid({ formApi }) {
@@ -41,27 +41,31 @@ export function DraftForm() {
 		<div>
 			<draftForm.AppForm>
 				<draftForm.Form>
-					<h1 className="text-3xl font-bold">Feedback Form</h1>
-					<FieldDescription>"Please provide your feedback"</FieldDescription>;
-					<draftForm.AppField name={"comment"}>
+					<draftForm.FieldLegend className="text-3xl font-bold">
+						Waitlist
+					</draftForm.FieldLegend>
+					<draftForm.FieldDescription>
+						Join our waitlist to get early access
+					</draftForm.FieldDescription>
+					<draftForm.FieldSeparator />
+					<draftForm.AppField name={"email"}>
 						{(field) => (
 							<field.FieldSet className="w-full">
 								<field.Field>
-									<field.FieldLabel htmlFor={"comment"}>
-										Feedback Comment *
+									<field.FieldLabel htmlFor={"email"}>
+										Your Email *
 									</field.FieldLabel>
-									<Textarea
-										placeholder="Share your feedback"
-										required={true}
-										disabled={false}
+									<Input
+										name={"email"}
+										placeholder="Enter your Email"
+										type="email"
 										value={(field.state.value as string | undefined) ?? ""}
-										name={"comment"}
-										onChange={(e) => field.handleChange(e.target.value)}
 										onBlur={field.handleBlur}
-										className="resize-none"
+										onChange={(e) => field.handleChange(e.target.value)}
 										aria-invalid={!!field.state.meta.errors.length}
 									/>
 								</field.Field>
+
 								<field.FieldError />
 							</field.FieldSet>
 						)}

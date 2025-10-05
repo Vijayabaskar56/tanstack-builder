@@ -508,9 +508,9 @@ export const getFormElementCode = (
 		case "Separator":
 			return `<FieldSeparator />;`;
 		case "FieldLegend":
-			return `<FieldLegend>"${field.content}"</FieldLegend>;`;
+			return `<FieldLegend>${field.content}</FieldLegend>`;
 		case "FieldDescription":
-			return `<FieldDescription>"${field.content}"</FieldDescription>;`;
+			return `<FieldDescription>${field.content}</FieldDescription>`;
 		default:
 			return null;
 	}

@@ -6,7 +6,33 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import type { AppForm } from "@/hooks/use-form-builder";
 import { useMultiStepForm } from "@/hooks/use-multi-step-form";
-import type { FormArray, FormElement, FormStep } from "@/types/form-types";
+import useSettings from "@/hooks/use-settings";
+import type { FormArray, FormStep } from "@/types/form-types";
+
+function collectFieldNames(items: any[]): string[] {
+	const names: string[] = [];
+	for (const item of items) {
+		if (Array.isArray(item)) {
+			names.push(...collectFieldNames(item));
+		} else if (typeof item === "object" && item.fieldType === "FormArray") {
+			const arrayName = item.name;
+			for (let i = 0; i < item.entries.length; i++) {
+				names.push(
+					...collectFieldNames(item.entries[i].fields).map(
+						(name) => `${arrayName}.${i}.${name}`,
+					),
+				);
+			}
+		} else if (
+			typeof item === "object" &&
+			"fieldType" in item &&
+			!item.static
+		) {
+			names.push(item.name);
+		}
+	}
+	return names;
+}
 export function MultiStepFormPreview({
 	form,
 	formElements,
@@ -14,24 +40,26 @@ export function MultiStepFormPreview({
 	form: AppForm;
 	formElements: FormStep[];
 }) {
+	const { validationMethod } = useSettings();
+	const validate =
+		validationMethod === "onBlur"
+			? "blur"
+			: validationMethod === "onChange"
+				? "change"
+				: "submit";
 	const { currentStep, isLastStep, goToNext, goToPrevious } = useMultiStepForm({
 		initialSteps: formElements as FormStep[],
 		onStepValidation: async (step) => {
-			const stepFields = (step.stepFields as FormElement[])
-				.flat()
-				.filter((o) => {
-					// Skip FormArray elements and static elements
-					if (typeof o === "object" && o !== null && "arrayField" in o) {
-						return false; // Skip FormArray
-					}
-					return !o.static;
-				})
-				.map((o) => o.name);
-			let isValid = true;
-			for (const fieldName of stepFields) {
-				const fieldValid = await form.validateField(fieldName, "change");
-				isValid = isValid && Boolean(fieldValid);
+			const fieldNames = collectFieldNames(
+				Array.isArray(step.stepFields)
+					? step.stepFields.flat()
+					: step.stepFields,
+			);
+			for (const fieldName of fieldNames) {
+				await form.validateField(fieldName, validate);
 			}
+			const fieldErrors = form.getAllErrors().fields;
+			const isValid = fieldNames.every((name) => !fieldErrors[name]);
 			return isValid;
 		},
 	});
