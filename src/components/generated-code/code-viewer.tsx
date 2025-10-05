@@ -174,18 +174,13 @@ export function CodeBlockPackagesInstallation() {
 				</TabsList>
 				{tabsData.map((item) => (
 					<TabsContent key={item.value} value={item.value}>
-						<div className="relative">
-							<CodeBlock>
-								<CodeBlockCode
-									code={item.base}
-									language="bash"
-									theme={codeTheme}
-								/>
-							</CodeBlock>
-							<div className="absolute top-2 right-2">
-								<CopyButton text={item.base} />
-							</div>
-						</div>
+						<CodeBlock>
+							<CodeBlockCode
+								code={item.base}
+								language="bash"
+								theme={codeTheme}
+							/>
+						</CodeBlock>
 					</TabsContent>
 				))}
 			</Tabs>
@@ -193,7 +188,7 @@ export function CodeBlockPackagesInstallation() {
 				Install required shadcn components
 			</h2>
 			<Tabs
-				value={settings?.preferredPackageManager}
+				value={preferredPackageManager}
 				onValueChange={(value) =>
 					updatePreferredPackageManager(
 						value as SettingsCollection["preferredPackageManager"],
@@ -210,18 +205,13 @@ export function CodeBlockPackagesInstallation() {
 				</TabsList>
 				{tabsData.map((item) => (
 					<TabsContent key={item.value} value={item.value}>
-						<div className="relative">
-							<CodeBlock>
-								<CodeBlockCode
-									code={item.shadcn}
-									language="bash"
-									theme={codeTheme}
-								/>
-							</CodeBlock>
-							<div className="absolute top-2 right-2">
-								<CopyButton text={item.shadcn} />
-							</div>
-						</div>
+						<CodeBlock>
+							<CodeBlockCode
+								code={item.shadcn}
+								language="bash"
+								theme={codeTheme}
+							/>
+						</CodeBlock>
 					</TabsContent>
 				))}
 			</Tabs>
@@ -246,18 +236,13 @@ export function CodeBlockPackagesInstallation() {
 				</TabsList>
 				{tabsData.map((item) => (
 					<TabsContent key={item.value} value={item.value}>
-						<div className="relative">
-							<CodeBlock>
-								<CodeBlockCode
-									code={item.registery}
-									language="bash"
-									theme={codeTheme}
-								/>
-							</CodeBlock>
-							<div className="absolute top-2 right-2">
-								<CopyButton text={item.registery} />
-							</div>
-						</div>
+						<CodeBlock>
+							<CodeBlockCode
+								code={item.registery}
+								language="bash"
+								theme={codeTheme}
+							/>
+						</CodeBlock>
 					</TabsContent>
 				))}
 			</Tabs>

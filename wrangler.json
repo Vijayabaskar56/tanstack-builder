@@ -6,5 +6,12 @@
 	"main": "@tanstack/react-start/server-entry",
 	"vars": {
 		"MY_VAR": "Hello from Cloudflare"
-	}
+	},
+	"kv_namespaces": [
+    {
+      "binding": "CACHE",
+      "id": "81933913fa104eb4b88104f5766ad6ea",   
+      "preview_id": "<ID_OF_PREVIEW_KV_NAMESPACE_FOR_LOCAL_DEVELOPMENT>"
+    }
+  ]
 }
