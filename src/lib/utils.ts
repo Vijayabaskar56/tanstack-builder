@@ -1,3 +1,4 @@
+import { createClientOnlyFn } from "@tanstack/react-start";
 import { type ClassValue, clsx } from "clsx";
 import js_beautify from "js-beautify";
 import { twMerge } from "tailwind-merge";
@@ -146,10 +147,10 @@ export function formatCode(code: string): string {
 	return result;
 }
 
-export const updatePreferredPackageManager = (
-	value: SettingsCollection["preferredPackageManager"],
-) => {
-	settingsCollection?.update("user-settings", (draft: SettingsCollection) => {
-		draft.preferredPackageManager = value;
-	});
-};
+export const updatePreferredPackageManager = createClientOnlyFn(
+	(value: SettingsCollection["preferredPackageManager"]) => {
+		settingsCollection?.update("user-settings", (draft: SettingsCollection) => {
+			draft.preferredPackageManager = value;
+		});
+	},
+);

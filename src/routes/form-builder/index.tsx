@@ -34,6 +34,7 @@ export const Route = createFileRoute("/form-builder/")({
 	component: FormBuilderComponent,
 	errorComponent: ErrorBoundary,
 	notFoundComponent: NotFound,
+	ssr: false,
 });
 
 function FormBuilderComponent() {
