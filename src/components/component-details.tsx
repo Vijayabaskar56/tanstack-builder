@@ -4,6 +4,7 @@ import { CodeIcon } from "lucide-react";
 import { JSX, useEffect, useState } from "react";
 import type { RegistryItem } from "shadcn/registry";
 import ComponentCli from "@/components/cli-commands";
+import { ClientOnly } from "@/components/client-only";
 import CodeBlock, { highlight } from "@/components/code-block";
 import CopyRegistry from "@/components/copy-registry";
 import { Button } from "@/components/ui/button";
@@ -115,7 +116,9 @@ export default function ComponentDetails({
 						</DialogDescription>
 					</DialogHeader>
 					<div className="min-w-0 space-y-5">
-						<ComponentCli name={component.name} />
+						<ClientOnly>
+							<ComponentCli name={component.name} />
+						</ClientOnly>
 						<div className="space-y-4">
 							<p className="text-lg font-semibold tracking-tight flex justify-between w-full">
 								<span>Code</span>

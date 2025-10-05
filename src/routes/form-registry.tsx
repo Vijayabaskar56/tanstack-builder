@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import ComponentCli from "@/components/cli-commands";
+import { ClientOnly } from "@/components/client-only";
 import CodeBlock from "@/components/code-block";
 import ComponentCard from "@/components/component-card";
 import ComponentDetails from "@/components/component-details";
@@ -13,7 +14,7 @@ import { EventRegistrationForm } from "../../registry/default/eventRegistration-
 import { DraftForm as FeedbackForm } from "../../registry/default/feedback-form";
 import { InputForm } from "../../registry/default/input-field";
 import { JobApplicationForm } from "../../registry/default/jobapplication-form";
-import { DraftForm as LoginForm } from "../../registry/default/login-form";
+
 import { MultiSelectForm } from "../../registry/default/multi-select-field";
 import { OTPForm } from "../../registry/default/otp-field";
 import { PasswordForm } from "../../registry/default/password-field";
@@ -269,7 +270,9 @@ function RouteComponent() {
 			</p>
 			{/* <ComponentDetails component={tanstackRegistry} /> */}
 			<div className="relative mb-4">
-				<ComponentCli name={tanstackRegistry.name} />
+				<ClientOnly>
+					<ComponentCli name={tanstackRegistry.name} />
+				</ClientOnly>
 			</div>
 			<h2 className="text-2xl font-semibold mb-4">Usage</h2>
 			<p className="mb-4">

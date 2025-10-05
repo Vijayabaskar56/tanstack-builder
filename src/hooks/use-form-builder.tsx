@@ -118,9 +118,7 @@ export const useFormBuilder = (): {
 					}
 				}
 				firstInput?.focus();
-			} catch (error) {
-				console.log("🚀 ~ onSubmitInvalid ~ error:", error);
-			}
+			} catch (error) {}
 		},
 	});
 	const { reset } = form;
