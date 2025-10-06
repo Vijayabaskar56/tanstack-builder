@@ -22,7 +22,8 @@
 		"noUncheckedSideEffectImports": true,
 		"baseUrl": ".",
 		"paths": {
-			"@/*": ["./src/*"]
+			"@/*": ["./src/*"],
+			"@/registry/*": ["./registry/*"]
 		}
 	}
 }
