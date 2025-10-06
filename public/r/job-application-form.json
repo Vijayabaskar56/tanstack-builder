@@ -15,7 +15,8 @@
     "label",
     "radio-group",
     "select",
-    "textarea"
+    "textarea",
+    "https://tan-form-builder.baskar.dev/r/tanstack-form.json"
   ],
   "files": [
     {

@@ -12,12 +12,16 @@
 			"dependencies": ["@tanstack/react-form", "class-variance-authority"],
 			"registryDependencies": [
 				"button",
-				"field",
 				"input-group",
 				"spinner",
-				"button-group"
+				"button-group",
+				"https://tan-form-builder.baskar.dev/r/tanstack-form.json"
 			],
 			"files": [
+				{
+					"path": "src/components/ui/field.tsx",
+					"type": "registry:ui"
+				},
 				{
 					"path": "src/components/ui/tanstack-form.tsx",
 					"type": "registry:ui"
@@ -42,7 +46,8 @@
 				"label",
 				"radio-group",
 				"select",
-				"textarea"
+				"textarea",
+				"https://tan-form-builder.baskar.dev/r/tanstack-form.json"
 			],
 			"files": [
 				{
@@ -58,7 +63,7 @@
 			"description": "A contact form for users to send messages.",
 			"tags": ["form", "tanstack"],
 			"dependencies": ["@tanstack/react-form", "sonner", "zod"],
-			"registryDependencies": ["checkbox", "field", "input", "textarea"],
+			"registryDependencies": ["checkbox", "field", "input", "textarea", "https://tan-form-builder.baskar.dev/r/tanstack-form.json"],
 			"files": [
 				{
 					"path": "registry/default/contactu-form.tsx",
@@ -79,7 +84,8 @@
 				"label",
 				"radio-group",
 				"select",
-				"textarea"
+				"textarea",
+				"https://tan-form-builder.baskar.dev/r/tanstack-form.json"
 			],
 			"files": [
 				{
@@ -100,7 +106,8 @@
 				"input",
 				"label",
 				"radio-group",
-				"textarea"
+				"textarea",
+				"https://tan-form-builder.baskar.dev/r/tanstack-form.json"
 			],
 			"files": [
 				{
@@ -116,7 +123,7 @@
 			"description": "A simple feedback form.",
 			"tags": ["form", "tanstack"],
 			"dependencies": ["@tanstack/react-form", "sonner", "zod"],
-			"registryDependencies": ["field", "textarea"],
+			"registryDependencies": ["field", "textarea", "https://tan-form-builder.baskar.dev/r/tanstack-form.json"],
 			"files": [
 				{
 					"path": "registry/default/feedback-form.tsx",
@@ -137,7 +144,8 @@
 				"label",
 				"radio-group",
 				"select",
-				"textarea"
+				"textarea",
+				"https://tan-form-builder.baskar.dev/r/tanstack-form.json"
 			],
 			"files": [
 				{
@@ -153,7 +161,7 @@
 			"description": "A login form with email and password.",
 			"tags": ["form", "tanstack"],
 			"dependencies": ["@tanstack/react-form", "sonner", "zod", "lucide-react"],
-			"registryDependencies": ["field", "input"],
+			"registryDependencies": ["field", "input", "https://tan-form-builder.baskar.dev/r/tanstack-form.json"],
 			"files": [
 				{
 					"path": "registry/default/login-form.tsx",
@@ -168,7 +176,7 @@
 			"description": "A signup form with name, email, password, and confirmation.",
 			"tags": ["form", "tanstack"],
 			"dependencies": ["@tanstack/react-form", "sonner", "zod", "lucide-react"],
-			"registryDependencies": ["checkbox", "field", "input"],
+			"registryDependencies": ["checkbox", "field", "input", "https://tan-form-builder.baskar.dev/r/tanstack-form.json"],
 			"files": [
 				{
 					"path": "registry/default/signup-form.tsx",
@@ -188,7 +196,8 @@
 				"input",
 				"progress",
 				"textarea",
-				"toggle-group"
+				"toggle-group",
+				"https://tan-form-builder.baskar.dev/r/tanstack-form.json"
 			],
 			"files": [
 				{
@@ -204,7 +213,7 @@
 			"description": "A waitlist form for email signup.",
 			"tags": ["form", "tanstack"],
 			"dependencies": ["@tanstack/react-form", "sonner", "zod"],
-			"registryDependencies": ["field", "input"],
+			"registryDependencies": ["field", "input", "https://tan-form-builder.baskar.dev/r/tanstack-form.json"],
 			"files": [
 				{
 					"path": "registry/default/waitlist-form.tsx",
@@ -219,7 +228,7 @@
 			"description": "A checkbox field form.",
 			"tags": ["form", "field", "tanstack"],
 			"dependencies": ["@tanstack/react-form", "sonner", "zod"],
-			"registryDependencies": ["checkbox", "field"],
+			"registryDependencies": ["checkbox", "field", "https://tan-form-builder.baskar.dev/r/tanstack-form.json"],
 			"files": [
 				{
 					"path": "registry/default/checkbox-field.tsx",
@@ -234,7 +243,7 @@
 			"description": "An input field form.",
 			"tags": ["form", "field", "tanstack"],
 			"dependencies": ["@tanstack/react-form", "sonner", "zod"],
-			"registryDependencies": ["field", "input"],
+			"registryDependencies": ["field", "input", "https://tan-form-builder.baskar.dev/r/tanstack-form.json"],
 			"files": [
 				{
 					"path": "registry/default/input-field.tsx",
@@ -249,7 +258,7 @@
 			"description": "A password field form with visibility toggle.",
 			"tags": ["form", "field", "tanstack"],
 			"dependencies": ["@tanstack/react-form", "sonner", "zod", "lucide-react"],
-			"registryDependencies": ["field", "input-group"],
+			"registryDependencies": ["field", "input-group", "https://tan-form-builder.baskar.dev/r/tanstack-form.json"],
 			"files": [
 				{
 					"path": "registry/default/password-field.tsx",
@@ -264,7 +273,7 @@
 			"description": "An OTP field form.",
 			"tags": ["form", "field", "tanstack"],
 			"dependencies": ["@tanstack/react-form", "sonner", "zod"],
-			"registryDependencies": ["field", "input-otp"],
+			"registryDependencies": ["field", "input-otp", "https://tan-form-builder.baskar.dev/r/tanstack-form.json"],
 			"files": [
 				{
 					"path": "registry/default/otp-field.tsx",
@@ -279,7 +288,7 @@
 			"description": "A textarea field form.",
 			"tags": ["form", "field", "tanstack"],
 			"dependencies": ["@tanstack/react-form", "sonner", "zod"],
-			"registryDependencies": ["field", "textarea"],
+			"registryDependencies": ["field", "textarea", "https://tan-form-builder.baskar.dev/r/tanstack-form.json"],
 			"files": [
 				{
 					"path": "registry/default/textarea-field.tsx",
@@ -294,7 +303,7 @@
 			"description": "A radio group field form.",
 			"tags": ["form", "field", "tanstack"],
 			"dependencies": ["@tanstack/react-form", "sonner", "zod"],
-			"registryDependencies": ["field", "label", "radio-group"],
+			"registryDependencies": ["field", "label", "radio-group", "https://tan-form-builder.baskar.dev/r/tanstack-form.json"],
 			"files": [
 				{
 					"path": "registry/default/radio-group-field.tsx",
@@ -309,7 +318,7 @@
 			"description": "A toggle group field form.",
 			"tags": ["form", "field", "tanstack"],
 			"dependencies": ["@tanstack/react-form", "sonner", "zod"],
-			"registryDependencies": ["field", "toggle-group"],
+			"registryDependencies": ["field", "toggle-group", "https://tan-form-builder.baskar.dev/r/tanstack-form.json"],
 			"files": [
 				{
 					"path": "registry/default/toggle-group-field.tsx",
@@ -324,7 +333,7 @@
 			"description": "A switch field form.",
 			"tags": ["form", "field", "tanstack"],
 			"dependencies": ["@tanstack/react-form", "sonner", "zod"],
-			"registryDependencies": ["field", "switch"],
+			"registryDependencies": ["field", "switch", "https://tan-form-builder.baskar.dev/r/tanstack-form.json"],
 			"files": [
 				{
 					"path": "registry/default/switch-field.tsx",
@@ -339,7 +348,7 @@
 			"description": "A slider field form.",
 			"tags": ["form", "field", "tanstack"],
 			"dependencies": ["@tanstack/react-form", "sonner", "zod"],
-			"registryDependencies": ["field", "slider"],
+			"registryDependencies": ["field", "slider", "https://tan-form-builder.baskar.dev/r/tanstack-form.json"],
 			"files": [
 				{
 					"path": "registry/default/slider-field.tsx",
@@ -354,7 +363,7 @@
 			"description": "A select field form.",
 			"tags": ["form", "field", "tanstack"],
 			"dependencies": ["@tanstack/react-form", "sonner", "zod"],
-			"registryDependencies": ["field", "select"],
+			"registryDependencies": ["field", "select", "https://tan-form-builder.baskar.dev/r/tanstack-form.json"],
 			"files": [
 				{
 					"path": "registry/default/select-field.tsx",
@@ -369,7 +378,7 @@
 			"description": "A multi-select field form.",
 			"tags": ["form", "field", "tanstack"],
 			"dependencies": ["@tanstack/react-form", "sonner", "zod"],
-			"registryDependencies": ["field", "multi-select"],
+			"registryDependencies": ["field", "multi-select", "https://tan-form-builder.baskar.dev/r/tanstack-form.json", "@formcn/multi-select"],
 			"files": [
 				{
 					"path": "registry/default/multi-select-field.tsx",
@@ -390,7 +399,7 @@
 				"date-fns",
 				"lucide-react"
 			],
-			"registryDependencies": ["field", "button", "calendar", "popover"],
+			"registryDependencies": ["field", "button", "calendar", "popover", "https://tan-form-builder.baskar.dev/r/tanstack-form.json"],
 			"files": [
 				{
 					"path": "registry/default/date-picker-field.tsx",
@@ -410,7 +419,8 @@
 				"separator",
 				"input",
 				"button",
-				"slider"
+				"slider",
+				"https://tan-form-builder.baskar.dev/r/tanstack-form.json"
 			],
 			"files": [
 				{

@@ -5,18 +5,18 @@ import * as z from "zod";
 import { Input } from "@/components/ui/input";
 import { useAppForm } from "@/components/ui/tanstack-form";
 
-const draftFormSchema = z.object({
+const waitlistFormSchema = z.object({
 	email: z.email(),
 });
 
-export function DraftForm() {
-	const draftForm = useAppForm({
+export function WaitlistForm() {
+	const waitlistForm = useAppForm({
 		defaultValues: {
 			email: "",
-		} as z.input<typeof draftFormSchema>,
+		} as z.input<typeof waitlistFormSchema>,
 		validationLogic: revalidateLogic(),
 		validators: {
-			onDynamic: draftFormSchema,
+			onDynamic: waitlistFormSchema,
 			onDynamicAsyncDebounceMs: 300,
 		},
 		onSubmit: ({}) => {
@@ -39,16 +39,16 @@ export function DraftForm() {
 	});
 	return (
 		<div>
-			<draftForm.AppForm>
-				<draftForm.Form>
-					<draftForm.FieldLegend className="text-3xl font-bold">
+			<waitlistForm.AppForm>
+				<waitlistForm.Form>
+					<waitlistForm.FieldLegend className="text-3xl font-bold">
 						Waitlist
-					</draftForm.FieldLegend>
-					<draftForm.FieldDescription>
+					</waitlistForm.FieldLegend>
+					<waitlistForm.FieldDescription>
 						Join our waitlist to get early access
-					</draftForm.FieldDescription>
-					<draftForm.FieldSeparator />
-					<draftForm.AppField name={"email"}>
+					</waitlistForm.FieldDescription>
+					<waitlistForm.FieldSeparator />
+					<waitlistForm.AppField name={"email"}>
 						{(field) => (
 							<field.FieldSet className="w-full">
 								<field.Field>
@@ -69,12 +69,12 @@ export function DraftForm() {
 								<field.FieldError />
 							</field.FieldSet>
 						)}
-					</draftForm.AppField>
+					</waitlistForm.AppField>
 					<div className="flex justify-end items-center w-full pt-3">
-						<draftForm.SubmitButton label="Submit" />
+						<waitlistForm.SubmitButton label="Submit" />
 					</div>
-				</draftForm.Form>
-			</draftForm.AppForm>
+				</waitlistForm.Form>
+			</waitlistForm.AppForm>
 		</div>
 	);
 }

@@ -13,7 +13,8 @@
   "registryDependencies": [
     "checkbox",
     "field",
-    "input"
+    "input",
+    "https://tan-form-builder.baskar.dev/r/tanstack-form.json"
   ],
   "files": [
     {

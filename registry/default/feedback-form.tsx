@@ -5,18 +5,18 @@ import * as z from "zod";
 import { useAppForm } from "@/components/ui/tanstack-form";
 import { Textarea } from "@/components/ui/textarea";
 
-const draftFormSchema = z.object({
+const feedBackSchema = z.object({
 	comment: z.string().min(1, "This field is required"),
 });
 
-export function DraftForm() {
-	const draftForm = useAppForm({
+export function FeedbackForm() {
+	const feedBack = useAppForm({
 		defaultValues: {
 			comment: "",
-		} as z.input<typeof draftFormSchema>,
+		} as z.input<typeof feedBackSchema>,
 		validationLogic: revalidateLogic(),
 		validators: {
-			onDynamic: draftFormSchema,
+			onDynamic: feedBackSchema,
 			onDynamicAsyncDebounceMs: 300,
 		},
 		onSubmit: ({}) => {
@@ -39,16 +39,16 @@ export function DraftForm() {
 	});
 	return (
 		<div>
-			<draftForm.AppForm>
-				<draftForm.Form>
-					<draftForm.FieldLegend className="text-3xl font-bold">
+			<feedBack.AppForm>
+				<feedBack.Form>
+					<feedBack.FieldLegend className="text-3xl font-bold">
 						Feedback Form
-					</draftForm.FieldLegend>
-					<draftForm.FieldDescription>
+					</feedBack.FieldLegend>
+					<feedBack.FieldDescription>
 						Please provide your feedback
-					</draftForm.FieldDescription>
-					<draftForm.FieldSeparator />
-					<draftForm.AppField name={"comment"}>
+					</feedBack.FieldDescription>
+					<feedBack.FieldSeparator />
+					<feedBack.AppField name={"comment"}>
 						{(field) => (
 							<field.FieldSet className="w-full">
 								<field.Field>
@@ -70,12 +70,12 @@ export function DraftForm() {
 								<field.FieldError />
 							</field.FieldSet>
 						)}
-					</draftForm.AppField>
+					</feedBack.AppField>
 					<div className="flex justify-end items-center w-full pt-3">
-						<draftForm.SubmitButton label="Submit" />
+						<feedBack.SubmitButton label="Submit" />
 					</div>
-				</draftForm.Form>
-			</draftForm.AppForm>
+				</feedBack.Form>
+			</feedBack.AppForm>
 		</div>
 	);
 }

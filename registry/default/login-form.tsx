@@ -6,20 +6,20 @@ import * as z from "zod";
 import { Input } from "@/components/ui/input";
 import { useAppForm } from "@/components/ui/tanstack-form";
 
-const draftFormSchema = z.object({
+const loginFormSchema = z.object({
 	email: z.email().optional(),
 	password: z.string().min(1, "This field is required"),
 });
 
-export function DraftForm() {
-	const draftForm = useAppForm({
+export function LoginForm() {
+	const loginForm = useAppForm({
 		defaultValues: {
 			email: "",
 			password: "",
-		} as z.input<typeof draftFormSchema>,
+		} as z.input<typeof loginFormSchema>,
 		validationLogic: revalidateLogic(),
 		validators: {
-			onDynamic: draftFormSchema,
+			onDynamic: loginFormSchema,
 			onDynamicAsyncDebounceMs: 300,
 		},
 		onSubmit: ({}) => {
@@ -42,16 +42,16 @@ export function DraftForm() {
 	});
 	return (
 		<div>
-			<draftForm.AppForm>
-				<draftForm.Form>
-					<draftForm.FieldLegend className="text-3xl font-bold">
+			<loginForm.AppForm>
+				<loginForm.Form>
+					<loginForm.FieldLegend className="text-3xl font-bold">
 						Login
-					</draftForm.FieldLegend>
-					<draftForm.FieldDescription>
+					</loginForm.FieldLegend>
+					<loginForm.FieldDescription>
 						Login to create an account
-					</draftForm.FieldDescription>
-					<draftForm.FieldSeparator />
-					<draftForm.AppField name={"email"}>
+					</loginForm.FieldDescription>
+					<loginForm.FieldSeparator />
+					<loginForm.AppField name={"email"}>
 						{(field) => (
 							<field.FieldSet className="w-full">
 								<field.Field>
@@ -70,8 +70,8 @@ export function DraftForm() {
 								<field.FieldError />
 							</field.FieldSet>
 						)}
-					</draftForm.AppField>
-					<draftForm.AppField name={"password"}>
+					</loginForm.AppField>
+					<loginForm.AppField name={"password"}>
 						{(field) => (
 							<field.FieldSet className="w-full">
 								<field.FieldLabel htmlFor={"password"}>
@@ -120,12 +120,12 @@ export function DraftForm() {
 								<field.FieldError />
 							</field.FieldSet>
 						)}
-					</draftForm.AppField>
+					</loginForm.AppField>
 					<div className="flex justify-end items-center w-full pt-3">
-						<draftForm.SubmitButton label="Submit" />
+						<loginForm.SubmitButton label="Submit" />
 					</div>
-				</draftForm.Form>
-			</draftForm.AppForm>
+				</loginForm.Form>
+			</loginForm.AppForm>
 		</div>
 	);
 }

@@ -5,13 +5,12 @@ import * as z from "zod";
 
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
-import { Separator } from "@/components/ui/separator";
 import { useAppForm, withFieldGroup } from "@/components/ui/tanstack-form";
 import { Textarea } from "@/components/ui/textarea";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useFormStepper } from "@/hooks/use-stepper";
 
-export const draftFormSchema = z.object({
+export const surveyFormSchema = z.object({
 	name: z.string().min(1, "This field is required"),
 	lastName: z.string().min(1, "This field is required"),
 	yourEmail: z.email(),
@@ -21,17 +20,17 @@ export const draftFormSchema = z.object({
 });
 export const stepSchemas = [
 	// Step 1
-	draftFormSchema.pick({
+	surveyFormSchema.pick({
 		name: true,
 		lastName: true,
 	}),
 	// Step 2
-	draftFormSchema.pick({
+	surveyFormSchema.pick({
 		yourEmail: true,
 		phoneNumber: true,
 	}),
 	// Step 3
-	draftFormSchema.pick({
+	surveyFormSchema.pick({
 		preferences: true,
 		comment: true,
 	}),
@@ -249,7 +248,7 @@ const Step3Group = withFieldGroup({
 		);
 	},
 });
-export function DraftForm() {
+export function SurveyForm() {
 	const {
 		currentValidator,
 		step,
@@ -258,7 +257,7 @@ export function DraftForm() {
 		handleCancelOrBack,
 		handleNextStepOrSubmit,
 	} = useFormStepper(stepSchemas);
-	const draftForm = useAppForm({
+	const surveyForm = useAppForm({
 		defaultValues: {
 			name: "",
 			lastName: "",
@@ -266,10 +265,10 @@ export function DraftForm() {
 			phoneNumber: 0,
 			preferences: [] as string[],
 			comment: "",
-		} as z.input<typeof draftFormSchema>,
+		} as z.input<typeof surveyFormSchema>,
 		validationLogic: revalidateLogic(),
 		validators: {
-			onDynamic: currentValidator as typeof draftFormSchema,
+			onDynamic: currentValidator as typeof surveyFormSchema,
 			onDynamicAsyncDebounceMs: 300,
 		},
 		onSubmit: ({ value }) => {
@@ -279,25 +278,25 @@ export function DraftForm() {
 	const groups: Record<number, React.ReactNode> = {
 		1: (
 			<Step1Group
-				form={draftForm}
+				form={surveyForm}
 				fields={{ name: "name", lastName: "lastName" }}
 			/>
 		),
 		2: (
 			<Step2Group
-				form={draftForm}
+				form={surveyForm}
 				fields={{ yourEmail: "yourEmail", phoneNumber: "phoneNumber" }}
 			/>
 		),
 		3: (
 			<Step3Group
-				form={draftForm}
+				form={surveyForm}
 				fields={{ preferences: "preferences", comment: "comment" }}
 			/>
 		),
 	};
 	const handleNext = async () => {
-		await handleNextStepOrSubmit(draftForm);
+		await handleNextStepOrSubmit(surveyForm);
 	};
 	const handlePrevious = () => {
 		handleCancelOrBack({
@@ -307,13 +306,13 @@ export function DraftForm() {
 	const current = groups[currentStep];
 	return (
 		<div>
-			<draftForm.AppForm>
-				<draftForm.Form>
-					<draftForm.FieldLegend>Survey Form</draftForm.FieldLegend>
-					<draftForm.FieldDescription>
+			<surveyForm.AppForm>
+				<surveyForm.Form>
+					<surveyForm.FieldLegend>Survey Form</surveyForm.FieldLegend>
+					<surveyForm.FieldDescription>
 						Multi-Step Form Examples
-					</draftForm.FieldDescription>
-					<draftForm.FieldSeparator />
+					</surveyForm.FieldDescription>
+					<surveyForm.FieldSeparator />
 					<div className="flex flex-col gap-2 pt-3">
 						<div className="flex flex-col items-center justify-start gap-1">
 							<span>
@@ -336,7 +335,7 @@ export function DraftForm() {
 							</motion.div>
 						</AnimatePresence>
 						<div className="flex items-center justify-between gap-3 w-full pt-3">
-							<draftForm.StepButton
+							<surveyForm.StepButton
 								label="Previous"
 								disabled={isFirstStep}
 								handleMovement={() =>
@@ -346,20 +345,20 @@ export function DraftForm() {
 								}
 							/>
 							{step.isCompleted ? (
-								<draftForm.SubmitButton
+								<surveyForm.SubmitButton
 									label="Submit"
-									onClick={() => handleNextStepOrSubmit(draftForm)}
+									onClick={() => handleNextStepOrSubmit(surveyForm)}
 								/>
 							) : (
-								<draftForm.StepButton
+								<surveyForm.StepButton
 									label="Next"
 									handleMovement={handleNext}
 								/>
 							)}
 						</div>
 					</div>
-				</draftForm.Form>
-			</draftForm.AppForm>
+				</surveyForm.Form>
+			</surveyForm.AppForm>
 		</div>
 	);
 }
