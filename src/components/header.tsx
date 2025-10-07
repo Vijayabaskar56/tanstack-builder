@@ -136,7 +136,7 @@ export function CodeDialog() {
 	const mutation = useMutation<CreateRegistryResponse, Error, void>({
 		mutationKey: ["/create-command", formName],
 		mutationFn: async (): Promise<CreateRegistryResponse> => {
-			const res = await fetch(`http://localhost:3000/r/${formName}`, {
+			const res = await fetch(`https://tan-form-builder.baskar.dev/r/${formName}`, {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
@@ -332,10 +332,10 @@ export default function FormHeader() {
 	};
 
 	function handleShare() {
-		console.log(
-			formElements,
-			`http://localhost:3000/form-builder?share=${encodeURIComponent(JSON.stringify(formElements))}`,
-		);
+		// console.log(
+		// 	formElements,
+		// 	`http://localhost:3000/form-builder?share=${encodeURIComponent(JSON.stringify(formElements))}`,
+		// );
 		navigator.clipboard.writeText(
 			`https://tan-form-builder.baskar.dev/form-builder?share=${encodeURIComponent(JSON.stringify(formElements))}`,
 		);
