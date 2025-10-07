@@ -191,7 +191,7 @@ it("should generate both formSchema and stepSchemas for multi-step forms", () =>
 	);
 
 	expect(schemaString).toContain("export const formSchema = z.object");
-	expect(schemaString).toContain("export const stepSchemas = [");
+  expect(schemaString).toContain("export const formSchemaSteps = [");
 	expect(schemaString).toContain("// Step 1");
 	expect(schemaString).toContain("// Step 2");
 	expect(schemaString).toContain("formSchema.pick");

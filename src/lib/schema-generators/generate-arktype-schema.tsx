@@ -620,7 +620,7 @@ ${schemaEntries}
 
 		code += `
 
-export const stepSchemas = [
+export const ${schemaName}Steps = [
 ${stepSchemasStr}
 ];`;
 	}

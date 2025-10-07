@@ -1,15 +1,14 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
 import ComponentCard from "@/components/component-card";
 import ComponentDetails from "@/components/component-details";
 import { Wrapper } from "@/components/generated-code/code-viewer";
 import { Button } from "@/components/ui/button";
 import { CodeBlock, CodeBlockCode } from "@/components/ui/code-block";
-import CopyButton from "@/components/ui/copy-button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { fieldItems, items } from "@/constants/registry";
 import { SettingsCollection } from "@/db-collections/settings.collections";
 import useSettings from "@/hooks/use-settings";
 import { updatePreferredPackageManager } from "@/lib/utils";
+import { createFileRoute, Link } from "@tanstack/react-router";
 
 const registryItems = items.map((item) => ({
 	name: item.name,
@@ -391,12 +390,8 @@ function RouteComponent() {
 										<CodeBlockCode
 											code={item.registery}
 											language="bash"
-											// theme={codeTheme}
 										/>
 									</CodeBlock>
-									<div className="absolute top-2 right-2">
-										<CopyButton text={item.registery} />
-									</div>
 								</div>
 							</TabsContent>
 						))}

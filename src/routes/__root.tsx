@@ -43,7 +43,8 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 					"Help you Quickly Scaffold a Form for your TanStack Using TanStack Forms",
 			},
 			{ property: "og:type", content: "website" },
-			{ property: "og:image", content: "/assets/og-image.png" },
+			{ property: "og:image", content: "https://tan-form-builder.baskar.dev/assets/og-image.png" },
+			{ property: "og:image:secure_url", content: "https://tan-form-builder.baskar.dev/assets/og-image.png" },
 			{ property: "og:image:width", content: "1200" },
 			{ property: "og:image:height", content: "630" },
 			{
@@ -60,7 +61,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 				content:
 					"Help you Quickly Scaffold a Form for your TanStack Using TanStack Forms",
 			},
-			{ name: "twitter:image", content: "/assets/og-image.png" },
+			{ name: "twitter:image", content: "https://tan-form-builder.baskar.dev/assets/og-image.png" },
 			{
 				name: "twitter:image:alt",
 				content: "TanStack Form Builder - Visual Form Builder for React",

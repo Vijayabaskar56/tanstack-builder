@@ -1,7 +1,3 @@
-import { useLocation } from "@tanstack/react-router";
-import { Brackets } from "lucide-react";
-import { useEffect, useId, useState } from "react";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -26,7 +22,22 @@ import { settingsCollection } from "@/db-collections/settings.collections";
 import { useFormBuilder } from "@/hooks/use-form-builder";
 import { useFormStore } from "@/hooks/use-form-store";
 import useSettings from "@/hooks/use-settings";
+import { generateFormCode } from "@/lib/form-code-generators/react/generate-form-code";
+import {
+	extractImportDependencies,
+	generateImports,
+} from "@/lib/form-code-generators/react/generate-imports";
+import { generateValidationCode } from "@/lib/schema-generators";
+import type { CreateRegistryResponse } from "@/types/form-types";
+import { FormArray, FormElement, FormElementOrList } from "@/types/form-types";
+import { useMutation } from "@tanstack/react-query";
+import { useLocation } from "@tanstack/react-router";
+import { Brackets } from "lucide-react";
+import { useEffect, useId, useState } from "react";
+import { toast } from "sonner";
+import * as z from "zod";
 import type { Framework, ValidationSchema } from "./builder/types";
+import { GeneratedFormCodeViewer } from "./generated-code/code-viewer";
 import {
 	AnimatedIconButton,
 	AnimatedIconSpan,
@@ -34,16 +45,249 @@ import {
 import { BlocksIcon } from "./ui/blocks";
 import { ChevronDownIcon } from "./ui/chevron-down";
 import { HeartIcon } from "./ui/heart";
+import {
+	InputGroup,
+	InputGroupAddon,
+	InputGroupButton,
+	InputGroupInput,
+} from "./ui/input-group";
 import { LayersIcon } from "./ui/layers";
 import { LayoutPanelTopIcon } from "./ui/layout-panel-top";
 import { RotateCWIcon } from "./ui/rotate-cw";
+import { Separator } from "./ui/separator";
 import { SettingsGearIcon } from "./ui/settings-gear";
 import { ShareIcon } from "./ui/share";
+import { Spinner } from "./ui/spinner";
+import { revalidateLogic, useAppForm } from "./ui/tanstack-form";
 import { TerminalIcon } from "./ui/terminal";
+const formSchema = z.object({
+	formName: z.string().min(1, { message: "Form name is required" }),
+});
+// Code Dialog Component with ResponsiveDialog
+export function CodeDialog() {
+	const {
+		formName,
+		actions,
+		formElements,
+		validationSchema,
+		isMS,
+		schemaName,
+	} = useFormStore();
+	const settings = useSettings();
+	const [open, setOpen] = useState(false);
+	const [isGenerateSuccess, setIsGenerateSuccess] = useState(false);
+	const [generatedId, setGeneratedId] = useState<string>("");
+
+	useEffect(() => {
+		setIsGenerateSuccess(false);
+		setGeneratedId("");
+	}, [formElements]);
+	const tabsData = [
+		{
+			value: "pnpm",
+			registery: `pnpm dlx shadcn@canary add ${generatedId}`,
+		},
+		{
+			value: "npm",
+			registery: `npx shadcn@canary add ${generatedId}`,
+		},
+		{
+			value: "yarn",
+			registery: `yarn shadcn@canary add ${generatedId}`,
+		},
+		{
+			value: "bun",
+			registery: `bunx --bun shadcn@canary add ${generatedId}`,
+		},
+	];
+	const generatedCode = generateFormCode({
+		formElements: formElements as FormElementOrList[],
+		isMS,
+		validationSchema,
+		settings,
+		formName,
+	});
+	const validationCode = generateValidationCode();
+	const importDependencies = generateImports(
+		formElements as (FormElement | FormArray)[],
+		validationSchema,
+		isMS,
+		schemaName,
+	);
+	const files = [
+		{
+			path: `components/${formName}.tsx`,
+			content: generatedCode?.[0].code,
+			type: "registry:component",
+			target: "",
+		},
+		{
+			path: `lib/${formName}.tsx`,
+			content: validationCode,
+			type: "registry:lib",
+			target: "",
+		},
+	];
+	const payload = {
+		...extractImportDependencies(importDependencies),
+		files,
+		name: formName,
+	};
+	const mutation = useMutation<CreateRegistryResponse, Error, void>({
+		mutationKey: ["/create-command", formName],
+		mutationFn: async (): Promise<CreateRegistryResponse> => {
+			const res = await fetch(`http://localhost:3000/r/${formName}`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(payload),
+			});
+			const data: CreateRegistryResponse = await res.json();
+			if (data.error) {
+				form.setErrorMap({
+					onDynamic: {
+						fields: {
+							formName: {
+								message: data.error,
+							},
+						},
+					},
+				});
+				throw new Error(data.error);
+			}
+			return data;
+		},
+	});
+	const form = useAppForm({
+		defaultValues: {
+			formName: formName,
+		} as z.input<typeof formSchema>,
+		validationLogic: revalidateLogic(),
+		validators: {
+			onDynamic: formSchema,
+			onDynamicAsyncDebounceMs: 300,
+		},
+		onSubmit: async ({}) => {
+			const result = await mutation.mutateAsync();
+			console.log("Response:", result);
+			if (result.data?.id) {
+				setGeneratedId(result.data.id);
+				setIsGenerateSuccess(true);
+			}
+		},
+		onSubmitInvalid({ formApi }) {
+			const errorMap = formApi.state.errorMap["onDynamic"];
+			if (!errorMap) return;
+
+			const inputs = Array.from(
+				document.querySelectorAll("#generatedCodeForm input"),
+			) as HTMLInputElement[];
+			let firstInput: HTMLInputElement | undefined;
+			for (const input of inputs) {
+				if (errorMap[input.name]) {
+					firstInput = input;
+					break;
+				}
+			}
+			firstInput?.focus();
+		},
+		listeners: {
+			onChangeDebounceMs: 300,
+			onChange: ({ fieldApi }) => {
+				console.log(fieldApi.state.value);
+				actions.setFormName(fieldApi.state.value as string);
+			},
+		},
+	});
+	return (
+		<ResponsiveDialog open={open} onOpenChange={setOpen}>
+			<ResponsiveDialogTrigger asChild>
+				<AnimatedIconButton
+					icon={<TerminalIcon className="w-4 h-4 mr-1" />}
+					text={<span className="hidden xl:block ml-1">Code</span>}
+					variant={"ghost"}
+					size="sm"
+				/>
+			</ResponsiveDialogTrigger>
+			<ResponsiveDialogContent className="max-w-6xl lg:max-w-4xl max-h-[85vh] p-0">
+				<div className="flex flex-col h-full max-h-[85vh]">
+					<ResponsiveDialogHeader className="p-6 pb-4 border-b">
+						<ResponsiveDialogTitle>Generated Code</ResponsiveDialogTitle>
+						<ResponsiveDialogDescription>
+							Copy the code below and build awesome stuff
+						</ResponsiveDialogDescription>
+					</ResponsiveDialogHeader>
+					<form.AppForm>
+						<form.Form id="generatedCodeForm" className="px-6 pt-4">
+							<form.AppField name={"formName"}>
+								{(field) => (
+									<field.FieldSet className="w-full">
+										<field.Field
+											aria-invalid={!!field.state.meta.errors.length}
+										>
+											<field.FieldLabel htmlFor={"formName"}>
+												Form Name
+											</field.FieldLabel>
+											<InputGroup>
+												<InputGroupInput
+													id="formName"
+													name={"formName"}
+													aria-invalid={!!field.state.meta.errors.length}
+													placeholder="Enter your form name eg:- contactUs"
+													type="string"
+													value={field.state.value as string}
+													onChange={(e) => field.handleChange(e.target.value)}
+													onBlur={field.handleBlur}
+													disabled={isGenerateSuccess}
+												/>
+												<InputGroupAddon align="inline-end">
+													{mutation.isPending ? (
+														<InputGroupButton
+															variant="secondary"
+															type="button"
+															disabled
+														>
+															<Spinner className="w-4 h-4 mr-2" />
+															Generating...
+														</InputGroupButton>
+													) : (
+														<InputGroupButton
+															variant="secondary"
+															type="submit"
+															disabled={
+																form.state.isSubmitting || isGenerateSuccess
+															}
+														>
+															Generate Command
+														</InputGroupButton>
+													)}
+												</InputGroupAddon>
+											</InputGroup>
+										</field.Field>
+										<field.FieldError />
+									</field.FieldSet>
+								)}
+							</form.AppField>
+						</form.Form>
+					</form.AppForm>
+					<Separator className="my-4" />
+					<ScrollArea className="flex-1 px-6 py-4">
+						<GeneratedFormCodeViewer
+							isGenerateSuccess={isGenerateSuccess}
+							generatedId={generatedId}
+							tabsData={tabsData}
+						/>
+					</ScrollArea>
+				</div>
+			</ResponsiveDialogContent>
+		</ResponsiveDialog>
+	);
+}
+
 export default function FormHeader() {
 	const location = useLocation();
-	const { activeTab, isCodeSidebarOpen, preferredFramework, preferredSchema } =
-		useSettings();
+	const { activeTab, preferredFramework, preferredSchema } = useSettings();
 	const frameworks = ["react", "vue", "angular", "solid"];
 	const validationLibs = ["zod", "valibot", "arktype"];
 
@@ -52,12 +296,6 @@ export default function FormHeader() {
 	const handleSubTabChange = (newSubTab: string) => {
 		settingsCollection?.update("user-settings", (draft) => {
 			draft.activeTab = newSubTab as "builder" | "template" | "settings";
-		});
-	};
-
-	const handleToggleCodeSidebar = () => {
-		settingsCollection?.update("user-settings", (draft) => {
-			draft.isCodeSidebarOpen = !draft.isCodeSidebarOpen;
 		});
 	};
 
@@ -256,6 +494,7 @@ export default function FormHeader() {
 						<AnimatedIconButton
 							icon={<RotateCWIcon className="w-4 h-4 mr-1" />}
 							text={<span className="hidden xl:block ml-1">Reset</span>}
+							variant="ghost"
 							onClick={() => {
 								resetForm();
 							}}
@@ -329,13 +568,7 @@ export default function FormHeader() {
 						</ResponsiveDialog>
 
 						<div className="h-4 w-px bg-border" />
-						<AnimatedIconButton
-							icon={<TerminalIcon className="w-4 h-4 mr-1" />}
-							text={<span className="hidden xl:block ml-1">Code</span>}
-							onClick={handleToggleCodeSidebar}
-							variant={isCodeSidebarOpen ? "secondary" : "ghost"}
-							className="transition-all duration-200"
-						/>
+						<CodeDialog />
 					</div>
 					<ScrollBar orientation="horizontal" />
 				</ScrollArea>

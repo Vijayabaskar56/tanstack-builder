@@ -1,5 +1,5 @@
+import { AnimatePresence, motion } from "motion/react";
 import { useEffect } from "react";
-import { useTheme } from "@/components/theme-provider";
 import {
 	CodeBlock,
 	CodeBlockCode,
@@ -13,20 +13,15 @@ import { useFormStore, useIsMultiStep } from "@/hooks/use-form-store";
 import useSettings from "@/hooks/use-settings";
 import { generateFormCode } from "@/lib/form-code-generators/react/generate-form-code";
 import { flattenFormSteps } from "@/lib/form-elements-helpers";
-import { getArkTypeSchemaString } from "@/lib/schema-generators/generate-arktype-schema";
-import { getValiSchemaString } from "@/lib/schema-generators/generate-valibot-schema";
-import { getZodSchemaString } from "@/lib/schema-generators/generate-zod-schema";
+import { generateValidationCode } from "@/lib/schema-generators";
 import {
 	formatCode,
-	generateFormNames,
 	updatePreferredPackageManager,
 } from "@/lib/utils";
-
 import type {
-	FormArray,
 	FormElement,
 	FormElementOrList,
-	FormStep,
+	FormStep
 } from "@/types/form-types";
 
 export const Wrapper = ({
@@ -38,16 +33,6 @@ export const Wrapper = ({
 	children: string;
 	title: string;
 }) => {
-	const { theme, systemTheme } = useTheme();
-	const codeTheme =
-		theme === "system"
-			? systemTheme === "dark"
-				? "github-dark"
-				: "github-light"
-			: theme === "dark"
-				? "github-dark"
-				: "github-light";
-
 	return (
 		<CodeBlock className="my-0 w-full border-border border rounded-md overflow-hidden bg-background dark:bg-background/95">
 			<CodeBlockGroup className="border-border border-b px-4 py-2 bg-muted/50 dark:bg-muted/20">
@@ -57,7 +42,7 @@ export const Wrapper = ({
 				<CopyButton text={children} />
 			</CodeBlockGroup>
 			<div className="*:mt-0 [&_pre]:p-3 w-full bg-background dark:bg-background/95">
-				<CodeBlockCode code={children} language={language} theme={codeTheme} />
+				<CodeBlockCode code={children} language={language} />
 			</div>
 		</CodeBlock>
 	);
@@ -97,18 +82,13 @@ const installableShadcnComponents: Partial<
 	MultiSelect: "",
 };
 //======================================
-export function CodeBlockPackagesInstallation() {
-	const { theme, systemTheme } = useTheme();
+export function CodeBlockPackagesInstallation({ 
+	customRegistryUrl 
+}: { 
+	customRegistryUrl?: string 
+}) {
 	const { formElements } = useFormStore();
 	const isMS = useIsMultiStep();
-	const codeTheme =
-		theme === "system"
-			? systemTheme === "dark"
-				? "github-dark"
-				: "github-light"
-			: theme === "dark"
-				? "github-dark"
-				: "github-light";
 	const processedFormElements = isMS
 		? flattenFormSteps(formElements as FormStep[])
 		: formElements;
@@ -122,34 +102,34 @@ export function CodeBlockPackagesInstallation() {
 	const packagesSet = new Set(formElementTypes);
 	const packages = Array.from(packagesSet).join(" ");
 	const otherPackages = "@tanstack/react-form zod motion";
+	
+	const defaultRegistryUrl = "https://tan-form-builder.baskar.dev/r/tanstack-form.json";
+	const registryUrl = customRegistryUrl || defaultRegistryUrl;
+	
 	const tabsData = [
 		{
 			value: "pnpm",
 			shadcn: `pnpm add shadcn@latest add ${packages}`,
 			base: `pnpm add ${otherPackages}`,
-			registery:
-				"pnpm dlx shadcn@canary add https://tan-form-builder.baskar.dev/r/tanstack-form.json",
+			registery: `pnpm dlx shadcn@canary add ${registryUrl}`,
 		},
 		{
 			value: "npm",
 			shadcn: `npx shadcn@latest add ${packages}`,
 			base: `npx i ${otherPackages}`,
-			registery:
-				"npx shadcn@canary add https://tan-form-builder.baskar.dev/r/tanstack-form.json",
+			registery: `npx shadcn@canary add ${registryUrl}`,
 		},
 		{
 			value: "yarn",
 			shadcn: `npx shadcn@latest add ${packages}`,
 			base: `npx add ${otherPackages}`,
-			registery:
-				"yarn shadcn@canary add https://tan-form-builder.baskar.dev/r/tanstack-form.json",
+			registery: `yarn shadcn@canary add ${registryUrl}`,
 		},
 		{
 			value: "bun",
 			shadcn: `bunx --bun shadcn@latest add ${packages}`,
 			base: `bunx --bun add ${otherPackages}`,
-			registery:
-				"bunx --bun shadcn@canary add https://tan-form-builder.baskar.dev/r/tanstack-form.json",
+			registery: `bunx --bun shadcn@canary add ${registryUrl}`,
 		},
 	];
 
@@ -178,7 +158,6 @@ export function CodeBlockPackagesInstallation() {
 							<CodeBlockCode
 								code={item.base}
 								language="bash"
-								theme={codeTheme}
 							/>
 						</CodeBlock>
 					</TabsContent>
@@ -209,7 +188,6 @@ export function CodeBlockPackagesInstallation() {
 							<CodeBlockCode
 								code={item.shadcn}
 								language="bash"
-								theme={codeTheme}
 							/>
 						</CodeBlock>
 					</TabsContent>
@@ -240,7 +218,6 @@ export function CodeBlockPackagesInstallation() {
 							<CodeBlockCode
 								code={item.registery}
 								language="bash"
-								theme={codeTheme}
 							/>
 						</CodeBlock>
 					</TabsContent>
@@ -262,7 +239,7 @@ const CodeBlockTSX = () => {
 		formElements: formElements as FormElementOrList[],
 		isMS,
 		validationSchema,
-		settingss: settings,
+		settings,
 		formName,
 	});
 	const formattedCode = generatedCode.map((item) => ({
@@ -280,9 +257,7 @@ const CodeBlockTSX = () => {
 	);
 };
 const CodeBlockSchema = () => {
-	const { formElements, validationSchema, formName } = useFormStore();
-	const isMS = useIsMultiStep();
-	const { schemaName } = generateFormNames(formName);
+	const { formElements } = useFormStore();
 
 	useEffect(() => {
 		console.log(
@@ -290,57 +265,8 @@ const CodeBlockSchema = () => {
 			formElements,
 		);
 	}, [formElements]);
-
-	const parsedFormElements = isMS
-		? flattenFormSteps(formElements as FormStep[])
-		: formElements.flat();
-
-	let generatedCode = "";
-	let stepSchemas: (FormElement | FormArray)[][] | undefined;
-
-	// Generate step schemas for multi-step forms
-	if (isMS) {
-		stepSchemas = (formElements as FormStep[]).map((step) =>
-			step.stepFields.flat(),
-		);
-	}
-
-	switch (validationSchema) {
-		case "zod":
-			generatedCode = getZodSchemaString(
-				isMS
-					? (formElements as FormStep[])
-					: (parsedFormElements as FormElement[]),
-				isMS,
-				schemaName,
-			);
-			break;
-		case "valibot":
-			generatedCode = getValiSchemaString(
-				isMS
-					? (formElements as FormStep[])
-					: (parsedFormElements as FormElement[]),
-				isMS,
-				schemaName,
-			);
-			break;
-		case "arktype":
-			generatedCode = getArkTypeSchemaString(
-				parsedFormElements as FormElement[],
-				isMS,
-				stepSchemas,
-				schemaName,
-			);
-			break;
-		default:
-			generatedCode = getZodSchemaString(
-				parsedFormElements as FormElement[],
-				isMS,
-				schemaName,
-			);
-			break;
-	}
-	const formattedCode = formatCode(generatedCode);
+	const validationCode = generateValidationCode();
+	const formattedCode = formatCode(validationCode);
 	return (
 		<div className="relative max-w-full">
 			<Wrapper title="schema.ts" language="typescript">
@@ -350,7 +276,8 @@ const CodeBlockSchema = () => {
 	);
 };
 
-export function GeneratedFormCodeViewer() {
+export function GeneratedFormCodeViewer({ isGenerateSuccess, generatedId, tabsData }: { isGenerateSuccess: boolean, generatedId: string, tabsData: { value: string, registery: string }[]	 }) {
+	const settings = useSettings();
 	return (
 		<Tabs defaultValue="tsx" className="w-full min-w-full flex">
 			<div className="flex justify-between">
@@ -361,11 +288,53 @@ export function GeneratedFormCodeViewer() {
 				{/* <GeneratedCodeInfoCard /> */}
 			</div>
 			<TabsContent value="tsx" tabIndex={-1}>
-				<ScrollArea className="h-[70vh]">
+				<AnimatePresence>
+						{isGenerateSuccess && generatedId && (
+							<motion.div
+								initial={{ opacity: 0, height: 0, y: -20 }}
+								animate={{ opacity: 1, height: "auto", y: 0 }}
+								exit={{ opacity: 0, height: 0, y: -20 }}
+								transition={{ duration: 0.4, ease: "easeOut" }}
+								className="border-t mt-4"
+							>
+								<ScrollArea className=" max-h-[40vh]">
+									<h2 className="font-sembold text-start pt-4">
+										Instal With Shadcn CLI Command
+									</h2>
+									<Tabs
+										value={settings?.preferredPackageManager}
+										onValueChange={(value) =>
+											updatePreferredPackageManager(
+												value as SettingsCollection["preferredPackageManager"],
+											)
+										}
+										className="w-full mt-2 rounded-md"
+									>
+										<TabsList>
+											{tabsData.map((item) => (
+												<TabsTrigger key={item.value} value={item.value}>
+													{item.value}
+												</TabsTrigger>
+											))}
+										</TabsList>
+										{tabsData.map((item) => (
+											<TabsContent key={item.value} value={item.value}>
+												<CodeBlock>
+													<CodeBlockCode
+														code={item.registery}
+														language="bash"
+													/>
+												</CodeBlock>
+											</TabsContent>
+										))}
+									</Tabs>
+								</ScrollArea>
+							</motion.div>
+						)}
+					</AnimatePresence>
 					<CodeBlockPackagesInstallation />
 					<div className="border-t border-dashed w-full mt-6" />
 					<CodeBlockTSX />
-				</ScrollArea>
 			</TabsContent>
 			<TabsContent value="schema" tabIndex={-1}>
 				<ScrollArea className="h-[60vh]">

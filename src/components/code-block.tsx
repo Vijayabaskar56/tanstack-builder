@@ -1,70 +1,111 @@
-"use client";
+import type React from "react";
+import { useEffect, useState } from "react";
+import { codeToHtml } from "shiki";
+import { cn } from "@/lib/utils";
+import CopyButton from "@/components/ui/copy-button";
+import { useTheme } from "@/components/theme-provider";
 
-import { toJsxRuntime } from "hast-util-to-jsx-runtime";
-import { JSX, useLayoutEffect, useState } from "react";
-import { Fragment, jsx, jsxs } from "react/jsx-runtime";
-import type { BundledLanguage } from "shiki/bundle/web";
-import { codeToHast } from "shiki/bundle/web";
+export type CodeBlockProps = {
+	children?: React.ReactNode;
+	className?: string;
+} & React.HTMLProps<HTMLDivElement>;
 
-export async function highlight(code: string, lang: BundledLanguage) {
-	const hast = await codeToHast(code, {
-		lang,
-		theme: "github-dark",
-	});
-
-	return toJsxRuntime(hast, {
-		Fragment,
-		jsx,
-		jsxs,
-	}) as JSX.Element;
-}
-
-type Props = {
-	code: string | null;
-	lang: BundledLanguage;
-	initial?: JSX.Element;
-	preHighlighted?: JSX.Element | null;
-};
-
-export default function CodeBlock({
-	code,
-	lang,
-	initial,
-	preHighlighted,
-}: Props) {
-	const [content, setContent] = useState<JSX.Element | null>(
-		preHighlighted || initial || null,
-	);
-
-	useLayoutEffect(() => {
-		// If we have pre-highlighted content, use that
-		if (preHighlighted) {
-			setContent(preHighlighted);
-			return;
-		}
-
-		let isMounted = true;
-
-		if (code) {
-			highlight(code, lang).then((result) => {
-				if (isMounted) setContent(result);
-			});
-		} else {
-			setContent(
-				<pre className="rounded-md bg-zinc-950 p-4">No code available</pre>,
-			);
-		}
-
-		return () => {
-			isMounted = false;
-		};
-	}, [code, lang, preHighlighted]);
-
-	return content ? (
-		<div className="[&_code]:font-mono [&_code]:text-[13px] [&_pre]:max-h-[450px] [&_pre]:overflow-auto [&_pre]:rounded-md [&_pre]:bg-zinc-950! [&_pre]:p-4 [&_pre]:leading-snug dark:[&_pre]:bg-zinc-900!">
-			{content}
+function CodeBlock({ children, className, ...props }: CodeBlockProps) {
+	return (
+		<div
+			className={cn(
+				"not-prose flex w-full flex-col overflow-clip border",
+				"border-border bg-card text-card-foreground rounded-xl",
+				className,
+			)}
+			{...props}
+		>
+			{children}
 		</div>
-	) : (
-		<pre className="rounded-md bg-zinc-950 p-4">Loading...</pre>
 	);
 }
+
+export type CodeBlockCodeProps = {
+	code: string;
+	language?: string;
+	theme?: string;
+	className?: string;
+} & React.HTMLProps<HTMLDivElement>;
+
+function CodeBlockCode({
+	code,
+	language = "tsx",
+	theme: themeProp,
+	className,
+	...props
+}: CodeBlockCodeProps) {
+	const [highlightedHtml, setHighlightedHtml] = useState<string | null>(null);
+	const { theme: themeMode, systemTheme } = useTheme();
+	
+	// Auto-detect theme if not provided
+	const theme = themeProp || (
+		themeMode === "system"
+			? systemTheme === "dark"
+				? "github-dark"
+				: "github-light"
+			: themeMode === "dark"
+				? "github-dark"
+				: "github-light"
+	);
+
+	useEffect(() => {
+		async function highlight() {
+			if (!code) {
+				setHighlightedHtml("<pre><code></code></pre>");
+				return;
+			}
+
+			const html = await codeToHtml(code, { lang: language, theme });
+			setHighlightedHtml(html);
+		}
+		highlight();
+	}, [code, language, theme]);
+
+	const classNames = cn(
+		"w-full [&_pre]:text-wrap text-[13px] [&_pre]:px-4 [&_pre]:py-4",
+		className,
+	);
+
+	// Render with an inline Copy button (works for both highlighted and fallback)
+	return (
+		<div className={cn("relative group", classNames)} {...props}>
+			{/* Copy button */}
+			<div className="absolute top-2 right-2 opacity-0 transition-opacity group-hover:opacity-100">
+				<CopyButton text={code} />
+			</div>
+
+			{/* Highlighted or fallback content */}
+			{highlightedHtml ? (
+				<div dangerouslySetInnerHTML={{ __html: highlightedHtml }} />
+			) : (
+				<pre>
+					<code>{code}</code>
+				</pre>
+			)}
+		</div>
+	);
+}
+
+export type CodeBlockGroupProps = React.HTMLAttributes<HTMLDivElement>;
+
+function CodeBlockGroup({
+	children,
+	className,
+	...props
+}: CodeBlockGroupProps) {
+	return (
+		<div
+			className={cn("flex items-center justify-between", className)}
+			{...props}
+		>
+			{children}
+		</div>
+	);
+}
+
+export { CodeBlockGroup, CodeBlockCode, CodeBlock };

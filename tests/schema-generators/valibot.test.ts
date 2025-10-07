@@ -185,3 +185,77 @@ describe("Valibot Schema Generator - FormArray Support", () => {
 		expect(schemaString).toContain("v.boolean()");
 	});
 });
+
+describe("Valibot Schema Generator - Multi-Step Form Support", () => {
+	it("should generate only formSchema for normal forms", () => {
+		const formElements = [
+			{
+				fieldType: "Input" as const,
+				id: "name",
+				name: "name",
+				label: "Name",
+				required: true,
+				type: "text",
+			},
+			{
+				fieldType: "Input" as const,
+				id: "email",
+				name: "email",
+				label: "Email",
+				required: true,
+				type: "email",
+			},
+		];
+
+		const schemaString = getValiSchemaString(formElements as any);
+
+		expect(schemaString).toContain("export const formSchema = v.object");
+		expect(schemaString).toContain("name:");
+		expect(schemaString).toContain("email:");
+		expect(schemaString).not.toContain("formSchemaSteps");
+	});
+
+	it("should generate both formSchema and formSchemaSteps for multi-step forms", () => {
+		const formElements = [
+			{
+				id: "step1",
+				stepFields: [
+					{
+						fieldType: "Input" as const,
+						id: "name",
+						name: "name",
+						label: "Name",
+						required: true,
+						type: "text",
+					},
+				],
+			},
+			{
+				id: "step2",
+				stepFields: [
+					{
+						fieldType: "Input" as const,
+						id: "email",
+						name: "email",
+						label: "Email",
+						required: true,
+						type: "email",
+					},
+				],
+			},
+		];
+
+		const schemaString = getValiSchemaString(
+			formElements as any,
+			true, // isMultiStep
+		);
+
+		expect(schemaString).toContain("export const formSchema = v.object");
+		expect(schemaString).toContain("export const formSchemaSteps = [");
+		expect(schemaString).toContain("// Step 1");
+		expect(schemaString).toContain("// Step 2");
+		expect(schemaString).toContain("v.pick(formSchema");
+		expect(schemaString).toContain("name: true");
+		expect(schemaString).toContain("email: true");
+	});
+});

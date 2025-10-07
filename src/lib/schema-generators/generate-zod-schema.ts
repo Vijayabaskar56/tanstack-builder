@@ -450,7 +450,7 @@ export const getZodSchemaString = (
 
 		code += `
 
-export const stepSchemas = [
+export const ${schemaName}Steps = [
 ${stepSchemasStr}
 ];`;
 	}

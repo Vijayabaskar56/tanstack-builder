@@ -274,3 +274,19 @@ export type AppendElement = (options: {
 }) => void;
 
 export type SetTemplate = (template: string) => void;
+
+//------------------------------------------------------------API Response Types
+/**
+ * Generic API response structure with data and error fields
+ */
+export interface ApiResponse<T = unknown> {
+	data: T | null;
+	error: string | null;
+}
+
+/**
+ * Specific response type for draft operations
+ */
+export type CreateRegistryResponse = ApiResponse<{
+	id: string;
+}>;

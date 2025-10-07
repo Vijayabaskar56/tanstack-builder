@@ -5,7 +5,7 @@ import { JSX, useEffect, useState } from "react";
 import type { RegistryItem } from "shadcn/registry";
 import ComponentCli from "@/components/cli-commands";
 import { ClientOnly } from "@/components/client-only";
-import CodeBlock, { highlight } from "@/components/code-block";
+import { CodeBlockCode } from "@/components/code-block";
 import CopyRegistry from "@/components/copy-registry";
 import { Button } from "@/components/ui/button";
 import {
@@ -140,10 +140,9 @@ export default function ComponentDetails({
 									</p>
 								) : (
 									<>
-										<CodeBlock
-											code={code}
+										<CodeBlockCode
+											code={code || ''}
 											lang="tsx"
-											preHighlighted={highlightedCode}
 										/>
 									</>
 								)}

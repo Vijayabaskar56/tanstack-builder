@@ -205,7 +205,7 @@ describe("Arktype Schema Generator - Multi-Step Form Support", () => {
 		);
 
 		expect(schemaString).toContain("export const formSchema = type");
-		expect(schemaString).toContain("export const stepSchemas = [");
+		expect(schemaString).toContain("export const formSchemaSteps = [");
 		expect(schemaString).toContain("// Step 1");
 		expect(schemaString).toContain("// Step 2");
 		expect(schemaString).toContain("type({");

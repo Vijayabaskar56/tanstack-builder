@@ -10,7 +10,7 @@ import { CheckIcon } from "./check";
 import { CopyIcon } from "./copy";
 
 //======================================
-function CopyButton({ text }: { text: string }) {
+function CopyButton({ text, type = "button" }: { text: string, type?: "button" | "submit" }) {
 	const [copied, setCopied] = React.useState(false);
 	const handleCopy = () => {
 		navigator.clipboard.writeText(text);
@@ -27,6 +27,7 @@ function CopyButton({ text }: { text: string }) {
 						variant="ghost"
 						size="icon"
 						className="size-8"
+						type={type || "button"}
 						onClick={handleCopy}
 					>
 						{copied ? (
@@ -36,7 +37,7 @@ function CopyButton({ text }: { text: string }) {
 						)}
 					</Button>
 				</TooltipTrigger>
-				<TooltipContent className="text-muted px-2 py-1 text-xs">
+				<TooltipContent className="text-muted px-2 py-1 text-xs z-[10000]">
 					Copy Registry URL
 				</TooltipContent>
 			</Tooltip>
