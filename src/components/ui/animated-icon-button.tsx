@@ -1,4 +1,5 @@
 import React, { type ReactElement, useRef } from "react";
+import { cn } from "@/lib/utils";
 import { Button } from "./button";
 
 interface IconHandle {
@@ -52,10 +53,13 @@ export const AnimatedIconButton = ({
 		</>
 	);
 
+	const focusClasses =
+		"rounded-md outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background";
+
 	if (renderAs === "span") {
 		return (
 			<span
-				className={className}
+				className={cn(focusClasses, className)}
 				onClick={onClick}
 				onMouseEnter={() => iconRef.current?.startAnimation()}
 				onMouseLeave={() => iconRef.current?.stopAnimation()}
@@ -73,9 +77,10 @@ export const AnimatedIconButton = ({
 
 	return (
 		<Button
+			type="button"
 			variant={variant}
 			size={size}
-			className={className}
+			className={cn(focusClasses, className)}
 			onClick={onClick}
 			onMouseEnter={() => iconRef.current?.startAnimation()}
 			onMouseLeave={() => iconRef.current?.stopAnimation()}
@@ -106,7 +111,10 @@ export const AnimatedIconSpan = ({
 	return (
 		<button
 			type="button"
-			className={className}
+			className={cn(
+				"rounded-md outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background",
+				className,
+			)}
 			onClick={onClick}
 			onMouseEnter={() => iconRef.current?.startAnimation()}
 			onMouseLeave={() => iconRef.current?.stopAnimation()}

@@ -14,6 +14,7 @@ import { Route as FormBuilderIndexRouteImport } from './routes/form-builder/inde
 import { Route as FormBuilderShareRouteImport } from './routes/form-builder/share'
 import { Route as FormRegistryRouteImport } from './routes/form-registry'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as RIdDotjsonRouteImport } from './routes/r/$id[.]json'
 import { Route as TableBuilderRouteImport } from './routes/table-builder'
 
 const TableBuilderRoute = TableBuilderRouteImport.update({
@@ -41,6 +42,11 @@ const FormBuilderIndexRoute = FormBuilderIndexRouteImport.update({
   path: '/',
   getParentRoute: () => FormBuilderRoute,
 } as any)
+const RIdDotjsonRoute = RIdDotjsonRouteImport.update({
+  id: '/r/$id.json',
+  path: '/r/$id.json',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FormBuilderShareRoute = FormBuilderShareRouteImport.update({
   id: '/share',
   path: '/share',
@@ -53,6 +59,7 @@ export interface FileRoutesByFullPath {
   '/form-registry': typeof FormRegistryRoute
   '/table-builder': typeof TableBuilderRoute
   '/form-builder/share': typeof FormBuilderShareRoute
+  '/r/$id.json': typeof RIdDotjsonRoute
   '/form-builder/': typeof FormBuilderIndexRoute
 }
 export interface FileRoutesByTo {
@@ -60,6 +67,7 @@ export interface FileRoutesByTo {
   '/form-registry': typeof FormRegistryRoute
   '/table-builder': typeof TableBuilderRoute
   '/form-builder/share': typeof FormBuilderShareRoute
+  '/r/$id.json': typeof RIdDotjsonRoute
   '/form-builder': typeof FormBuilderIndexRoute
 }
 export interface FileRoutesById {
@@ -69,6 +77,7 @@ export interface FileRoutesById {
   '/form-registry': typeof FormRegistryRoute
   '/table-builder': typeof TableBuilderRoute
   '/form-builder/share': typeof FormBuilderShareRoute
+  '/r/$id.json': typeof RIdDotjsonRoute
   '/form-builder/': typeof FormBuilderIndexRoute
 }
 export interface FileRouteTypes {
@@ -79,6 +88,7 @@ export interface FileRouteTypes {
     | '/form-registry'
     | '/table-builder'
     | '/form-builder/share'
+    | '/r/$id.json'
     | '/form-builder/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -86,6 +96,7 @@ export interface FileRouteTypes {
     | '/form-registry'
     | '/table-builder'
     | '/form-builder/share'
+    | '/r/$id.json'
     | '/form-builder'
   id:
     | '__root__'
@@ -94,6 +105,7 @@ export interface FileRouteTypes {
     | '/form-registry'
     | '/table-builder'
     | '/form-builder/share'
+    | '/r/$id.json'
     | '/form-builder/'
   fileRoutesById: FileRoutesById
 }
@@ -102,6 +114,7 @@ export interface RootRouteChildren {
   FormBuilderRoute: typeof FormBuilderRouteWithChildren
   FormRegistryRoute: typeof FormRegistryRoute
   TableBuilderRoute: typeof TableBuilderRoute
+  RIdDotjsonRoute: typeof RIdDotjsonRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -141,6 +154,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FormBuilderIndexRouteImport
       parentRoute: typeof FormBuilderRoute
     }
+    '/r/$id.json': {
+      id: '/r/$id.json'
+      path: '/r/$id.json'
+      fullPath: '/r/$id.json'
+      preLoaderRoute: typeof RIdDotjsonRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/form-builder/share': {
       id: '/form-builder/share'
       path: '/share'
@@ -170,6 +190,7 @@ const rootRouteChildren: RootRouteChildren = {
   FormBuilderRoute: FormBuilderRouteWithChildren,
   FormRegistryRoute: FormRegistryRoute,
   TableBuilderRoute: TableBuilderRoute,
+  RIdDotjsonRoute: RIdDotjsonRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

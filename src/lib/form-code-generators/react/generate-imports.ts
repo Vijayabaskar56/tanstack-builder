@@ -108,3 +108,47 @@ export const generateImports = (
 
 	return importSet;
 };
+
+// Helper: Extract component names from a Set of import statements
+export const extractImportDependencies = (
+	importSet: Set<string>,
+): { registryDependencies: string[]; dependencies: string[] } => {
+	const registry = new Set<string>();
+	const deps = new Set<string>();
+
+	for (const stmt of importSet) {
+		const fromMatch = stmt.match(/from\s+["']([^"']+)["']/);
+		if (!fromMatch) continue;
+		const modulePath = fromMatch[1];
+
+		if (modulePath.startsWith("@/components/")) {
+			const component = modulePath.split("/").pop();
+			if (component && component === "tanstack-form") {
+				registry.add(
+					"https://tan-form-builder.baskar.dev/r/tanstack-form.json",
+				);
+			} else {
+				if (component) registry.add(component);
+			}
+		} else if (!modulePath.startsWith("./")) {
+			deps.add(modulePath);
+		}
+	}
+
+	return {
+		registryDependencies: Array.from(registry),
+		dependencies: Array.from(deps),
+	};
+};
+
+// TEMP TEST (will be removed):
+// if (process.env.NODE_ENV === "test-deps") {
+// 	const demo = new Set<string>([
+// 		"import { Button } from '@/components/ui/button'",
+// 		"import { toast } from 'sonner'",
+// 		"import X from 'react'",
+// 		"import { Calendar as CalendarIcon } from 'lucide-react'",
+// 	]);
+// 	// eslint-disable-next-line no-console
+// 	console.log(extractImportDependencies(demo));
+// }

@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "@tanstack/react-router";
 import { Brackets } from "lucide-react";
 import { useEffect, useId, useState } from "react";
@@ -26,7 +27,15 @@ import { settingsCollection } from "@/db-collections/settings.collections";
 import { useFormBuilder } from "@/hooks/use-form-builder";
 import { useFormStore } from "@/hooks/use-form-store";
 import useSettings from "@/hooks/use-settings";
+import { generateFormCode } from "@/lib/form-code-generators/react/generate-form-code";
+import {
+	extractImportDependencies,
+	generateImports,
+} from "@/lib/form-code-generators/react/generate-imports";
+import { generateValidationCode } from "@/lib/schema-generators";
+import { FormArray, FormElement, FormElementOrList } from "@/types/form-types";
 import type { Framework, ValidationSchema } from "./builder/types";
+import { GeneratedFormCodeViewer } from "./generated-code/code-viewer";
 import {
 	AnimatedIconButton,
 	AnimatedIconSpan,
@@ -34,12 +43,143 @@ import {
 import { BlocksIcon } from "./ui/blocks";
 import { ChevronDownIcon } from "./ui/chevron-down";
 import { HeartIcon } from "./ui/heart";
+import {
+	InputGroup,
+	InputGroupAddon,
+	InputGroupButton,
+	InputGroupInput,
+} from "./ui/input-group";
 import { LayersIcon } from "./ui/layers";
 import { LayoutPanelTopIcon } from "./ui/layout-panel-top";
 import { RotateCWIcon } from "./ui/rotate-cw";
 import { SettingsGearIcon } from "./ui/settings-gear";
 import { ShareIcon } from "./ui/share";
 import { TerminalIcon } from "./ui/terminal";
+
+// Code Dialog Component with ResponsiveDialog
+export function CodeDialog() {
+	const {
+		formName,
+		actions,
+		formElements,
+		validationSchema,
+		isMS,
+		schemaName,
+	} = useFormStore();
+	const settings = useSettings();
+	const generatedCode = generateFormCode({
+		formElements: formElements as FormElementOrList[],
+		isMS,
+		validationSchema,
+		settings,
+		formName,
+	});
+	console.log("🚀 ~ CodeDialog ~ generatedCode:", generatedCode);
+	const validationCode = generateValidationCode();
+	const importDependencies = generateImports(
+		formElements as (FormElement | FormArray)[],
+		validationSchema,
+		isMS,
+		schemaName,
+	);
+	const files = [
+		{
+			path: `components/${formName}.tsx`,
+			content: generatedCode?.[0].code,
+			type: "registry:component",
+			target: "",
+		},
+		{
+			path: `lib/${formName}.tsx`,
+			content: validationCode,
+			type: "registry:lib",
+			target: "",
+		},
+	];
+	const payload = {
+		...extractImportDependencies(importDependencies),
+		files,
+		name: formName,
+	};
+	console.log("🚀 ~ CodeDialog ~ payload:", payload);
+	const query = useQuery({
+		queryKey: ["/create-command"],
+		queryFn: async () => {
+			const res = await fetch(`http://localhost:3000/r/${formName}`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(payload),
+			});
+			const data = await res.json();
+			return data;
+		},
+		enabled: false,
+	});
+	const handleGenerateCode = async () => {
+		console.log("🚀 ~ file: header.tsx:73 ~ payload:", payload);
+		const result = await query.refetch();
+		console.log("Response:", result.data);
+	};
+	return (
+		<ResponsiveDialog>
+			<ResponsiveDialogTrigger asChild>
+				<AnimatedIconButton
+					icon={<TerminalIcon className="w-4 h-4 mr-1" />}
+					text={<span className="hidden xl:block ml-1">Code</span>}
+					variant={"ghost"}
+					size="sm"
+				/>
+			</ResponsiveDialogTrigger>
+			<ResponsiveDialogContent className="max-w-6xl lg:max-w-4xl max-h-[85vh] p-0">
+				<div className="flex flex-col h-full max-h-[85vh]">
+					<ResponsiveDialogHeader className="p-6 pb-4 border-b">
+						<ResponsiveDialogTitle>Generated Code</ResponsiveDialogTitle>
+						<ResponsiveDialogDescription>
+							Copy the code below and build awesome stuff
+						</ResponsiveDialogDescription>
+					</ResponsiveDialogHeader>
+
+					<div className="px-6 py-4 border-b">
+						<label
+							htmlFor="formName"
+							className="text-sm font-medium mb-2 block"
+						>
+							Form Name
+						</label>
+						<InputGroup>
+							<InputGroupInput
+								id="formName"
+								name="formName"
+								placeholder="Enter your form name eg:- contactUs"
+								type="string"
+								value={formName}
+								onChange={(e) => {
+									const value = e.target.value.replace(/[^a-zA-Z]/g, "");
+									actions.setFormName(value);
+								}}
+							/>
+							<InputGroupAddon align="inline-end">
+								<InputGroupButton
+									variant="secondary"
+									onClick={handleGenerateCode}
+								>
+									Generate Code
+								</InputGroupButton>
+							</InputGroupAddon>
+						</InputGroup>
+					</div>
+
+					<ScrollArea className="flex-1 px-6 py-4">
+						<GeneratedFormCodeViewer />
+					</ScrollArea>
+				</div>
+			</ResponsiveDialogContent>
+		</ResponsiveDialog>
+	);
+}
+
 export default function FormHeader() {
 	const location = useLocation();
 	const { activeTab, isCodeSidebarOpen, preferredFramework, preferredSchema } =
@@ -256,6 +396,7 @@ export default function FormHeader() {
 						<AnimatedIconButton
 							icon={<RotateCWIcon className="w-4 h-4 mr-1" />}
 							text={<span className="hidden xl:block ml-1">Reset</span>}
+							variant="ghost"
 							onClick={() => {
 								resetForm();
 							}}
@@ -329,13 +470,7 @@ export default function FormHeader() {
 						</ResponsiveDialog>
 
 						<div className="h-4 w-px bg-border" />
-						<AnimatedIconButton
-							icon={<TerminalIcon className="w-4 h-4 mr-1" />}
-							text={<span className="hidden xl:block ml-1">Code</span>}
-							onClick={handleToggleCodeSidebar}
-							variant={isCodeSidebarOpen ? "secondary" : "ghost"}
-							className="transition-all duration-200"
-						/>
+						<CodeDialog />
 					</div>
 					<ScrollBar orientation="horizontal" />
 				</ScrollArea>

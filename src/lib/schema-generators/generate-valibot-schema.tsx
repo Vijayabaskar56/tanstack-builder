@@ -385,15 +385,18 @@ export const getValiSchemaStringDirect = (
 						break;
 
 					case "Slider": {
-						let sliderSchema =
-							'v.pipe(v.number(), v.minValue(${element.min}, "Must be at least ${element?.min ?? 1}"), v.maxValue(${element.max}, "Must be at most ${element?.max ?? 100}"))';
-						if (element.min !== undefined) {
-							sliderSchema = `v.pipe(${sliderSchema}, v.minValue(${element.min}, "Must be at least ${element.min}"))`;
+						typeDefinition =
+							"v.pipe(v.string(), v.transform(Number), v.number())";
+						const sliderElement = element as FormElement & {
+							min?: number;
+							max?: number;
+						};
+						if (sliderElement.min !== undefined) {
+							typeDefinition = `v.pipe(${typeDefinition}, v.minValue(${sliderElement.min}, "Must be at least ${sliderElement.min}"))`;
 						}
-						if (element.max !== undefined) {
-							sliderSchema = `v.pipe(${sliderSchema}, v.maxValue(${element.max}, "Must be at most ${element.max}"))`;
+						if (sliderElement.max !== undefined) {
+							typeDefinition = `v.pipe(${typeDefinition}, v.maxValue(${sliderElement.max}, "Must be at most ${sliderElement.max}"))`;
 						}
-						typeDefinition = sliderSchema;
 						break;
 					}
 

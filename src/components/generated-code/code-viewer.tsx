@@ -13,6 +13,7 @@ import { useFormStore, useIsMultiStep } from "@/hooks/use-form-store";
 import useSettings from "@/hooks/use-settings";
 import { generateFormCode } from "@/lib/form-code-generators/react/generate-form-code";
 import { flattenFormSteps } from "@/lib/form-elements-helpers";
+import { generateValidationCode } from "@/lib/schema-generators";
 import { getArkTypeSchemaString } from "@/lib/schema-generators/generate-arktype-schema";
 import { getValiSchemaString } from "@/lib/schema-generators/generate-valibot-schema";
 import { getZodSchemaString } from "@/lib/schema-generators/generate-zod-schema";
@@ -21,7 +22,6 @@ import {
 	generateFormNames,
 	updatePreferredPackageManager,
 } from "@/lib/utils";
-
 import type {
 	FormArray,
 	FormElement,
@@ -262,7 +262,7 @@ const CodeBlockTSX = () => {
 		formElements: formElements as FormElementOrList[],
 		isMS,
 		validationSchema,
-		settingss: settings,
+		settings,
 		formName,
 	});
 	const formattedCode = generatedCode.map((item) => ({
@@ -290,57 +290,8 @@ const CodeBlockSchema = () => {
 			formElements,
 		);
 	}, [formElements]);
-
-	const parsedFormElements = isMS
-		? flattenFormSteps(formElements as FormStep[])
-		: formElements.flat();
-
-	let generatedCode = "";
-	let stepSchemas: (FormElement | FormArray)[][] | undefined;
-
-	// Generate step schemas for multi-step forms
-	if (isMS) {
-		stepSchemas = (formElements as FormStep[]).map((step) =>
-			step.stepFields.flat(),
-		);
-	}
-
-	switch (validationSchema) {
-		case "zod":
-			generatedCode = getZodSchemaString(
-				isMS
-					? (formElements as FormStep[])
-					: (parsedFormElements as FormElement[]),
-				isMS,
-				schemaName,
-			);
-			break;
-		case "valibot":
-			generatedCode = getValiSchemaString(
-				isMS
-					? (formElements as FormStep[])
-					: (parsedFormElements as FormElement[]),
-				isMS,
-				schemaName,
-			);
-			break;
-		case "arktype":
-			generatedCode = getArkTypeSchemaString(
-				parsedFormElements as FormElement[],
-				isMS,
-				stepSchemas,
-				schemaName,
-			);
-			break;
-		default:
-			generatedCode = getZodSchemaString(
-				parsedFormElements as FormElement[],
-				isMS,
-				schemaName,
-			);
-			break;
-	}
-	const formattedCode = formatCode(generatedCode);
+	const validationCode = generateValidationCode();
+	const formattedCode = formatCode(validationCode);
 	return (
 		<div className="relative max-w-full">
 			<Wrapper title="schema.ts" language="typescript">

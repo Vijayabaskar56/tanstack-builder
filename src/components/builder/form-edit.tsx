@@ -552,8 +552,8 @@ const EditFormItem = (props: EditFormItemProps) => {
 
 	return (
 		<div className="w-full group">
-			<div className="flex items-center justify-between px-2">
-				<div className="flex items-center justify-start gap-2 size-full">
+			<div className="relative flex items-center px-2 min-h-[40px]">
+				<div className="flex items-center justify-start gap-2 pr-16 min-w-0 flex-1">
 					{isNested ? (
 						<span className="w-1" />
 					) : (
@@ -561,7 +561,7 @@ const EditFormItem = (props: EditFormItemProps) => {
 					)}
 					<span className="truncate max-w-xs md:max-w-sm">{DisplayName}</span>
 				</div>
-				<div className="flex items-center justify-end opacity-0 group-hover:opacity-100 duration-100">
+				<div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-end z-10 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 duration-100">
 					<Button
 						size="icon"
 						variant="ghost"
