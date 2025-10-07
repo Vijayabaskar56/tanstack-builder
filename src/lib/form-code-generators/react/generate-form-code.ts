@@ -132,7 +132,6 @@ export const generateFormCode = ({
 	const flattenedFormElements = isMS
 		? flattenFormSteps(formElements as FormStep[]).flat()
 		: formElements.flat();
-	const defaultValues = getDefaultValuesString();
 	const imports = Array.from(
 		generateImports(
 			flattenedFormElements as (FormElement | FormArray)[],
@@ -151,7 +150,7 @@ ${imports}
 export function ${componentName}() {
 
 const ${variableName} = useAppForm({
-  defaultValues: ${defaultValues},
+  defaultValues: ${getDefaultValuesString()},
   validationLogic: ${generateValidationLogic(settings)},
   validators: ${generateValidatorsString(settings, schemaName)},
   onSubmit : ({value}) => {
@@ -274,7 +273,7 @@ return (
     } = useFormStepper(stepSchemas);
 
     const ${variableName} = useAppForm({
-      defaultValues: ${defaultValues},
+      defaultValues: ${getDefaultValuesString()},
       validationLogic: ${generateValidationLogic(settings)},
       validators: {
         ${settings.validationMethod || "onDynamic"}: currentValidator as typeof ${schemaName},

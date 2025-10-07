@@ -7,7 +7,7 @@ export const generateImports = (
 	schemaName: string,
 ): Set<string> => {
 	const importSet = new Set([
-		`import { ${schemaName}${isMS && `, ${schemaName}Steps`} } from '@/lib/${schemaName}'`,
+		`import { ${schemaName}${isMS ? `, ${schemaName}Steps` : ''} } from '@/lib/${schemaName}'`,
 		'import { useAppForm } from "@/components/ui/tanstack-form"',
 		'import { revalidateLogic } from "@tanstack/react-form"',
 		'import { toast } from "sonner"',

@@ -290,8 +290,8 @@ export const getDefaultFormElement = (
 };
 
 export const getDefaultValuesString = () => {
-	const { validationSchema, schemaName, formElements } = useFormStore();
-	const schema = schemaName || "formSchema";
+	const { validationSchema, schemaName,formName, formElements } = useFormStore();
+	console.log("🚀 ~ getDefaultValuesString ~ schemaName:", schemaName)
 
 	// Handle multi-step forms by flattening them to a single list of elements
 	let elementsToProcess = formElements;
@@ -309,12 +309,12 @@ export const getDefaultValuesString = () => {
 
 	switch (validationSchema) {
 		case "zod":
-			return `${defaultsString} as z.input<typeof ${schema}>`;
+			return `${defaultsString} as z.input<typeof ${formName}FormSchema>`;
 		case "valibot":
-			return `${defaultsString} as v.InferInput<typeof ${schema}>`;
+			return `${defaultsString} as v.InferInput<typeof ${formName}FormSchema>`;
 		case "arktype":
-			return `${defaultsString} as typeof ${schema}.infer`;
+			return `${defaultsString} as typeof ${formName}FormSchema.infer`;
 		default:
-			return `${defaultsString} as z.input<typeof ${schema}>`;
+			return `${defaultsString} as z.input<typeof ${formName}FormSchema>`;
 	}
 };
