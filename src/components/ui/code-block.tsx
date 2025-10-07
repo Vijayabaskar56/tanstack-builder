@@ -2,6 +2,8 @@ import type React from "react";
 import { useEffect, useState } from "react";
 import { codeToHtml } from "shiki";
 import { cn } from "@/lib/utils";
+import CopyButton from "@/components/ui/copy-button";
+import { useTheme } from "@/components/theme-provider";
 
 export type CodeBlockProps = {
 	children?: React.ReactNode;
@@ -33,11 +35,23 @@ export type CodeBlockCodeProps = {
 function CodeBlockCode({
 	code,
 	language = "tsx",
-	theme = "github-dark",
+	theme: themeProp,
 	className,
 	...props
 }: CodeBlockCodeProps) {
 	const [highlightedHtml, setHighlightedHtml] = useState<string | null>(null);
+	const { theme: themeMode, systemTheme } = useTheme();
+	
+	// Auto-detect theme if not provided
+	const theme = themeProp || (
+		themeMode === "system"
+			? systemTheme === "dark"
+				? "github-dark"
+				: "github-light"
+			: themeMode === "dark"
+				? "github-dark"
+				: "github-light"
+	);
 
 	useEffect(() => {
 		async function highlight() {
@@ -53,22 +67,26 @@ function CodeBlockCode({
 	}, [code, language, theme]);
 
 	const classNames = cn(
-		"w-full [&>pre]:text-wrap text-[13px] [&>pre]:px-4 [&>pre]:py-4",
+		"w-full [&_pre]:text-wrap text-[13px] [&_pre]:px-4 [&_pre]:py-4",
 		className,
 	);
 
-	// SSR fallback: render plain code if not hydrated yet
-	return highlightedHtml ? (
-		<div
-			className={classNames}
-			dangerouslySetInnerHTML={{ __html: highlightedHtml }}
-			{...props}
-		/>
-	) : (
-		<div className={classNames} {...props}>
-			<pre>
-				<code>{code}</code>
-			</pre>
+	// Render with an inline Copy button (works for both highlighted and fallback)
+	return (
+		<div className={cn("relative group", classNames)} {...props}>
+			{/* Copy button */}
+			<div className="absolute top-2 right-2 opacity-0 transition-opacity group-hover:opacity-100">
+				<CopyButton text={code} />
+			</div>
+
+			{/* Highlighted or fallback content */}
+			{highlightedHtml ? (
+				<div dangerouslySetInnerHTML={{ __html: highlightedHtml }} />
+			) : (
+				<pre>
+					<code>{code}</code>
+				</pre>
+			)}
 		</div>
 	);
 }

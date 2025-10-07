@@ -122,7 +122,7 @@ export function CodeDialog() {
 			target: "",
 		},
 		{
-			path: `lib/${formName}.tsx`,
+			path: `lib/${schemaName}.tsx`,
 			content: validationCode,
 			type: "registry:lib",
 			target: "",
@@ -133,10 +133,12 @@ export function CodeDialog() {
 		files,
 		name: formName,
 	};
+	const url = import.meta.env.MODE === 'development' ? "http://localhost:3000" : "https://tan-form-builder.baskar.dev"
+	console.log("🚀 ~ CodeDialog ~ url:", url , import.meta.env)
 	const mutation = useMutation<CreateRegistryResponse, Error, void>({
 		mutationKey: ["/create-command", formName],
 		mutationFn: async (): Promise<CreateRegistryResponse> => {
-			const res = await fetch(`https://tan-form-builder.baskar.dev/r/${formName}`, {
+			const res = await fetch(`${url}/r/${formName}`, {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
