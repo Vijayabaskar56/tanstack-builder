@@ -1,13 +1,3 @@
-import {
-	Check,
-	CircleX,
-	Delete,
-	Edit,
-	LucideGripVertical,
-	PlusCircle,
-} from "lucide-react";
-import { Reorder, useDragControls } from "motion/react";
-import { useEffect, useRef, useState } from "react";
 import { FormElementsDropdown } from "@/components/builder/form-elements-dropdown";
 import { RenderFormElement } from "@/components/builder/render-form-element";
 import { StepContainer } from "@/components/builder/step-container";
@@ -33,7 +23,16 @@ import type {
 	FormStep,
 	Option,
 } from "@/types/form-types";
+import {
+	Check,
+	CircleX,
+	PlusCircle
+} from "lucide-react";
+import { Reorder, useDragControls } from "motion/react";
+import { useEffect, useRef, useState } from "react";
+import { LucideGripVertical } from "lucide-react";
 import { DeleteIcon } from "../ui/delete";
+import { SquarePenIcon } from "../ui/square-pen";
 import NoFieldPlaceholder from "./no-field-placeholder";
 
 const getTransitionProps = (isLayoutTransitioning: boolean) => ({
@@ -163,7 +162,7 @@ function OptionsList({
 							value={option}
 							className="flex items-center gap-2 py-2 pr-2 pl-4 border rounded-md cursor-grab active:cursor-grabbing group bg-secondary"
 						>
-							<LucideGripVertical className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+							<LucideGripVertical size={20} className="dark:text-muted-foreground text-muted-foreground" />
 							{editingIndex === index ? (
 								<>
 									<div className="flex-1 space-y-2">
@@ -240,7 +239,7 @@ function OptionsList({
 											Value: {option.value}
 										</div>
 									</div>
-									<div className="flex gap-1 opacity-0 group-hover:opacity-100 duration-200">
+									<div className="flex gap-1 lg:opacity-0 opacity-100 group-hover:opacity-100 duration-200">
 										<Button
 											type="button"
 											variant="ghost"
@@ -248,7 +247,7 @@ function OptionsList({
 											onClick={() => startEdit(index)}
 											className="size-8"
 										>
-											<Edit className="size-4" />
+											<SquarePenIcon className="size-4" />
 										</Button>
 										<Button
 											type="button"
@@ -257,7 +256,7 @@ function OptionsList({
 											onClick={() => deleteOption(index)}
 											className="size-8"
 										>
-											<Delete className="size-4" />
+											<DeleteIcon className="size-4" />
 										</Button>
 									</div>
 								</>
@@ -336,6 +335,9 @@ const FormElementEditor = ({
 						fieldIndex,
 						formApi.baseStore.state.values,
 					);
+					if(formApi.baseStore.state.values.name) {
+						formApi.baseStore.state.values.name = formApi.baseStore.state.values.name.toLowerCase().replace(/[^a-z0-9]/g, "_").replace(/_+/g, "_").replace(/^_|_$/g, "");
+					}
 					actions.editElement({
 						fieldIndex: fieldIndex,
 						modifiedFormElement: formApi.baseStore.state.values,
@@ -557,11 +559,11 @@ const EditFormItem = (props: EditFormItemProps) => {
 					{isNested ? (
 						<span className="w-1" />
 					) : (
-						<LucideGripVertical className="dark:text-muted-foreground text-muted-foreground" />
+						<LucideGripVertical size={20} className="dark:text-muted-foreground text-muted-foreground" />
 					)}
 					<span className="truncate max-w-xs md:max-w-sm">{DisplayName}</span>
 				</div>
-				<div className="flex items-center justify-end opacity-0 group-hover:opacity-100 duration-100">
+				<div className="flex items-center justify-end lg:opacity-0 opacity-100 group-hover:opacity-100 duration-100">
 					<Button
 						size="icon"
 						variant="ghost"
@@ -647,12 +649,12 @@ const FormArrayFieldItem = ({
 							onMouseDown={(e) => e.stopPropagation()}
 							className="cursor-grab active:cursor-grabbing p-1 hover:bg-muted rounded"
 						>
-							<LucideGripVertical className="dark:text-muted-foreground text-muted-foreground" />
+							<LucideGripVertical size={20} className="dark:text-muted-foreground text-muted-foreground" />
 						</button>
 					)}
 					<span className="truncate max-w-xs md:max-w-sm">{DisplayName}</span>
 				</div>
-				<div className="flex items-center justify-end opacity-0 group-hover:opacity-100 duration-100">
+				<div className="flex items-center justify-end lg:opacity-0 opacity-100 group-hover:opacity-100 duration-100">
 					<Button
 						size="icon"
 						variant="ghost"
@@ -678,7 +680,7 @@ const FormArrayFieldItem = ({
 						}}
 						className="rounded-xl h-9"
 					>
-						<Delete />
+						<DeleteIcon />
 					</Button>
 					{!isNested && mainFieldIndex !== undefined && (
 						<FormElementsDropdown
@@ -749,9 +751,9 @@ const FormArrayItemContainer = ({
 							onPointerDown={(e) => dragControls.start(e)}
 							className="cursor-grab active:cursor-grabbing p-1 hover:bg-muted rounded"
 						>
-							<LucideGripVertical className="dark:text-muted-foreground text-muted-foreground" />
+							<LucideGripVertical size={20} className="dark:text-muted-foreground text-muted-foreground" />
 						</button>
-						<Edit size={10} />
+						<SquarePenIcon size={10} />
 						<input
 							type="text"
 							className="text-sm font-medium text-muted-foreground bg-transparent border-none outline-none focus:outline-none focus:ring-0 w-auto min-w-0"
@@ -782,7 +784,7 @@ const FormArrayItemContainer = ({
 							onClick={() => actions.removeFormArray(formArrayElement.id)}
 							className="h-8 w-8 p-0 text-destructive hover:text-destructive"
 						>
-							<Delete className="h-4 w-4" />
+							<DeleteIcon className="h-4 w-4" />
 						</Button>
 					</div>
 				</div>
@@ -805,7 +807,7 @@ const FormArrayItemContainer = ({
 									layout
 									{...getTransitionProps(isLayoutTransitioning)}
 								>
-									<LucideGripVertical className="dark:text-muted-foreground text-muted-foreground" />
+									<LucideGripVertical size={20} className="dark:text-muted-foreground text-muted-foreground" />
 									<Reorder.Group
 										axis="x"
 										values={field}
@@ -962,7 +964,7 @@ export function FormEdit() {
 															<div className="px-3">
 																<div className="flex items-center justify-between mb-3">
 																	<div className="flex items-center gap-2">
-																		<LucideGripVertical className="dark:text-muted-foreground text-muted-foreground" />
+																		<LucideGripVertical size={20} className="dark:text-muted-foreground text-muted-foreground" />
 																		<span className="text-sm font-medium text-muted-foreground">
 																			Form Arrays
 																		</span>
@@ -982,7 +984,7 @@ export function FormEdit() {
 																			}
 																			className="h-8 w-8 p-0 text-destructive hover:text-destructive"
 																		>
-																			<Delete className="h-4 w-4" />
+																			<DeleteIcon className="h-4 w-4" />
 																		</Button>
 																	</div>
 																</div>
@@ -1000,7 +1002,7 @@ export function FormEdit() {
 																							isLayoutTransitioning,
 																						)}
 																					>
-																						<LucideGripVertical className="dark:text-muted-foreground text-muted-foreground" />
+																						<LucideGripVertical size={20} className="dark:text-muted-foreground text-muted-foreground" />
 																						<Reorder.Group
 																							axis="x"
 																							values={field}
@@ -1089,7 +1091,7 @@ export function FormEdit() {
 															layout
 															{...getTransitionProps(isLayoutTransitioning)}
 														>
-															<LucideGripVertical className="dark:text-muted-foreground text-muted-foreground" />
+															<LucideGripVertical size={20} className="dark:text-muted-foreground text-muted-foreground" />
 															<Reorder.Group
 																onReorder={(newOrder) => {
 																	actions.reorder({ newOrder, fieldIndex });
@@ -1187,7 +1189,7 @@ export function FormEdit() {
 										layout
 										{...getTransitionProps(isLayoutTransitioning)}
 									>
-										<LucideGripVertical className="dark:text-muted-foreground text-muted-foreground" />
+										<LucideGripVertical size={20} className="dark:text-muted-foreground text-muted-foreground" />
 										<Reorder.Group
 											axis="x"
 											onReorder={(newOrder) => {
