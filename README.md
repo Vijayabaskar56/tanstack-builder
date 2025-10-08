@@ -68,6 +68,16 @@ This project was started as a fork of [formcn.dev](https://formcn.dev) and is in
 - **Build**: Vite, Turbo
 - **Deployment**: Cloudflare Pages
 
+## Star History
+
+<a href="https://www.star-history.com/#Vijayabaskar56/tan-builder&Date">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=Vijayabaskar56/tan-builder&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=Vijayabaskar56/tan-builder&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=Vijayabaskar56/tan-builder&type=Date" />
+ </picture>
+</a>
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
