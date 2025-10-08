@@ -1,3 +1,4 @@
+import Component485 from "@/components/comp-485";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { NotFound } from "@/components/not-found";
 import { Spinner } from "@/components/ui/spinner";
@@ -42,5 +43,11 @@ function RouteComponent() {
 		return <Spinner />;
 	}
 	console.log(tableBuilder);
-	return <div>Hello "/table-builder"!</div>;
+	return (
+		<div className="flex flex-col justify-center p-10 border-border border-2 m-10 items-center gap-6">
+			<Component485 />
+			{/* <TableBuilderHeader />
+			<TableBuilder /> */}
+		</div>
+	);
 }
