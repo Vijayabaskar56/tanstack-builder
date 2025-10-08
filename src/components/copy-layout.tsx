@@ -1,5 +1,3 @@
-"use client";
-
 import { CheckIcon, TerminalIcon } from "lucide-react";
 
 import { useCopy } from "@/hooks/use-copy";

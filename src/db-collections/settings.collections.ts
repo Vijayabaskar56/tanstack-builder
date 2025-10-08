@@ -32,6 +32,7 @@ export const SettingsSchema = v.object({
 		"pnpm",
 	),
 	isCodeSidebarOpen: v.optional(v.boolean(), false),
+	autoSave : v.optional(v.boolean(), true)
 });
 
 type SettingsCollection = v.InferInput<typeof SettingsSchema>;

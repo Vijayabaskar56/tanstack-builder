@@ -1,5 +1,3 @@
-"use client";
-
 import type { Variants } from "motion/react";
 import { AnimatePresence, motion, useAnimation } from "motion/react";
 import type { HTMLAttributes } from "react";

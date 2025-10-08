@@ -1,5 +1,3 @@
-"use client";
-
 import { LoaderCircleIcon } from "lucide-react";
 import dynamic from "next/dynamic";
 import { ComponentType } from "react";

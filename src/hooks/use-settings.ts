@@ -15,6 +15,7 @@ const useSettings = () => {
 			preferredFramework: settings.preferredFramework,
 			preferredPackageManager: settings.preferredPackageManager,
 			isCodeSidebarOpen: settings.isCodeSidebarOpen,
+			autoSave : settings.autoSave,
 		})),
 	);
 

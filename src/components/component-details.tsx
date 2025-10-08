@@ -1,10 +1,4 @@
-"use client";
-
-import { CodeIcon } from "lucide-react";
-import { JSX, useEffect, useState } from "react";
-import type { RegistryItem } from "shadcn/registry";
 import ComponentCli from "@/components/cli-commands";
-import { ClientOnly } from "@/components/client-only";
 import { CodeBlockCode } from "@/components/code-block";
 import CopyRegistry from "@/components/copy-registry";
 import { Button } from "@/components/ui/button";
@@ -23,6 +17,9 @@ import {
 	TooltipProvider,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { CodeIcon } from "lucide-react";
+import { useEffect, useState } from "react";
+import type { RegistryItem } from "shadcn/registry";
 import CopyButton from "./ui/copy-button";
 
 export default function ComponentDetails({
@@ -35,19 +32,22 @@ export default function ComponentDetails({
 	showV0?: boolean;
 }) {
 	const [code, setCode] = useState<string | null>(null);
-	const [highlightedCode, setHighlightedCode] = useState<JSX.Element | null>(
-		null,
-	);
+	// Removed pre-highlighting state; CodeBlockCode handles rendering
 
 	useEffect(() => {
+		let isMounted = true;
+		const controller = new AbortController();
+
 		const handleEmptyCode = () => {
+			if (!isMounted) return;
 			setCode("");
-			setHighlightedCode(null);
 		};
 
 		const loadCode = async () => {
 			try {
-				const response = await fetch(`/r/${component.name}.json`);
+				const response = await fetch(`/r/${component.name}.json`, {
+					signal: controller.signal,
+				});
 				if (!response.ok) {
 					handleEmptyCode();
 					return;
@@ -59,32 +59,35 @@ export default function ComponentDetails({
 					return;
 				}
 
-				const data = await response.json();
-				const codeContent = data.files[0].content || "";
+				type RegistryResponse = { files?: Array<{ content?: string }> };
+				const data = (await response.json()) as RegistryResponse;
+				const codeContent = data.files?.[0]?.content ?? "";
+				if (!isMounted) return;
 				setCode(codeContent);
-
-				// Pre-highlight the code
-				const highlighted = await highlight(codeContent, "tsx");
-				setHighlightedCode(highlighted);
 			} catch (error) {
+				if ((error as any)?.name === "AbortError") return;
 				console.error("Failed to load code:", error);
 				handleEmptyCode();
 			}
 		};
 
 		loadCode();
+		return () => {
+			isMounted = false;
+			controller.abort();
+		};
 	}, [component.name]);
 
 	return (
 		<div className="absolute top-2 right-2 flex gap-1 peer-data-comp-loading:hidden">
 			{showRegistry && (
 				<CopyRegistry
-					url={`https://tan-form-builder.baskar.dev//r/${component.name}.json`}
+					url={`https://tan-form-builder.baskar.dev/r/${component.name}.json`}
 				/>
 			)}
 			{showV0 && (
 				<OpenInV0
-					componentSource={`https://tan-form-builder.baskar.dev//r/${component.name}.json`}
+					componentSource={`https://tan-form-builder.baskar.dev/r/${component.name}.json`}
 				/>
 			)}
 			<Dialog>
@@ -116,9 +119,7 @@ export default function ComponentDetails({
 						</DialogDescription>
 					</DialogHeader>
 					<div className="min-w-0 space-y-5">
-						<ClientOnly>
-							<ComponentCli name={component.name} />
-						</ClientOnly>
+						<ComponentCli name={component.name} />
 						<div className="space-y-4">
 							<p className="text-lg font-semibold tracking-tight flex justify-between w-full">
 								<span>Code</span>
@@ -140,10 +141,7 @@ export default function ComponentDetails({
 									</p>
 								) : (
 									<>
-										<CodeBlockCode
-											code={code || ''}
-											lang="tsx"
-										/>
+										<CodeBlockCode code={code || ""} lang="tsx" />
 									</>
 								)}
 							</div>

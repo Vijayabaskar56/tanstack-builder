@@ -1,5 +1,3 @@
-"use client";
-
 import { ScrollArea as ScrollAreaPrimitive } from "@base-ui-components/react/scroll-area";
 import * as React from "react";
 import { useTouchPrimary } from "@/components/ui/use-has-primary-touch";

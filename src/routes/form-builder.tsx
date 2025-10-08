@@ -1,19 +1,20 @@
 // form-builder.tsx
 
-import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import type * as v from "valibot";
 import { ErrorBoundary } from "@/components/error-boundary";
 import FormHeader from "@/components/header";
 import { NotFound } from "@/components/not-found";
 import { Spinner } from "@/components/ui/spinner";
 import { settingsCollection } from "@/db-collections/settings.collections";
 import type { FormElementsSchema } from "@/lib/search-schema";
+import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import type * as v from "valibot";
+
 export const Route = createFileRoute("/form-builder")({
 	component: FormBuilderLayout,
 	errorComponent: ErrorBoundary,
 	notFoundComponent: NotFound,
-	ssr: false,
+	ssr: true,
 	loader: ({
 		location,
 	}): v.InferOutput<typeof FormElementsSchema> | undefined => {
