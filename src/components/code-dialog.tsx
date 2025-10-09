@@ -19,6 +19,7 @@ import { ResponsiveDialog, ResponsiveDialogContent, ResponsiveDialogDescription,
 import { TerminalIcon } from "./ui/terminal";
 import { AnimatedIconButton } from "./ui/animated-icon-button";
 import * as z from "zod";
+import { logger } from "@/lib/utils";
 const formSchema = z.object({
 	formName: z.string().min(1, { message: "Form name is required" }),
 });
@@ -129,7 +130,7 @@ function CodeDialog() {
 		},
 		onSubmit: async ({}) => {
 			const result = await mutation.mutateAsync();
-			console.log("Response:", result);
+			logger("Response:", result);
 			if (result.data?.id) {
 				setGeneratedId(result.data.id);
 				setIsGenerateSuccess(true);
@@ -154,7 +155,7 @@ function CodeDialog() {
 		listeners: {
 			onChangeDebounceMs: 300,
 			onChange: ({ fieldApi }) => {
-				console.log(fieldApi.state.value);
+				logger(fieldApi.state.value);
 				fieldApi.state.value = fieldApi.state.value.toLowerCase().replace(/[^a-z0-9]/g, "").replace(/_+/g, "").replace(/^_|_$/g, "");
 				actions.setFormName(fieldApi.state.value as string);
 			},
@@ -245,4 +246,4 @@ function CodeDialog() {
 	);
 }
 
-export default CodeDialog;  
+export default CodeDialog;

@@ -16,6 +16,7 @@ import { flattenFormSteps } from "@/lib/form-elements-helpers";
 import { generateValidationCode } from "@/lib/schema-generators";
 import {
 	formatCode,
+	logger,
 	updatePreferredPackageManager,
 } from "@/lib/utils";
 import type {
@@ -232,7 +233,7 @@ const CodeBlockTSX = () => {
 	const settings = useSettings();
 
 	useEffect(() => {
-		console.log("Form elements changed, regenerating TSX code:", formElements);
+		logger("Form elements changed, regenerating TSX code:", formElements);
 	}, [formElements]);
 
 	const generatedCode = generateFormCode({
@@ -260,7 +261,7 @@ const CodeBlockSchema = () => {
 	const { formElements } = useFormStore();
 
 	useEffect(() => {
-		console.log(
+		logger(
 			"Form elements changed, regenerating schema code:",
 			formElements,
 		);

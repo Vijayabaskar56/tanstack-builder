@@ -6,6 +6,7 @@ import {
 	SettingsCollection,
 	settingsCollection,
 } from "@/db-collections/settings.collections";
+import { createIsomorphicFn } from "@tanstack/react-start";
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
@@ -154,3 +155,12 @@ export const updatePreferredPackageManager = createClientOnlyFn(
 		});
 	},
 );
+
+
+export const logger = createIsomorphicFn()
+  .server((msg: string , data?: any) => console.log(`[SERVER]: ${msg}`, data))
+  .client((msg: string, data?: any) => {
+	if(import.meta.env.DEV) {
+	console.log(`[CLIENT]: ${msg}`, data)
+	}
+  })

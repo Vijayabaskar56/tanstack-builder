@@ -14,6 +14,7 @@ import { Route as TableBuilderRouteImport } from './routes/table-builder'
 import { Route as FormRegistryRouteImport } from './routes/form-registry'
 import { Route as FormBuilderRouteImport } from './routes/form-builder'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as TableBuilderIndexRouteImport } from './routes/table-builder/index'
 import { Route as FormBuilderIndexRouteImport } from './routes/form-builder/index'
 import { Route as RIdDotjsonRouteImport } from './routes/r/$id[.]json'
 import { Route as FormBuilderShareRouteImport } from './routes/form-builder/share'
@@ -43,6 +44,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TableBuilderIndexRoute = TableBuilderIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => TableBuilderRoute,
+} as any)
 const FormBuilderIndexRoute = FormBuilderIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -63,31 +69,33 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/form-builder': typeof FormBuilderRouteWithChildren
   '/form-registry': typeof FormRegistryRoute
-  '/table-builder': typeof TableBuilderRoute
+  '/table-builder': typeof TableBuilderRouteWithChildren
   '/testing': typeof TestingRoute
   '/form-builder/share': typeof FormBuilderShareRoute
   '/r/$id.json': typeof RIdDotjsonRoute
   '/form-builder/': typeof FormBuilderIndexRoute
+  '/table-builder/': typeof TableBuilderIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/form-registry': typeof FormRegistryRoute
-  '/table-builder': typeof TableBuilderRoute
   '/testing': typeof TestingRoute
   '/form-builder/share': typeof FormBuilderShareRoute
   '/r/$id.json': typeof RIdDotjsonRoute
   '/form-builder': typeof FormBuilderIndexRoute
+  '/table-builder': typeof TableBuilderIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/form-builder': typeof FormBuilderRouteWithChildren
   '/form-registry': typeof FormRegistryRoute
-  '/table-builder': typeof TableBuilderRoute
+  '/table-builder': typeof TableBuilderRouteWithChildren
   '/testing': typeof TestingRoute
   '/form-builder/share': typeof FormBuilderShareRoute
   '/r/$id.json': typeof RIdDotjsonRoute
   '/form-builder/': typeof FormBuilderIndexRoute
+  '/table-builder/': typeof TableBuilderIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -100,15 +108,16 @@ export interface FileRouteTypes {
     | '/form-builder/share'
     | '/r/$id.json'
     | '/form-builder/'
+    | '/table-builder/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/form-registry'
-    | '/table-builder'
     | '/testing'
     | '/form-builder/share'
     | '/r/$id.json'
     | '/form-builder'
+    | '/table-builder'
   id:
     | '__root__'
     | '/'
@@ -119,13 +128,14 @@ export interface FileRouteTypes {
     | '/form-builder/share'
     | '/r/$id.json'
     | '/form-builder/'
+    | '/table-builder/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   FormBuilderRoute: typeof FormBuilderRouteWithChildren
   FormRegistryRoute: typeof FormRegistryRoute
-  TableBuilderRoute: typeof TableBuilderRoute
+  TableBuilderRoute: typeof TableBuilderRouteWithChildren
   TestingRoute: typeof TestingRoute
   RIdDotjsonRoute: typeof RIdDotjsonRoute
 }
@@ -167,6 +177,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/table-builder/': {
+      id: '/table-builder/'
+      path: '/'
+      fullPath: '/table-builder/'
+      preLoaderRoute: typeof TableBuilderIndexRouteImport
+      parentRoute: typeof TableBuilderRoute
+    }
     '/form-builder/': {
       id: '/form-builder/'
       path: '/'
@@ -205,11 +222,23 @@ const FormBuilderRouteWithChildren = FormBuilderRoute._addFileChildren(
   FormBuilderRouteChildren,
 )
 
+interface TableBuilderRouteChildren {
+  TableBuilderIndexRoute: typeof TableBuilderIndexRoute
+}
+
+const TableBuilderRouteChildren: TableBuilderRouteChildren = {
+  TableBuilderIndexRoute: TableBuilderIndexRoute,
+}
+
+const TableBuilderRouteWithChildren = TableBuilderRoute._addFileChildren(
+  TableBuilderRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   FormBuilderRoute: FormBuilderRouteWithChildren,
   FormRegistryRoute: FormRegistryRoute,
-  TableBuilderRoute: TableBuilderRoute,
+  TableBuilderRoute: TableBuilderRouteWithChildren,
   TestingRoute: TestingRoute,
   RIdDotjsonRoute: RIdDotjsonRoute,
 }

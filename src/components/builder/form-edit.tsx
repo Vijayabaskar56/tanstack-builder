@@ -15,7 +15,7 @@ import type { AppForm } from "@/hooks/use-form-builder";
 import type { FormBuilderActions } from "@/hooks/use-form-store";
 import { useFormStore, useIsMultiStep } from "@/hooks/use-form-store";
 import { useListState } from "@/hooks/use-list-state";
-import { isStatic } from "@/lib/utils";
+import { isStatic, logger } from "@/lib/utils";
 import type {
 	FormArray,
 	FormElement,
@@ -313,13 +313,16 @@ const FormElementEditor = ({
 		listeners: {
 			onChangeDebounceMs: 500,
 			onChange: ({ formApi }) => {
-				console.log("Form element changed:", formApi.baseStore.state.values);
+				logger("Form element changed:", formApi.baseStore.state.values);
 				if (isFormArrayField && arrayId) {
-					console.log(
+					logger(
 						"Updating FormArray field:",
-						arrayId,
+						{arrayId,
 						fieldIndex,
-						formApi.baseStore.state.values,
+						value :formApi.baseStore.state.values,
+						j,
+						stepIndex,
+					}
 					);
 					// Use updateTemplate: false for property-only updates
 					actions.updateFormArrayField(
@@ -330,11 +333,13 @@ const FormElementEditor = ({
 						false,
 					);
 				} else {
-					console.log(
+					logger(
 						"Updating form element:",
-						fieldIndex,
-						formApi.baseStore.state.values,
-					);
+						{fieldIndex,
+						value :formApi.baseStore.state.values,
+						j,
+						stepIndex,
+					});
 					if(formApi.baseStore.state.values.name) {
 						formApi.baseStore.state.values.name = formApi.baseStore.state.values.name.toLowerCase().replace(/[^a-z0-9]/g, "_").replace(/_+/g, "_").replace(/^_|_$/g, "");
 					}

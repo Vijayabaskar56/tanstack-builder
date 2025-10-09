@@ -269,7 +269,7 @@ export default function Component485() {
 	const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
 	const [pagination, setPagination] = useState<PaginationState>({
 		pageIndex: 0,
-		pageSize: 10,
+		pageSize: 8,
 	});
 	const inputRef = useRef<HTMLInputElement>(null);
 
@@ -404,7 +404,7 @@ export default function Component485() {
 			onDragEnd={handleDragEnd}
 			sensors={sensors}
 		>
-			<div className="space-y-4">
+			<div className="space-y-4 h-full overflow-auto">
 				{/* Filters */}
 				<div className="flex flex-wrap items-center justify-between gap-3">
 					<div className="flex items-center gap-3">
@@ -659,7 +659,7 @@ export default function Component485() {
 								<SelectValue placeholder="Select number of results" />
 							</SelectTrigger>
 							<SelectContent className="[&_*[role=option]]:ps-2 [&_*[role=option]]:pe-8 [&_*[role=option]>span]:start-auto [&_*[role=option]>span]:end-2">
-								{[5, 10, 25, 50].map((pageSize) => (
+								{[8, 10, 25, 50].map((pageSize) => (
 									<SelectItem key={pageSize} value={pageSize.toString()}>
 										{pageSize}
 									</SelectItem>
@@ -755,17 +755,6 @@ export default function Component485() {
 						</Pagination>
 					</div>
 				</div>
-				<p className="text-muted-foreground mt-4 text-center text-sm">
-					Example of a more complex table made with{" "}
-					<a
-						className="hover:text-foreground underline"
-						href="https://tanstack.com/table"
-						target="_blank"
-						rel="noopener noreferrer"
-					>
-						TanStack Table
-					</a>
-				</p>
 			</div>
 		</DndContext>
 	);

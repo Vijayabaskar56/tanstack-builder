@@ -7,13 +7,10 @@ import { getZodSchemaString } from "./generate-zod-schema";
 
 export const generateValidationCode = () => {
 	const { isMS, schemaName, validationSchema, formElements } = useFormStore();
-	console.log("🚀 ~ generateValidationCode ~ schemaName:", schemaName)
-
 	const parsedFormElements = isMS
 		? flattenFormSteps(formElements as FormStep[])
 		: formElements.flat();
 
-	let generatedCode = "";
 	let stepSchemas: (FormElement | FormArray)[][] | undefined;
 
 	// Generate step schemas for multi-step forms

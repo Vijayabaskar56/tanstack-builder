@@ -1,12 +1,9 @@
-// apps/web/src/routes/form-builder/index.tsx
-
 import { FormEdit } from "@/components/builder/form-edit";
 import { SingleStepFormPreview } from "@/components/builder/form-preview";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { NotFound } from "@/components/not-found";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { type AppForm, useFormBuilder } from "@/hooks/use-form-builder";
-import { useFormStore } from "@/hooks/use-form-store";
 import { useIsMobile } from "@/hooks/use-mobile";
 import useSettings from "@/hooks/use-settings";
 import { createFileRoute } from "@tanstack/react-router";

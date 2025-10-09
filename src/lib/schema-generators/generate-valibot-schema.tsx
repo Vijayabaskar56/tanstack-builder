@@ -1,6 +1,6 @@
 import * as v from "valibot";
 import { flattenFormSteps, getStepFields } from "@/lib/form-elements-helpers";
-import { isStatic } from "@/lib/utils";
+import { isStatic, logger } from "@/lib/utils";
 import type { FormArray, FormElement, FormStep } from "@/types/form-types";
 
 // Type definitions for Valibot schemas
@@ -187,8 +187,7 @@ export const generateValiSchemaObject = (
 	return { schemaObject, objectSchema: v.object(schemaObject) };
 };
 export const generateValiSchemaString = (schema: ValiSchema): string => {
-	// Debug: Log the schema structure to understand what we're working with
-	console.log("Schema structure:", JSON.stringify(schema, null, 2));
+	logger("Schema structure:", JSON.stringify(schema, null, 2));
 
 	// Handle pipe schemas (chained validations)
 	if (schema?.type === "pipe") {
