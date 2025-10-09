@@ -426,7 +426,7 @@ function RouteComponent() {
 				Form Composition + ShadCN Field Components to Allow Ultimate Flexibiity
 			</p>
 			<div className="flex lg:flex-row flex-col gap-3 content-center items-center">
-				<img src="/assets/anotomy-of-form.png" alt="anotomy-of-form" />
+				<img src="/assets/anotomy-of-form.avif" alt="anotomy-of-form" />
 				<ul className="list-disc list-inside mb-8 flex flex-col gap-1">
 					<li>
 						<strong>AppForm:</strong> The main form instance created with

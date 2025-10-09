@@ -114,16 +114,16 @@ const features = [
 
 const assets = {
 	one: {
-		dark: "/assets/slide-1-dark.png",
-		light: "/assets/slide-1-light.png",
+		dark: "/assets/slide-1-dark.avif",
+		light: "/assets/slide-1-light.avif",
 	},
 	two: {
-		dark: "/assets/slide-2-dark.png",
-		light: "/assets/slide-2-light.png",
+		dark: "/assets/slide-2-dark.avif",
+		light: "/assets/slide-2-light.avif",
 	},
 	three: {
-		dark: "/assets/slide-3-dark.png",
-		light: "/assets/slide-3-light.png",
+		dark: "/assets/slide-3-dark.avif",
+		light: "/assets/slide-3-light.avif",
 	},
 };
 
