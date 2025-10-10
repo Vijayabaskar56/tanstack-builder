@@ -1,26 +1,31 @@
-import { FormEdit } from "@/components/builder/form-edit";
+import { TableColumnEdit } from "@/components/table-components/table-column-edit";
 import { ErrorBoundary } from "@/components/error-boundary";
 import FileUpload from "@/components/file-upload";
 import FormHeader from "@/components/header";
 import { NotFound } from "@/components/not-found";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Spinner } from "@/components/ui/spinner";
 import { revalidateLogic, useAppForm } from "@/components/ui/tanstack-form";
 import { Textarea } from "@/components/ui/textarea";
 import { tableBuilderCollection } from "@/db-collections/table-builder.collections";
+import { detectColumns } from "@/lib/table-generator/generate-columns";
 import { useScreenSize } from "@/hooks/use-screen-size";
 import useTableStore from "@/hooks/use-table-store";
 import { cn } from "@/lib/utils";
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { createClientOnlyFn } from "@tanstack/react-start";
 import { Database, Settings, Upload } from "lucide-react";
-import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 import * as z from "zod";
+import TableHeader from "@/components/table-header";
 // Utility functions for parsing data
 const parseCSV = (csvText: string): any[] => {
 	const lines = csvText.trim().split("\n");
-	if (lines.length === 0) return [];
+	if (lines.length < 2)
+		throw new Error("CSV must have at least headers and one data row");
 
 	const headers = lines[0].split(",").map((h) => h.trim());
 	const data = lines.slice(1).map((line) => {
@@ -46,11 +51,26 @@ const parseJSON = (jsonText: string): any[] => {
 
 const initializeTableStore = createClientOnlyFn(async () => {
 	if (typeof window !== "undefined") {
-		if (!localStorage.getItem("table-builder")) {
+		// Clear old data to force re-initialization with new schema
+		localStorage.removeItem("table-builder");
+		const existing = tableBuilderCollection.get(1);
+		if (!existing) {
 			tableBuilderCollection.insert([
 				{
 					id: 1,
-					tableData: JSON.parse(localStorage.getItem("table-builder") || "[]"),
+					settings: {
+						isGlobalSearch: false,
+						enableHiding: false,
+						enableSorting: false,
+						enableResizing: false,
+						enablePinning: false,
+						enableColumnFilter: false,
+						enableGlobalFilter: false,
+					},
+					table: {
+						columns: [],
+						data: [],
+					},
 				},
 			]);
 		}
@@ -78,7 +98,7 @@ function RouteComponent() {
 	const screenSize = useScreenSize();
 	const isMdUp = screenSize.greaterThanOrEqual("md");
 	const tableBuilder = useTableStore();
-	const id = useId();
+	const [textareaText, setTextareaText] = useState("");
 	const dataForm = useAppForm({
 		defaultValues: {
 			data: [],
@@ -90,6 +110,18 @@ function RouteComponent() {
 		},
 	});
 
+	const updateTableData = useCallback((data: any[]) => {
+		const columns = detectColumns(data);
+		console.log("🚀 ~ RouteComponent ~ columns:", columns);
+		tableBuilderCollection.update(1, (draft) => {
+			draft.table = {
+				columns,
+				data,
+			};
+		});
+		console.log(tableBuilder);
+	}, []);
+
 	const handleFileUpload = useCallback(
 		(files: any[]) => {
 			const file = files[0]?.file;
@@ -98,21 +130,31 @@ function RouteComponent() {
 			const reader = new FileReader();
 			reader.onload = (e) => {
 				const text = e.target?.result as string;
+				if (text.trim() === "") {
+					dataForm.setFieldValue("data", []);
+					toast.error("The uploaded file is empty");
+					return;
+				}
 				let data: any[] = [];
 				try {
 					if (file.type === "application/json" || file.name.endsWith(".json")) {
 						data = parseJSON(text);
 					} else if (file.type === "text/csv" || file.name.endsWith(".csv")) {
 						data = parseCSV(text);
+					} else {
+						throw new Error("Unsupported file type");
 					}
 					dataForm.setFieldValue("data", data);
+					updateTableData(data);
 				} catch (error) {
-					console.error("Error parsing file:", error);
+					toast.error(
+						"Failed to parse file. Please ensure it's valid JSON or CSV.",
+					);
 				}
 			};
 			reader.readAsText(file);
 		},
-		[dataForm],
+		[dataForm, updateTableData],
 	);
 
 	const [isTableBuilderInitialized, setIsTableBuilderInitialized] =
@@ -121,6 +163,10 @@ function RouteComponent() {
 		initializeTableStore();
 		setIsTableBuilderInitialized(true);
 	}, []);
+
+	useEffect(() => {
+		setTextareaText(JSON.stringify(dataForm.state.values.data || [], null, 2));
+	}, [dataForm.state.values.data]);
 	// On breakpoint changes, set sensible defaults:
 	// - tablet/mobile (<md): collapse to min (200px)
 	// - laptop/desktop (>=md): default to 1/3 of available width
@@ -201,13 +247,75 @@ function RouteComponent() {
 									<div className="text-center">or Past CSV or JSON Data</div>
 									{/* Global Settings Section */}
 									{/* TODO: */}
-									{/* Row Level Settings Section */}
-									<FormEdit />
+									<dataForm.AppForm>
+										<dataForm.Form>
+											<dataForm.AppField name={"data"}>
+												{(field) => (
+													<field.FieldSet className="w-full">
+														<field.Field>
+															<field.FieldLabel htmlFor={"data"}>
+																Textarea *
+															</field.FieldLabel>
+															<div className="*:not-first:mt-2">
+																<Textarea
+																	placeholder="Enter your text"
+																	onBlur={() => {
+																		if (textareaText.trim() === "") {
+																			dataForm.setFieldValue("data", []);
+																			field.handleBlur();
+																			return;
+																		}
+																		try {
+																			let parsed;
+																			try {
+																				parsed = parseJSON(textareaText);
+																			} catch {
+																				parsed = parseCSV(textareaText);
+																			}
+																			dataForm.setFieldValue("data", parsed);
+																			updateTableData(parsed);
+																		} catch {
+																			toast.error("Invalid JSON or CSV format");
+																			setTextareaText(
+																				JSON.stringify(
+																					dataForm.state.values.data || [],
+																					null,
+																					2,
+																				),
+																			);
+																		}
+																		field.handleBlur();
+																	}}
+																	aria-invalid={
+																		!!field.state.meta.errors.length
+																	}
+																	required={true}
+																	disabled={false}
+																	value={textareaText}
+																	name={"data"}
+																	onChange={(e) =>
+																		setTextareaText(e.target.value)
+																	}
+																	className="field-sizing-content max-h-29.5 min-h-0 resize-none py-1.75"
+																/>
+															</div>
+															<field.FieldDescription>
+																A multi-line text input field
+															</field.FieldDescription>
+														</field.Field>
+														<field.FieldError />
+													</field.FieldSet>
+												)}
+											</dataForm.AppField>
+										</dataForm.Form>
+									</dataForm.AppForm>
+
+									{/* Table Column Settings Section */}
+									<TableColumnEdit />
 								</div>
 							</ScrollArea>
 						) : (
 							<div>
-								{/* Upload Data Section */}
 								<dataForm.AppForm>
 									<dataForm.Form>
 										<dataForm.AppField name={"data"}>
@@ -217,39 +325,50 @@ function RouteComponent() {
 														<field.FieldLabel htmlFor={"data"}>
 															Textarea *
 														</field.FieldLabel>
-														<FileUpload onFilesAdded={handleFileUpload} />
-														<field.FieldDescription>
-															A multi-line text input field
-														</field.FieldDescription>
-													</field.Field>
-													<field.FieldError />
-												</field.FieldSet>
-											)}
-										</dataForm.AppField>
-									</dataForm.Form>
-								</dataForm.AppForm>
-								<dataForm.AppForm>
-									<dataForm.Form>
-										<dataForm.AppField name={"data"}>
-											{(field) => (
-												<field.FieldSet className="w-full">
-													<field.Field>
-														<field.FieldLabel htmlFor={"data"}>
-															Textarea *
-														</field.FieldLabel>
-														<Textarea />
 														<div className="*:not-first:mt-2">
 															<Textarea
 																placeholder="Enter your text"
-																onBlur={field.handleBlur}
 																aria-invalid={!!field.state.meta.errors.length}
 																required={true}
 																disabled={false}
-																value={field.state.value}
+																value={textareaText}
 																name={"data"}
-																// onChange={(e) => field.handleChange()}
+																onChange={(e) =>
+																	setTextareaText(e.target.value)
+																}
 																className="field-sizing-content max-h-29.5 min-h-0 resize-none py-1.75"
 															/>
+															<Button
+																type="button"
+																variant="outline"
+																size="sm"
+																onClick={() => {
+																	if (textareaText.trim() === "") {
+																		dataForm.setFieldValue("data", []);
+																		updateTableData([]);
+																		return;
+																	}
+																	try {
+																		let parsed;
+																		try {
+																			parsed = parseJSON(textareaText);
+																		} catch {
+																			parsed = parseCSV(textareaText);
+																		}
+																		dataForm.setFieldValue("data", parsed);
+																		updateTableData(parsed);
+																		toast.success(
+																			"Data processed successfully",
+																		);
+																	} catch (error) {
+																		toast.error("Invalid JSON or CSV format");
+																		console.error("Parsing error:", error);
+																	}
+																}}
+																className="mt-2"
+															>
+																Process Data
+															</Button>
 														</div>
 														<field.FieldDescription>
 															A multi-line text input field
@@ -357,7 +476,7 @@ function RouteComponent() {
 					)}
 
 					<div className="flex-1 flex min-h-0 min-w-0 flex-col">
-						<FormHeader />
+						<TableHeader />
 						{isMdUp ? (
 							<ScrollArea className="flex-1 min-h-0 min-w-0">
 								<Outlet />

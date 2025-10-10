@@ -29,10 +29,8 @@ import {
 	Column,
 	ColumnDef,
 	ColumnFiltersState,
-	FilterFn,
 	flexRender,
 	getCoreRowModel,
-	getFacetedUniqueValues,
 	getFilteredRowModel,
 	getPaginationRowModel,
 	getSortedRowModel,
@@ -43,6 +41,7 @@ import {
 	useReactTable,
 	VisibilityState,
 } from "@tanstack/react-table";
+
 import {
 	ArrowLeftToLineIcon,
 	ArrowRightToLineIcon,
@@ -65,6 +64,11 @@ import {
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import {
+	detectColumns,
+	generateColumns,
+} from "@/lib/table-generator/generate-columns";
+import { JsonData } from "@/types/table-types";
 
 // Helper function to compute pinning styles for columns
 const getPinningStyles = (column: Column<any>): CSSProperties => {
@@ -88,7 +92,7 @@ import {
 	AlertDialogTitle,
 	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Badge } from "@/components/ui/badge";
+
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -133,168 +137,31 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-
-type Item = {
-	id: string;
-	name: string;
-	email: string;
-	location: string;
-	flag: string;
-	status: "Active" | "Inactive" | "Pending";
-	balance: number;
-};
-
-// Custom filter function for multi-column searching
-const multiColumnFilterFn: FilterFn<Item> = (row, _columnId, filterValue) => {
-	const searchableRowContent =
-		`${row.original.name} ${row.original.email}`.toLowerCase();
-	const searchTerm = (filterValue ?? "").toLowerCase();
-	return searchableRowContent.includes(searchTerm);
-};
-
-const statusFilterFn: FilterFn<Item> = (
-	row,
-	columnId,
-	filterValue: string[],
-) => {
-	if (!filterValue?.length) return true;
-	const status = row.getValue(columnId) as string;
-	return filterValue.includes(status);
-};
-
-const columns: ColumnDef<Item>[] = [
-	{
-		id: "select",
-		header: ({ table }) => (
-			<Checkbox
-				checked={
-					table.getIsAllPageRowsSelected() ||
-					(table.getIsSomePageRowsSelected() && "indeterminate")
-				}
-				onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-				aria-label="Select all"
-			/>
-		),
-		cell: ({ row }) => (
-			<Checkbox
-				checked={row.getIsSelected()}
-				onCheckedChange={(value) => row.toggleSelected(!!value)}
-				aria-label="Select row"
-			/>
-		),
-		size: 28,
-		enableSorting: false,
-		enableHiding: false,
-		enableResizing: false,
-		enablePinning: false,
-		enableColumnFilter: false,
-		enableGlobalFilter: false,
-	},
-	{
-		header: "Name",
-		accessorKey: "name",
-		cell: ({ row }) => (
-			<div className="font-medium">{row.getValue("name")}</div>
-		),
-		size: 180,
-		filterFn: multiColumnFilterFn,
-		enableHiding: false,
-	},
-	{
-		header: "Email",
-		accessorKey: "email",
-		size: 220,
-	},
-	{
-		header: "Location",
-		accessorKey: "location",
-		cell: ({ row }) => (
-			<div>
-				<span className="text-lg leading-none">{row.original.flag}</span>{" "}
-				{row.getValue("location")}
-			</div>
-		),
-		size: 180,
-	},
-	{
-		header: "Status",
-		accessorKey: "status",
-		cell: ({ row }) => (
-			<Badge
-				className={cn(
-					row.getValue("status") === "Inactive" &&
-						"bg-muted-foreground/60 text-primary-foreground",
-				)}
-			>
-				{row.getValue("status")}
-			</Badge>
-		),
-		size: 100,
-		filterFn: statusFilterFn,
-	},
-	{
-		header: "Performance",
-		accessorKey: "performance",
-	},
-	{
-		header: "Balance",
-		accessorKey: "balance",
-		cell: ({ row }) => {
-			const amount = parseFloat(row.getValue("balance"));
-			const formatted = new Intl.NumberFormat("en-US", {
-				style: "currency",
-				currency: "USD",
-			}).format(amount);
-			return formatted;
-		},
-		size: 120,
-	},
-	{
-		id: "actions",
-		header: () => <span className="sr-only">Actions</span>,
-		cell: ({ row }) => <RowActions row={row} />,
-		size: 60,
-		enableHiding: false,
-		enableSorting: false,
-		enableResizing: false,
-		enablePinning: false,
-		enableColumnFilter: false,
-		enableGlobalFilter: false,
-	},
-];
+import useTableStore from "@/hooks/use-table-store";
 
 export default function Component485() {
 	const id = useId();
 	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 	const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+	const tableData = useTableStore();
 	const [pagination, setPagination] = useState<PaginationState>({
 		pageIndex: 0,
 		pageSize: 8,
 	});
 	const inputRef = useRef<HTMLInputElement>(null);
 
-	const [sorting, setSorting] = useState<SortingState>([
-		{
-			id: "name",
-			desc: false,
-		},
-	]);
+	const [sorting, setSorting] = useState<SortingState>([]);
 
-	const [columnOrder, setColumnOrder] = useState<string[]>(
-		columns.map((column) => column.id as string),
+	const [columnOrder, setColumnOrder] = useState<string[]>([]);
+
+	const [data, setData] = useState<JsonData[]>([]);
+	const columns = useMemo(
+		() => generateColumns(tableData.table.columns, tableData.settings),
+		[tableData.table.columns, tableData.settings],
 	);
-
-	const [data, setData] = useState<Item[]>([]);
 	useEffect(() => {
-		async function fetchPosts() {
-			const res = await fetch(
-				"https://raw.githubusercontent.com/origin-space/origin-images/refs/heads/main/users-01_fertyx.json",
-			);
-			const data = (await res.json()) as Item[];
-			setData(data);
-		}
-		fetchPosts();
-	}, []);
+		setData(tableData.table.data as JsonData[]);
+	}, [tableData.table.data]);
 
 	const handleDeleteRows = () => {
 		const selectedRows = table.getSelectedRowModel().rows;
@@ -318,8 +185,8 @@ export default function Component485() {
 		onColumnFiltersChange: setColumnFilters,
 		onColumnVisibilityChange: setColumnVisibility,
 		getFilteredRowModel: getFilteredRowModel(),
-		getFacetedUniqueValues: getFacetedUniqueValues(),
 		enableColumnPinning: true,
+		enableGlobalFilter: true,
 		state: {
 			sorting,
 			pagination,
@@ -760,69 +627,10 @@ export default function Component485() {
 	);
 }
 
-function RowActions({ row: _row }: { row: Row<Item> }) {
-	return (
-		<DropdownMenu>
-			<DropdownMenuTrigger asChild>
-				<div className="flex justify-end">
-					<Button
-						size="icon"
-						variant="ghost"
-						className="shadow-none"
-						aria-label="Edit item"
-					>
-						<EllipsisIcon size={16} aria-hidden="true" />
-					</Button>
-				</div>
-			</DropdownMenuTrigger>
-			<DropdownMenuContent align="end">
-				<DropdownMenuGroup>
-					<DropdownMenuItem>
-						<span>Edit</span>
-						<DropdownMenuShortcut>⌘E</DropdownMenuShortcut>
-					</DropdownMenuItem>
-					<DropdownMenuItem>
-						<span>Duplicate</span>
-						<DropdownMenuShortcut>⌘D</DropdownMenuShortcut>
-					</DropdownMenuItem>
-				</DropdownMenuGroup>
-				<DropdownMenuSeparator />
-				<DropdownMenuGroup>
-					<DropdownMenuItem>
-						<span>Archive</span>
-						<DropdownMenuShortcut>⌘A</DropdownMenuShortcut>
-					</DropdownMenuItem>
-					<DropdownMenuSub>
-						<DropdownMenuSubTrigger>More</DropdownMenuSubTrigger>
-						<DropdownMenuPortal>
-							<DropdownMenuSubContent>
-								<DropdownMenuItem>Move to project</DropdownMenuItem>
-								<DropdownMenuItem>Move to folder</DropdownMenuItem>
-								<DropdownMenuSeparator />
-								<DropdownMenuItem>Advanced options</DropdownMenuItem>
-							</DropdownMenuSubContent>
-						</DropdownMenuPortal>
-					</DropdownMenuSub>
-				</DropdownMenuGroup>
-				<DropdownMenuSeparator />
-				<DropdownMenuGroup>
-					<DropdownMenuItem>Share</DropdownMenuItem>
-					<DropdownMenuItem>Add to favorites</DropdownMenuItem>
-				</DropdownMenuGroup>
-				<DropdownMenuSeparator />
-				<DropdownMenuItem className="text-destructive focus:text-destructive">
-					<span>Delete</span>
-					<DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
-				</DropdownMenuItem>
-			</DropdownMenuContent>
-		</DropdownMenu>
-	);
-}
-
 const DraggableTableHeader = ({
 	header,
 }: {
-	header: Header<Item, unknown>;
+	header: Header<JsonData, unknown>;
 }) => {
 	// Check if this column should be draggable (not select or actions)
 	const isDraggable =
@@ -1038,7 +846,7 @@ const DraggableTableHeader = ({
 	);
 };
 
-const DragAlongCell = ({ cell }: { cell: Cell<Item, unknown> }) => {
+const DragAlongCell = ({ cell }: { cell: Cell<JsonData, unknown> }) => {
 	// Check if this column should be draggable (not select or actions)
 	const isDraggable =
 		cell.column.id !== "select" && cell.column.id !== "actions";
